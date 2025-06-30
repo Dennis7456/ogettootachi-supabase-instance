@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -24,19 +24,26 @@ serve(async (req) => {
       throw new Error('Authorization header required')
     }
 
-    const supabase = createClient(
+    // Create client with anon key for auth verification
+    const supabaseAnon = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
+    // Create client with service role for database operations
+    const supabaseService = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
     // Verify JWT and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''))
+    const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(authHeader.replace('Bearer ', ''))
     if (authError || !user) {
       throw new Error('Invalid token')
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAnon
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -49,8 +56,8 @@ serve(async (req) => {
     // Generate embedding using OpenAI
     const embedding = await generateEmbedding(content)
     
-    // Insert into database
-    const { data, error } = await supabase
+    // Insert into database using service role (bypasses RLS)
+    const { data, error } = await supabaseService
       .from('documents')
       .insert({
         title,
@@ -69,9 +76,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
-    console.error('Process document error:', error)
+    console.error('Process document error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error, message: error.message }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

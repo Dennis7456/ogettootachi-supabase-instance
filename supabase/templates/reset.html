@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password - Ogetto, Otachi & Company Advocates</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .tagline {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .message {
+            font-size: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .warning {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .link {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+        .expiry {
+            background-color: #f1f5f9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Ogetto, Otachi & Company Advocates</div>
+            <div class="tagline">Excellence in Legal Services</div>
+        </div>
+        
+        <div class="content">
+            <h1 class="title">Reset Your Password</h1>
+            
+            <p class="message">
+                Hello,<br><br>
+                We received a request to reset your password for your account at Ogetto, Otachi & Company Advocates. 
+                If you didn't make this request, you can safely ignore this email.
+            </p>
+            
+            <div class="button-container">
+                <a href="{{ .ConfirmationURL }}" class="button">
+                    Reset Password
+                </a>
+            </div>
+            
+            <div class="warning">
+                <strong>Security Notice:</strong> This link will expire in 1 hour for your security. 
+                If you need to reset your password after the link expires, please request a new one.
+            </div>
+            
+            <div class="expiry">
+                <strong>Link expires:</strong> {{ .TokenHash }}
+            </div>
+            
+            <p style="text-align: center; margin-top: 30px; color: #64748b;">
+                If the button above doesn't work, you can copy and paste this link into your browser:<br>
+                <a href="{{ .ConfirmationURL }}" class="link">{{ .ConfirmationURL }}</a>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>
+                This email was sent to {{ .Email }}. If you didn't request a password reset, 
+                please contact our support team immediately.
+            </p>
+            <p style="margin-top: 15px;">
+                <strong>Ogetto, Otachi & Company Advocates</strong><br>
+                Professional Legal Services<br>
+                Email: info@ogettootachi.com
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

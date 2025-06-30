@@ -1,0 +1,35 @@
+-- Enable RLS on storage.objects
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow authenticated users to upload files to blog-images bucket
+CREATE POLICY "Allow authenticated users to upload blog images" ON storage.objects
+    FOR INSERT WITH CHECK (
+        bucket_id = 'blog-images' 
+        AND auth.role() = 'authenticated'
+    );
+
+-- Policy to allow public read access to blog-images bucket
+CREATE POLICY "Allow public read access to blog images" ON storage.objects
+    FOR SELECT USING (
+        bucket_id = 'blog-images'
+    );
+
+-- Policy to allow authenticated users to update their own files
+CREATE POLICY "Allow authenticated users to update blog images" ON storage.objects
+    FOR UPDATE USING (
+        bucket_id = 'blog-images' 
+        AND auth.role() = 'authenticated'
+    );
+
+-- Policy to allow authenticated users to delete files from blog-images bucket
+CREATE POLICY "Allow authenticated users to delete blog images" ON storage.objects
+    FOR DELETE USING (
+        bucket_id = 'blog-images' 
+        AND auth.role() = 'authenticated'
+    );
+
+-- Add comments for documentation
+COMMENT ON POLICY "Allow authenticated users to upload blog images" ON storage.objects IS 'Allows authenticated users to upload images to the blog-images bucket';
+COMMENT ON POLICY "Allow public read access to blog images" ON storage.objects IS 'Allows public read access to images in the blog-images bucket';
+COMMENT ON POLICY "Allow authenticated users to update blog images" ON storage.objects IS 'Allows authenticated users to update images in the blog-images bucket';
+COMMENT ON POLICY "Allow authenticated users to delete blog images" ON storage.objects IS 'Allows authenticated users to delete images from the blog-images bucket'; 

@@ -7,16 +7,30 @@
     "setup": "node scripts/setup-tdd.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:functions": "vitest run tests/functions/",
+    "test:functions:watch": "vitest tests/functions/",
+    "test:appointments": "vitest run tests/functions/appointments.test.ts",
+    "test:contact": "vitest run tests/functions/contact.test.ts",
+    "test:chatbot": "vitest run tests/functions/chatbot.test.ts",
+    "test:process-document": "vitest run tests/functions/process-document.test.ts",
+    "test:all": "npm run test:appointments && npm run test:contact && npm run test:chatbot && npm run test:process-document",
+    "test:edge": "node scripts/test-edge-functions.js",
+    "test:coverage": "vitest run --coverage",
+    "test:performance": "node scripts/performance-monitor.js",
     "migrate": "supabase db push",
-    "deploy-functions": "supabase functions deploy chatbot && supabase functions deploy process-document",
+    "deploy-functions": "supabase functions deploy chatbot && supabase functions deploy process-document && supabase functions deploy appointments && supabase functions deploy contact",
+    "deploy-all": "npm run migrate && npm run deploy-functions",
     "reset": "supabase db reset",
-    "status": "supabase status"
+    "status": "supabase status",
+    "logs": "supabase functions logs",
+    "docs": "echo 'API documentation available in API_DOCUMENTATION.md'"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.50.2",
     "dotenv": "^16.5.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
     "vitest": "^2.1.8"
   },
   "engines": {

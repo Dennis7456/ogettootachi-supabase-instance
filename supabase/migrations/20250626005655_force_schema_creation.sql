@@ -4,7 +4,8 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Create profiles table for user metadata
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  full_name TEXT,
+  first_name TEXT,
+  last_name TEXT,
   role TEXT DEFAULT 'user',
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -159,7 +160,7 @@ CREATE POLICY "Public files are uploadable by authenticated users" ON storage.ob
   FOR INSERT WITH CHECK (bucket_id = 'public' AND auth.role() = 'authenticated');
 
 -- Function to handle new user signup (simplified approach)
-CREATE OR REPLACE FUNCTION create_user_profile(user_id UUID, full_name TEXT DEFAULT '', user_role TEXT DEFAULT 'user')
+CREATE OR REPLACE FUNCTION create_user_profile(user_id UUID, first_name TEXT DEFAULT '', last_name TEXT DEFAULT '', user_role TEXT DEFAULT 'user')
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -172,8 +173,8 @@ BEGIN
   END IF;
   
   -- Insert new profile
-  INSERT INTO profiles (id, full_name, role, is_active)
-  VALUES (user_id, full_name, user_role, true);
+  INSERT INTO profiles (id, first_name, last_name, role, is_active)
+  VALUES (user_id, first_name, last_name, user_role, true);
   
   RAISE NOTICE 'Profile created for user ID: %', user_id;
   RETURN TRUE;
@@ -185,9 +186,9 @@ END;
 $$;
 
 -- Grant execute permissions
-GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT) TO service_role;
-GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT) TO authenticated;
-GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT) TO anon;
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, TEXT) TO service_role;
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT, TEXT) TO anon;
 
 -- Helper function to check if vector extension is enabled
 CREATE OR REPLACE FUNCTION check_vector_extension()
