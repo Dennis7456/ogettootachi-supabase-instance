@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2. Make sure bash scripts can run
+      # 2. Make sure the script can run
       - name: Ensure backup script is executable
         run: chmod +x ./backup_supabase.sh
 
@@ -25,15 +25,15 @@ jobs:
       # 4. Run your backup script
       - name: Run backup_supabase.sh
         env:
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_PROJECT_REF:        ${{ secrets.SUPABASE_PROJECT_REF }}
-        run: |
-          ./backup_supabase.sh
+          # these need to be set in your repo secrets
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_POOLER_URL:   ${{ secrets.SUPABASE_POOLER_URL }}
+        run: ./backup_supabase.sh
 
-      # 5. Upload the generated .sql files as artifacts (retained 7 days)
+      # 5. Upload the generated .dump files as artifacts (retained 90 days)
       - name: Upload backups
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: supabase-backups-${{ github.run_id }}
-          path: backups/*.sql
-          retention-days: 7
+          path: backups/**/*.dump
+          retention-days: 90

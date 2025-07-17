@@ -1,44 +1,56 @@
+# backup_supabase.sh
 #!/usr/bin/env bash
 set -euo pipefail
 
-# === CONFIGURATION ===
-# Load environment variables from .env if it exists
+# === LOAD ENVIRONMENT ===
 if [ -f .env ]; then
-  # only export non-commented lines like VAR=value
+  # export all non-comment lines like VAR=value
   export $(grep -v '^\s*#' .env | xargs)
 fi
 
-# These must be set in your environment or .env:
-# SUPABASE_SERVICE_ROLE_KEY
-# SUPABASE_PROJECT_REF
+# === REQUIREMENTS ===
+: "${SUPABASE_PROJECT_REF:?Error: SUPABASE_PROJECT_REF is not set}"
+: "${SUPABASE_POOLER_HOST:?Error: SUPABASE_POOLER_HOST is not set}"
+: "${SUPABASE_POOLER_PORT:?Error: SUPABASE_POOLER_PORT is not set}"
+: "${SUPABASE_DB_USER:?Error: SUPABASE_DB_USER is not set}"
+: "${SUPABASE_DB_PASSWORD:?Error: SUPABASE_DB_PASSWORD is not set}"
 
-SUPABASE_DB_URL="postgres://service_role:${SUPABASE_SERVICE_ROLE_KEY}@db.${SUPABASE_PROJECT_REF}.supabase.co:5432/postgres?sslmode=require"
+# Backup settings
 BACKUP_DIR="backups"
-RETENTION=7   # Number of most recent backups to keep
+RETENTION=7   # keep the 7 most recent
 
-# === SCRIPT START ===
+# Show what we’re doing
+echo "Project Ref: $SUPABASE_PROJECT_REF"
+echo "Using pg_dump version: $(pg_dump --version)"
 
-# Debug (optional): show loaded vars
-echo "Project Ref: ${SUPABASE_PROJECT_REF}"
-echo "Service Role Key (first 20 chars): ${SUPABASE_SERVICE_ROLE_KEY:0:20}..."
+# Determine DB name and user
+DB_NAME="${SUPABASE_DB_NAME:-postgres}"
+DB_USER="$SUPABASE_DB_USER"
 
-# Create backup directory if it doesn't exist
+# Provide password to pg_dump/psql
+export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+
+# Prepare output directory
 mkdir -p "$BACKUP_DIR"
-
-# Generate timestamped filename
 TIMESTAMP=$(date +'%F_%H%M')
-BACKUP_FILE="${BACKUP_DIR}/supabase_backup_${TIMESTAMP}.sql"
+BACKUP_FILE="$BACKUP_DIR/supabase_backup_${TIMESTAMP}.dump"
 
-# Run the backup
-echo "Starting Supabase backup to $BACKUP_FILE ..."
-supabase db dump --db-url "$SUPABASE_DB_URL" --file "$BACKUP_FILE"
+echo "Starting pg_dump to $BACKUP_FILE …"
+pg_dump \
+  --host="$SUPABASE_POOLER_HOST" \
+  --port="$SUPABASE_POOLER_PORT" \
+  --username="$DB_USER" \
+  --dbname="$DB_NAME" \
+  --format=custom \
+  --verbose \
+  --file="$BACKUP_FILE"
 
-echo "Backup successful: $BACKUP_FILE"
+echo "✅ Backup successful: $BACKUP_FILE"
 
-# Retention: delete older backups, keep only the latest $RETENTION files
-echo "Cleaning up old backups (keeping $RETENTION most recent)..."
-ls -1t "${BACKUP_DIR}"/supabase_backup_*.sql \
+# Retention: delete older dumps
+echo "Cleaning up old backups (keeping $RETENTION)…"
+ls -1t "$BACKUP_DIR"/supabase_backup_*.dump \
   | tail -n +$((RETENTION+1)) \
   | xargs -r rm --
 
-echo "Done."
+echo "All done."
