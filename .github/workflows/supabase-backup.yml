@@ -1,10 +1,10 @@
 name: 🗄️ Supabase Backup
 
 on:
-  # Run every day at 00:00 UTC
+  # daily at 00:00 UTC
   schedule:
     - cron: '0 0 * * *'
-  # Allow manual trigger
+  # manual trigger
   workflow_dispatch:
 
 jobs:
@@ -12,21 +12,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out the repository
+      # 1. Checkout your repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Ensure the backup script is executable
+      # 2. Install PostgreSQL 17 client to match your server version
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+
+      # 3. Ensure your backup script is executable
       - name: Make backup script executable
         run: chmod +x ./backup_supabase.sh
 
-      # 3. Install the Supabase CLI
+      # 4. Install the Supabase CLI (optional if you need it for other tasks)
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
-      # 4. Run the backup, passing in all required env vars
+      # 5. Run your backup script, passing all required env vars
       - name: Run backup_supabase.sh
         env:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
@@ -34,11 +40,11 @@ jobs:
           SUPABASE_POOLER_PORT: ${{ secrets.SUPABASE_POOLER_PORT }}
           SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          # Optionally override the target database name:
+          # (Optional) override the target database name if needed
           # SUPABASE_DB_NAME: postgres
         run: ./backup_supabase.sh
 
-      # 5. Upload the generated dumps as build artifacts (keep for 90 days)
+      # 6. Upload the dumps as artifacts (keep them for 90 days)
       - name: Upload backups
         uses: actions/upload-artifact@v4
         with:
