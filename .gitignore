@@ -75,3 +75,6 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Database backups (contain sensitive data)
+backups/
