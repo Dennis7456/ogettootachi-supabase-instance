@@ -207,6 +207,125 @@ async function generateResponse(message: string, documents: any[], session_id?: 
   // Info intent: blend documents and answer
   if (intent === 'info') {
     let docSummary = blendDocuments(documents);
+    
+    // Check if it's a practice areas question
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes('practice area') || lowerMessage.includes('practice areas') || 
+        lowerMessage.includes('services') || lowerMessage.includes('offer') ||
+        lowerMessage.includes('specialties') || lowerMessage.includes('expertise')) {
+      
+      const practiceAreasResponse = `Based on our firm's expertise, Ogetto, Otachi & Company Advocates offers comprehensive legal services across multiple practice areas:
+
+**Constitutional Law**
+Expert representation in constitutional matters and human rights cases, including constitutional interpretation, judicial review proceedings, and public interest litigation.
+
+**Commercial Law**
+Comprehensive legal solutions for businesses and commercial transactions, including contract drafting, mergers and acquisitions, and commercial dispute resolution.
+
+**International Criminal Law**
+Specialized expertise in international tribunals and criminal proceedings, with representation before the International Criminal Court at The Hague and other international courts.
+
+**Corporate Law**
+Strategic legal counsel for corporate governance and compliance, including company formation, board advisory services, and regulatory compliance.
+
+**Additional Services**
+We also provide expertise in Litigation, Legal Advisory Services, Public Law, and International Law.
+
+${docSummary ? `\n\nAdditional information from our resources:\n${docSummary}` : ''}
+
+Would you like to schedule a consultation to discuss your specific legal needs?`;
+      
+      return { response: practiceAreasResponse, tokens_used: practiceAreasResponse.split(' ').length };
+    }
+    
+    // Check if it's about what makes the firm unique
+    if (lowerMessage.includes('unique') || lowerMessage.includes('different') || 
+        lowerMessage.includes('special') || lowerMessage.includes('distinctive') ||
+        lowerMessage.includes('stand out') || lowerMessage.includes('competitive advantage')) {
+      
+      const uniqueResponse = `Ogetto, Otachi & Company Advocates stands out for several distinctive qualities that set us apart:
+
+**Distinguished Leadership**
+Our founding partners bring exceptional credentials:
+• Mr. Kennedy Ogeto - Former Solicitor General of Kenya (2018-2023)
+• Mr. Gershom Otachi Bw'Omanwa - Chairman of Kenya's National Land Commission (2019-Present)
+
+**International Prestige**
+We have represented clients before prestigious international courts:
+• International Criminal Court (ICC) at The Hague
+• UN Rwanda Tribunal
+• Special Court for Sierra Leone
+
+**Unique Combination of Expertise**
+• Deep local knowledge combined with international experience
+• Government service background providing insider understanding
+• Specialized expertise in constitutional and international criminal law
+• Established since 2007 with proven track record
+
+**Comprehensive Service Approach**
+• Full-service legal practice across multiple specialties
+• Client-focused approach with personalized attention
+• Commitment to excellence and professional integrity
+• Strategic thinking combined with practical legal solutions
+
+**Proven Track Record**
+• Over 16 years of successful legal practice
+• Hundreds of cases handled with high success rates
+• Strong reputation in both local and international legal communities
+
+This unique combination of government experience, international expertise, and local knowledge makes us the preferred choice for complex legal matters requiring both local insight and international perspective.
+
+Would you like to learn more about our specific practice areas or schedule a consultation?`;
+      
+      return { response: uniqueResponse, tokens_used: uniqueResponse.split(' ').length };
+    }
+    
+    // Check if it's about international cases
+    if (lowerMessage.includes('international') || lowerMessage.includes('global') || 
+        lowerMessage.includes('cross-border') || lowerMessage.includes('foreign') ||
+        lowerMessage.includes('icc') || lowerMessage.includes('hague') ||
+        lowerMessage.includes('tribunal') || lowerMessage.includes('un')) {
+      
+      const internationalResponse = `Yes, Ogetto, Otachi & Company Advocates has extensive experience handling international cases and is recognized for our international legal expertise:
+
+**International Criminal Court (ICC) Representation**
+• We have represented clients before the International Criminal Court at The Hague
+• Our team has deep understanding of international criminal law and procedures
+• Experience with complex international criminal proceedings
+
+**International Tribunal Experience**
+• UN Rwanda Tribunal representation
+• Special Court for Sierra Leone cases
+• Expertise in international humanitarian law
+
+**International Legal Services**
+• Cross-border legal disputes and litigation
+• International commercial arbitration
+• Extradition matters and international legal cooperation
+• International treaty interpretation and application
+• Cross-border corporate transactions
+
+**Specialized International Expertise**
+• International criminal defense
+• International human rights law
+• International commercial law
+• Cross-border regulatory compliance
+• International legal research and analysis
+
+**Why Choose Us for International Cases**
+• Founding partners with government and international experience
+• Proven track record in prestigious international courts
+• Deep understanding of both local and international legal systems
+• Network of international legal contacts and resources
+• Multilingual capabilities and cultural sensitivity
+
+Our international experience, combined with our local expertise, makes us uniquely qualified to handle complex international legal matters that require both global perspective and local knowledge.
+
+Would you like to discuss your specific international legal matter or schedule a consultation?`;
+      
+      return { response: internationalResponse, tokens_used: internationalResponse.split(' ').length };
+    }
+    
     let answer = docSummary
       ? `Here's what I found from our internal resources:\n${docSummary}\n\nIf you'd like more details or a summary by email, just let me know!`
       : `I couldn't find a direct answer in our internal documents, but I'm here to help. Could you clarify your question or ask about a specific service, policy, or team member?`;
