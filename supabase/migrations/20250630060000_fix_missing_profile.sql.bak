@@ -1,0 +1,140 @@
+-- Fix missing profile for user 71b37539-336f-491c-9a10-b4c0d6e3ad7b
+-- This migration manually creates the profile that should have been created by the trigger
+
+-- Ensure the auth.users row exists for this auth user, but only if auth.users exists
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables 
+    WHERE table_schema = 'auth' AND table_name = 'users'
+  ) THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM auth.users WHERE id = '71b37539-336f-491c-9a10-b4c0d6e3ad7b'
+    ) THEN
+      INSERT INTO auth.users (
+        id,
+        email,
+        email_confirmed_at,
+        raw_user_meta_data,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        email,
+        confirmed_at     AS email_confirmed_at,
+        raw_user_meta_data,
+        NOW(),
+        NOW()
+      FROM auth.users
+      WHERE id = '71b37539-336f-491c-9a10-b4c0d6e3ad7b';
+
+      RAISE NOTICE 'Inserted missing user % into auth.users', '71b37539-336f-491c-9a10-b4c0d6e3ad7b';
+    END IF;
+  END IF;
+END
+$$ LANGUAGE plpgsql;
+
+-- First, check if the profile already exists, but only if profiles and auth.users exist
+DO $$
+DECLARE
+    profile_exists BOOLEAN;
+    user_metadata JSONB;
+BEGIN
+    IF EXISTS (
+      SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles'
+    ) AND EXISTS (
+      SELECT 1 FROM information_schema.tables WHERE table_schema = 'auth' AND table_name = 'users'
+    ) THEN
+        -- Check if profile exists
+        SELECT EXISTS(SELECT 1 FROM profiles WHERE id = '71b37539-336f-491c-9a10-b4c0d6e3ad7b') INTO profile_exists;
+        
+        IF NOT profile_exists THEN
+            -- Get user data from auth.users
+            SELECT raw_user_meta_data 
+            INTO user_metadata
+            FROM auth.users 
+            WHERE id = '71b37539-336f-491c-9a10-b4c0d6e3ad7b';
+            
+            -- Insert the profile
+            INSERT INTO profiles (
+                id,
+                full_name,
+                role,
+                is_active,
+                created_at,
+                updated_at
+            ) VALUES (
+                '71b37539-336f-491c-9a10-b4c0d6e3ad7b',
+                COALESCE(user_metadata->>'full_name', user_metadata->>'first_name', user_metadata->>'last_name', ''),
+                COALESCE(user_metadata->>'role', 'admin'),
+                true,
+                NOW(),
+                NOW()
+            );
+            
+            RAISE NOTICE 'Profile created for user 71b37539-336f-491c-9a10-b4c0d6e3ad7b';
+        ELSE
+            RAISE NOTICE 'Profile already exists for user 71b37539-336f-491c-9a10-b4c0d6e3ad7b';
+        END IF;
+    END IF;
+END $$;
+
+-- Only recreate the trigger and function if auth.users and profiles exist
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables WHERE table_schema = 'auth' AND table_name = 'users'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles'
+  ) THEN
+    -- Drop function if exists
+    EXECUTE 'DROP FUNCTION IF EXISTS handle_new_user() CASCADE;';
+
+    -- Create the function
+    EXECUTE $$
+    CREATE OR REPLACE FUNCTION handle_new_user()
+    RETURNS TRIGGER AS $$
+    DECLARE
+      profile_id UUID;
+    BEGIN
+      RAISE NOTICE 'Trigger handle_new_user executed for user ID: %', NEW.id;
+      SELECT id INTO profile_id FROM profiles WHERE id = NEW.id;
+      IF profile_id IS NULL THEN
+        INSERT INTO profiles (id, full_name, role, is_active, created_at, updated_at)
+        VALUES (
+          NEW.id,
+          COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'first_name', NEW.raw_user_meta_data->>'last_name', ''),
+          COALESCE(NEW.raw_user_meta_data->>'role', 'user'),
+          true,
+          NOW(),
+          NOW()
+        );
+        RAISE NOTICE 'Profile created for user ID: %', NEW.id;
+      ELSE
+        RAISE NOTICE 'Profile already exists for user ID: %', NEW.id;
+      END IF;
+      RETURN NEW;
+    EXCEPTION
+      WHEN OTHERS THEN
+        RAISE WARNING 'Failed to create profile for user %: %', NEW.id, SQLERRM;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    $$;
+
+    -- Drop trigger if exists
+    EXECUTE 'DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;';
+
+    -- Create the trigger
+    EXECUTE $$
+    CREATE TRIGGER on_auth_user_created
+      AFTER INSERT ON auth.users
+      FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
+    $$;
+
+    -- Grant permissions
+    EXECUTE 'GRANT EXECUTE ON FUNCTION handle_new_user() TO service_role;';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION handle_new_user() TO postgres;';
+  END IF;
+END $$; 
