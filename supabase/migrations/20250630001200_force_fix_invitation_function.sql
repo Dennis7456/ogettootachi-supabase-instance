@@ -44,8 +44,8 @@ BEGIN
     RAISE EXCEPTION 'User already exists';
   END IF;
   
-  -- Generate invitation token
-  v_invitation_token := encode(gen_random_bytes(32), 'hex');
+  -- Generate invitation token using a combination of methods
+  v_invitation_token := encode(gen_random_bytes(32), 'hex') || '-' || to_char(NOW(), 'YYYYMMDDHH24MISS');
   
   -- Create invitation
   INSERT INTO user_invitations (

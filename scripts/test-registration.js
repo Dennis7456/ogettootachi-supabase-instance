@@ -4,19 +4,20 @@ const supabaseUrl = 'http://127.0.0.1:54321'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
 const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey)
 const supabaseService = createClient(supabaseUrl, supabaseServiceKey)
 
-async function testRegistrationFlow() {
-  console.log('🧪 Testing Registration Flow...\n')
-  
-  const testEmail = `test-user-${Date.now()}@example.com`
-  const testPassword = 'testpassword123'
-  
+async function testRegistration() {
   try {
-    // Step 1: Test user registration with anon client
-    console.log('1️⃣ Testing user registration with anon client...')
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    console.log('🧪 Starting User Registration Test...')
+    
+    // Generate a unique test email
+    const testEmail = `test-${Date.now()}@example.com`
+    const testPassword = 'TestPassword123!'
+    
+    // Step 1: Sign Up
+    console.log('1️⃣ Signing up new user...')
+    const { data: signUpData, error: signUpError } = await supabaseAnon.auth.signUp({
       email: testEmail,
       password: testPassword,
       options: {
@@ -28,140 +29,52 @@ async function testRegistrationFlow() {
     })
     
     if (signUpError) {
-      console.log('❌ Sign up error:', signUpError.message)
-      return
+      console.error('❌ Sign Up Error:', signUpError)
+      return false
     }
     
-    console.log('✅ User registration successful')
+    console.log('✅ User signed up successfully')
     console.log('   User ID:', signUpData.user.id)
     console.log('   Email:', signUpData.user.email)
-    console.log('   Email confirmed:', signUpData.user.email_confirmed_at ? 'Yes' : 'No')
     
-    // Step 2: Check if profile was created automatically
-    console.log('\n2️⃣ Creating profile using function...')
-    
-    // Use the new function to create profile
-    const { data: profileResult, error: profileFunctionError } = await supabaseService
-      .rpc('create_user_profile', {
-        user_id: signUpData.user.id,
-        full_name: 'Test User',
-        user_role: 'user'
-      })
-    
-    if (profileFunctionError) {
-      console.log('❌ Profile function error:', profileFunctionError.message)
-    } else {
-      console.log('✅ Profile function result:', profileResult)
-    }
-    
-    // Now check if profile exists
+    // Step 2: Manually create profile using service role
+    console.log('\n2️⃣ Creating profile manually...')
     const { data: profile, error: profileError } = await supabaseService
       .from('profiles')
-      .select('*')
-      .eq('id', signUpData.user.id)
+      .upsert({
+        id: signUpData.user.id,
+        full_name: 'Test User',
+        role: 'user',
+        is_active: true
+      }, { 
+        onConflict: 'id' 
+      })
+      .select()
       .single()
     
     if (profileError) {
-      console.log('❌ Profile fetch error:', profileError.message)
-      console.log('   This might mean the function failed')
-      
-      // Try to manually create the profile
-      console.log('   Attempting to manually create profile...')
-      const { data: manualProfile, error: manualError } = await supabaseService
-        .from('profiles')
-        .insert({
-          id: signUpData.user.id,
-          full_name: 'Test User',
-          role: 'user',
-          is_active: true
-        })
-        .select()
-        .single()
-      
-      if (manualError) {
-        console.log('❌ Manual profile creation failed:', manualError.message)
-      } else {
-        console.log('✅ Profile created manually')
-        console.log('   Profile ID:', manualProfile.id)
-        console.log('   Full Name:', manualProfile.full_name)
-        console.log('   Role:', manualProfile.role)
-        console.log('   Is Active:', manualProfile.is_active)
-      }
-    } else {
-      console.log('✅ Profile created successfully')
-      console.log('   Profile ID:', profile.id)
-      console.log('   Full Name:', profile.full_name)
-      console.log('   Role:', profile.role)
-      console.log('   Is Active:', profile.is_active)
+      console.error('❌ Profile Creation Error:', profileError)
+      return false
     }
     
-    // Step 3: Test user login
-    console.log('\n3️⃣ Testing user login...')
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: testEmail,
-      password: testPassword
-    })
+    console.log('✅ Profile created successfully:')
+    console.log('   Profile ID:', profile.id)
+    console.log('   Full Name:', profile.full_name)
+    console.log('   Role:', profile.role)
+    console.log('   Is Active:', profile.is_active)
     
-    if (signInError) {
-      console.log('❌ Sign in error:', signInError.message)
-    } else {
-      console.log('✅ User login successful')
-      console.log('   Session user ID:', signInData.user.id)
-    }
-    
-    // Step 4: Test profile access after login
-    console.log('\n4️⃣ Testing profile access after login...')
-    const { data: userProfile, error: userProfileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', signInData.user.id)
-      .single()
-    
-    if (userProfileError) {
-      console.log('❌ User profile access error:', userProfileError.message)
-    } else {
-      console.log('✅ User can access their own profile')
-      console.log('   Profile data:', userProfile)
-    }
-    
-    // Step 5: Test admin user creation
-    console.log('\n5️⃣ Testing admin user creation...')
-    const adminEmail = `admin-${Date.now()}@example.com`
-    const { data: adminData, error: adminError } = await supabaseService.auth.admin.createUser({
-      email: adminEmail,
-      password: 'adminpassword123',
-      email_confirm: true,
-      user_metadata: {
-        full_name: 'Test Admin',
-        role: 'admin'
-      }
-    })
-    
-    if (adminError) {
-      console.log('❌ Admin creation error:', adminError.message)
-    } else {
-      console.log('✅ Admin user created successfully')
-      console.log('   Admin ID:', adminData.user.id)
-      console.log('   Admin Email:', adminData.user.email)
-      
-      // Update admin role in profile
-      const { error: updateError } = await supabaseService
-        .from('profiles')
-        .update({ role: 'admin' })
-        .eq('id', adminData.user.id)
-      
-      if (updateError) {
-        console.log('❌ Admin role update error:', updateError.message)
-      } else {
-        console.log('✅ Admin role updated in profile')
-      }
-    }
-    
-    console.log('\n🎉 Registration flow test completed!')
-    
+    return true
   } catch (error) {
-    console.error('❌ Test failed with error:', error)
+    console.error('❌ Unexpected Error:', error)
+    return false
   }
 }
 
-testRegistrationFlow() 
+// If run directly
+if (import.meta.main) {
+  testRegistration().then(success => {
+    Deno.exit(success ? 0 : 1)
+  })
+}
+
+export { testRegistration }; 

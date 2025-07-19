@@ -371,3 +371,49 @@ The enhanced edge functions are now production-ready with:
 - ✅ **Performance testing** and optimization
 - ✅ **Security best practices** implementation
 - ✅ **API documentation** for developers 
+
+# User Invitation Function Tests
+
+## Overview
+This test suite validates the user invitation functionality for the Supabase edge function.
+
+## Test Scenarios Covered
+1. **Initial Invitation**
+   - Successfully send an invitation
+   - Validate response structure
+   - Check invitation record creation
+
+2. **Duplicate Invitation Prevention**
+   - Attempt to send duplicate invitation
+   - Verify 409 Conflict status
+   - Check error message
+
+3. **Force Resend Invitation**
+   - Resend an existing invitation
+   - Validate new invitation token generation
+   - Confirm successful resend
+
+4. **Invitation Record Validation**
+   - Check invitation record details
+   - Verify email, role, and status
+   - Confirm token and expiration generation
+
+## Prerequisites
+- Deno runtime
+- Supabase local development environment
+- Test admin user created
+
+## Running Tests
+```bash
+deno test tests/functions/user_invitation.test.ts
+```
+
+## Configuration
+- Test uses environment variables for Supabase configuration
+- Requires service role key for admin operations
+- Uses a predefined test admin email and password
+
+## Notes
+- Tests are designed to run in a local development environment
+- Assumes Supabase local instance is running
+- Test data is dynamically generated for each test run 

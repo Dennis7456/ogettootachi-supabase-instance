@@ -1,53 +1,60 @@
 -- Add user invitation functionality
 -- This migration adds tables and functions for admin user management
 
--- Create user invitations table
-CREATE TABLE IF NOT EXISTS user_invitations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email TEXT NOT NULL UNIQUE,
-  invited_by UUID REFERENCES auth.users(id) NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'staff')),
+-- Create user_invitations table
+CREATE TABLE public.user_invitations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('admin', 'staff', 'manager')),
   invitation_token TEXT UNIQUE NOT NULL,
-  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  accepted_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  expires_at TIMESTAMPTZ NOT NULL,
+  accepted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  invited_by UUID REFERENCES public.profiles(id),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'expired')),
+  custom_message TEXT,
+  department TEXT
 );
 
--- Create index for invitation tokens
-CREATE INDEX IF NOT EXISTS idx_user_invitations_token ON user_invitations(invitation_token);
-CREATE INDEX IF NOT EXISTS idx_user_invitations_email ON user_invitations(email);
-CREATE INDEX IF NOT EXISTS idx_user_invitations_expires ON user_invitations(expires_at);
+-- Create index for faster lookups
+CREATE INDEX idx_user_invitations_email ON public.user_invitations(email);
+CREATE INDEX idx_user_invitations_token ON public.user_invitations(invitation_token);
 
--- Enable RLS
-ALTER TABLE user_invitations ENABLE ROW LEVEL SECURITY;
+-- Row Level Security
+ALTER TABLE public.user_invitations ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for user_invitations
-DROP POLICY IF EXISTS "Admins can view all invitations" ON user_invitations;
-DROP POLICY IF EXISTS "Admins can create invitations" ON user_invitations;
-DROP POLICY IF EXISTS "Admins can update invitations" ON user_invitations;
-DROP POLICY IF EXISTS "Admins can delete invitations" ON user_invitations;
-DROP POLICY IF EXISTS "Users can view their own invitation" ON user_invitations;
+-- Policies
+CREATE POLICY "Users can view their own invitations" 
+  ON public.user_invitations 
+  FOR SELECT 
+  USING (
+    auth.uid() = invited_by OR 
+    email = auth.email()
+  );
 
--- Only admins can view all invitations
-CREATE POLICY "Admins can view all invitations" ON user_invitations
-  FOR SELECT USING (auth.jwt() ->> 'role' = 'admin');
+CREATE POLICY "Admins can manage all invitations" 
+  ON public.user_invitations 
+  FOR ALL 
+  USING (
+    auth.uid() IN (
+      SELECT id FROM public.profiles WHERE role = 'admin'
+    )
+  );
 
--- Only admins can create invitations
-CREATE POLICY "Admins can create invitations" ON user_invitations
-  FOR INSERT WITH CHECK (auth.jwt() ->> 'role' = 'admin');
+-- Trigger to automatically update timestamps
+CREATE OR REPLACE FUNCTION update_user_invitations_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Only admins can update invitations
-CREATE POLICY "Admins can update invitations" ON user_invitations
-  FOR UPDATE USING (auth.jwt() ->> 'role' = 'admin');
-
--- Only admins can delete invitations
-CREATE POLICY "Admins can delete invitations" ON user_invitations
-  FOR DELETE USING (auth.jwt() ->> 'role' = 'admin');
-
--- Users can view their own invitation by email (for accepting)
-CREATE POLICY "Users can view their own invitation" ON user_invitations
-  FOR SELECT USING (email = auth.jwt() ->> 'email');
+CREATE TRIGGER update_user_invitations_timestamp
+BEFORE UPDATE ON public.user_invitations
+FOR EACH ROW
+EXECUTE FUNCTION update_user_invitations_timestamp();
 
 -- Function to create user invitation
 CREATE OR REPLACE FUNCTION create_user_invitation(

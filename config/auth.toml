@@ -453,7 +453,7 @@ magic_link_template = """
 """
 
 # Email settings
-[email.smtp]
+[email]
 enabled = false
 host = "smtp.gmail.com"
 port = 587
@@ -461,6 +461,9 @@ user = ""
 pass = ""
 admin_email = "admin@ogettoandotachi.co.ke"
 sender_name = "Ogetto, Otachi & Company Advocates"
+
+# Add Resend API key configuration
+resend_api_key = ""
 
 # Security settings
 [auth.security]
@@ -483,15 +486,21 @@ rate_limit_sms_sent = 10
 rate_limit_sms_sent_period = 3600
 
 # Site URL for redirects
-site_url = "http://127.0.0.1:54321"
+site_url = "http://localhost:5173" # Local React app URL. Change to your production domain when deploying.
 redirect_urls = [
-    "http://localhost:5173/admin/login",
-    "http://localhost:5173/admin/dashboard",
-    "http://localhost:5173/admin/register"
+    "http://localhost:5173/password-setup", # Password setup page for invited users
+    "http://localhost:5173/admin/invite",   # Invitation acceptance page
+    "http://localhost:5173/",               # Home page
+    "http://localhost:5173/admin/login",    # Admin login
+    "http://localhost:5173/admin/dashboard" # Admin dashboard
 ]
 
 # Additional redirect URLs
-additional_redirect_urls = ["https://localhost:3000"]
+additional_redirect_urls = [
+    "https://localhost:3000",
+    "http://localhost:5173/staff/login",    # Staff login
+    "http://localhost:5173/staff/dashboard" # Staff dashboard
+]
 
 # JWT expiry
 jwt_expiry = 3600

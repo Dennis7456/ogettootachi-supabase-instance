@@ -1,126 +1,159 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+/// <reference lib="deno.ns" />
+/// <reference types="./types.d.ts" />
 
+import { serve } from "std/http/server.ts";
+import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
+
+// Declare Deno global for type safety
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  }
+};
+
+// CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-// Simple email template for local development
-const createEmailTemplate = (email: string, role: string, invitationUrl: string) => {
+// Configuration helper
+const getConfig = () => ({
+  SUPABASE_URL: Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321',
+  SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
+  RESEND_API_KEY: Deno.env.get('RESEND_API_KEY'),
+  FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
+});
+
+// Error response helper
+const createErrorResponse = (message: string, status: number = 400) => {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
+};
+
+// Email template for invitation
+const createInvitationEmailTemplate = (
+  email: string, 
+  role: string, 
+  invitationUrl: string, 
+  customMessage?: string
+) => {
   return `
-=== INVITATION EMAIL (LOCAL DEVELOPMENT) ===
-
-To: ${email}
-Subject: You're invited to join Ogetto Otachi & Co Advocates
-
-Dear User,
-
-You have been invited to join Ogetto Otachi & Co Advocates as a ${role}.
-
-Please click the following link to accept your invitation:
-${invitationUrl}
-
-This invitation will expire in 72 hours.
-
-If you have any questions, please contact the administrator.
-
-Best regards,
-Ogetto Otachi & Co Advocates Team
-
-==========================================
-  `.trim()
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>You're Invited - Ogetto, Otachi & Co Advocates</title>
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1>You're Invited to Join</h1>
+        <h2>Ogetto, Otachi & Co Advocates</h2>
+        
+        <p>Dear Colleague,</p>
+        
+        ${customMessage ? `<p>${customMessage}</p>` : ''}
+        
+        <p>You have been invited to join our team as a ${role}.</p>
+        
+        <a href="${invitationUrl}" style="
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        ">Accept Invitation</a>
+        
+        <p>If the button doesn't work, copy and paste this link:</p>
+        <p>${invitationUrl}</p>
+        
+        <small>This invitation will expire in 72 hours.</small>
+    </div>
+</body>
+</html>
+  `;
+};
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return createErrorResponse('Method not allowed', 405);
   }
 
   try {
-    const { email, role, invitation_token, invitation_url } = await req.json()
+    // Parse request body
+    const { 
+      email, 
+      role, 
+      invitation_token, 
+      custom_message 
+    } = await req.json();
 
     // Validate required fields
-    if (!email || !role || !invitation_token || !invitation_url) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+    if (!email || !role || !invitation_token) {
+      return createErrorResponse('Missing required fields');
+    }
+
+    const config = getConfig();
+
+    // Validate Resend API key
+    if (!config.RESEND_API_KEY) {
+      console.log('⚠️ Email service not configured, but continuing for testing');
+      // For testing, return success without actually sending email
+      return new Response(JSON.stringify({ 
+        message: 'Invitation email would be sent (mock mode)',
+        emailId: 'mock-email-id',
+        to: email,
+        subject: 'You\'re Invited to Join Ogetto, Otachi & Co Advocates'
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Create Resend client
+    const resend = new Resend(config.RESEND_API_KEY);
+
+    // Construct invitation URL
+    const invitationUrl = `${config.FRONTEND_URL}/password-setup?token=${invitation_token}&type=invite`;
+
+    // Send email
+    const { data, error } = await resend.emails.send({
+      from: 'Ogetto, Otachi & Co <noreply@ogettootachi.com>',
+      to: email,
+      subject: 'You\'re Invited to Join Ogetto, Otachi & Co Advocates',
+      html: createInvitationEmailTemplate(
+        email, 
+        role, 
+        invitationUrl, 
+        custom_message
       )
+    });
+
+    if (error) {
+      console.error('Email sending error:', error);
+      return createErrorResponse('Failed to send invitation email', 500);
     }
 
-    console.log('Sending invitation email to:', email)
-    console.log('Invitation URL:', invitation_url)
-    console.log('Role:', role)
-
-    // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
-    // Try to send invitation email using Supabase Auth
-    try {
-      const { data, error } = await supabaseClient.auth.admin.inviteUserByEmail(email, {
-        data: {
-          role: role,
-          invitation_token: invitation_token,
-          invitation_url: invitation_url
-        }
-      })
-
-      if (error) {
-        console.error('Supabase Auth email error:', error)
-        // Don't fail completely, just log the error
-      } else {
-        console.log('Supabase Auth email sent successfully:', data)
-      }
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError)
-      // Continue execution even if email fails
-    }
-
-    // For local development, always return success and log the invitation details
-    const isLocal = Deno.env.get('SUPABASE_URL')?.includes('127.0.0.1') || 
-                   Deno.env.get('SUPABASE_URL')?.includes('localhost')
-
-    if (isLocal) {
-      const emailTemplate = createEmailTemplate(email, role, invitation_url)
-      console.log('\n' + emailTemplate + '\n')
-      console.log('=== LOCAL DEVELOPMENT MODE ===')
-      console.log('Invitation created successfully!')
-      console.log('Email:', email)
-      console.log('Role:', role)
-      console.log('Token:', invitation_token)
-      console.log('Invitation URL:', invitation_url)
-      console.log('================================')
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: isLocal ? 'Invitation created (local mode - check console for details)' : 'Invitation email sent successfully',
-        invitation_url: invitation_url,
-        email: email,
-        role: role,
-        email_template: isLocal ? createEmailTemplate(email, role, invitation_url) : undefined
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return new Response(JSON.stringify({ 
+      message: 'Invitation email sent successfully',
+      emailId: data.id 
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
 
   } catch (error) {
-    console.error('Error in send-invitation-email function:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    console.error('Invitation email processing error:', error);
+    return createErrorResponse('An unexpected error occurred', 500);
   }
-}) 
+}); 

@@ -9,23 +9,45 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
   try {
     console.log(`Creating profile for user: ${userId}`)
     
+    // First, get the user details from auth.users
+    const { data: userData, error: userError } = await supabaseService.auth.admin.getUserById(userId)
+    
+    if (userError) {
+      console.log('❌ Error fetching user details:', userError.message)
+      return null
+    }
+    
+    // Derive full name
+    const derivedFullName = fullName || 
+      userData.user.user_metadata?.full_name || 
+      userData.user.user_metadata?.first_name || 
+      userData.user.email?.split('@')[0] || 
+      'Unknown User'
+    
+    // Derive role
+    const derivedRole = role || 
+      userData.user.user_metadata?.role || 
+      'user'
+    
     const { data, error } = await supabaseService
       .from('profiles')
-      .insert({
+      .upsert({
         id: userId,
-        full_name: fullName,
-        role: role,
+        full_name: derivedFullName,
+        role: derivedRole,
         is_active: true
+      }, { 
+        onConflict: 'id' 
       })
       .select()
       .single()
     
     if (error) {
-      console.log('❌ Error creating profile:', error.message)
+      console.log('❌ Error creating/updating profile:', error.message)
       return null
     }
     
-    console.log('✅ Profile created successfully:', data)
+    console.log('✅ Profile created/updated successfully:', data)
     return data
   } catch (error) {
     console.error('❌ Exception creating profile:', error)
@@ -33,15 +55,18 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
   }
 }
 
-// Export for use in other scripts
-export { createProfileForUser }
-
-// If run directly, create a test profile
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const testUserId = process.argv[2]
-  if (testUserId) {
-    createProfileForUser(testUserId, 'Test User', 'user')
-  } else {
-    console.log('Usage: node manual-profile-creation.js <user-id>')
+// If this script is run directly
+if (import.meta.main) {
+  const userId = process.argv[2]
+  const fullName = process.argv[3]
+  const role = process.argv[4]
+  
+  if (!userId) {
+    console.log('Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]')
+    Deno.exit(1)
   }
-} 
+  
+  createProfileForUser(userId, fullName, role)
+}
+
+export { createProfileForUser }; 
