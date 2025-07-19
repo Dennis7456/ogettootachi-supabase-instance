@@ -22,7 +22,8 @@ const corsHeaders = {
 const getConfig = () => ({
   SUPABASE_URL: Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321',
   SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
-  RESEND_API_KEY: Deno.env.get('RESEND_API_KEY'),
+  // For development, use a hardcoded test API key
+  RESEND_API_KEY: Deno.env.get('RESEND_API_KEY') || 'test_api_key',
   FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
 });
 
@@ -106,8 +107,25 @@ serve(async (req) => {
     const config = getConfig();
 
     // Validate Resend API key
-    if (!config.RESEND_API_KEY) {
+    if (!config.RESEND_API_KEY || config.RESEND_API_KEY === 'test_api_key') {
       console.log('⚠️ Email service not configured, but continuing for testing');
+      
+      // Create the email content for logging
+      const invitationUrl = `${config.FRONTEND_URL}/password-setup?token=${invitation_token}&type=invite`;
+      const emailHtml = createInvitationEmailTemplate(
+        email, 
+        role, 
+        invitationUrl, 
+        custom_message
+      );
+      
+      // Log the email details
+      console.log('📧 Mock Email Details:');
+      console.log('To:', email);
+      console.log('Subject: You\'re Invited to Join Ogetto, Otachi & Co Advocates');
+      console.log('Invitation URL:', invitationUrl);
+      console.log('Custom Message:', custom_message || 'No custom message');
+      
       // For testing, return success without actually sending email
       return new Response(JSON.stringify({ 
         message: 'Invitation email would be sent (mock mode)',
