@@ -4,7 +4,6 @@ async function verifySetup() {
   try {
     // Note: This will test against your currently selected Supabase project
     // Get current project info
-  } catch (_error) {
-  }
+  } catch (_error) {}
 }
 verifySetup();

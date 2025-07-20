@@ -7,11 +7,11 @@ async function fixStoragePoliciesComplete() {
   try {
     // Step 1: Drop existing policies
     const dropPolicies = [
-      'DROP POLICY IF EXISTS "Documents are uploadable by admins" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are accessible by authenticated users" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Service role can access all storage" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are updatable by admins" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are deletable by admins" ON storage.objects;',
+      'DROP POLICY IF EXISTS "Documents are uploadable by admins" ON storage.objects;'
+      'DROP POLICY IF EXISTS "Documents are accessible by authenticated users" ON storage.objects;'
+      'DROP POLICY IF EXISTS "Service role can access all storage" ON storage.objects;'
+      'DROP POLICY IF EXISTS "Documents are updatable by admins" ON storage.objects;'
+      'DROP POLICY IF EXISTS "Documents are deletable by admins" ON storage.objects;'
     ];
     for (const sql of dropPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
@@ -27,7 +27,7 @@ async function fixStoragePoliciesComplete() {
             (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
             auth.role() = 'service_role'
           )
-        );`,
+        );`
       `CREATE POLICY "Documents are updatable by admins" ON storage.objects
         FOR UPDATE USING (
           bucket_id = 'documents' AND 
@@ -35,7 +35,7 @@ async function fixStoragePoliciesComplete() {
             (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
             auth.role() = 'service_role'
           )
-        );`,
+        );`
       `CREATE POLICY "Documents are deletable by admins" ON storage.objects
         FOR DELETE USING (
           bucket_id = 'documents' AND 
@@ -43,13 +43,13 @@ async function fixStoragePoliciesComplete() {
             (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
             auth.role() = 'service_role'
           )
-        );`,
+        );`
       `CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
         FOR SELECT USING (
           bucket_id = 'documents' AND auth.role() = 'authenticated'
-        );`,
+        );`
       `CREATE POLICY "Service role can access all storage" ON storage.objects
-        FOR ALL USING (auth.role() = 'service_role');`,
+        FOR ALL USING (auth.role() = 'service_role');`
     ];
     for (const sql of createPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
@@ -61,7 +61,7 @@ async function fixStoragePoliciesComplete() {
     // Step 3: Test the policies
     // Test with service role (should always work)
     const testFile = new File(['test content'], 'test-service.txt', {
-      type: 'text/plain',
+      type: 'text/plain'
     });
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
@@ -75,15 +75,15 @@ async function fixStoragePoliciesComplete() {
     // Step 4: Test with admin user
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Admin authentication failed:', authError.message);
     } else {
       // Test admin upload
       const adminTestFile = new File(['admin test content'], 'test-admin.txt', {
-        type: 'text/plain',
+        type: 'text/plain'
       });
       const { _data: adminUploadData, _error: adminUploadError } =
         await _supabase.storage
@@ -97,10 +97,8 @@ async function fixStoragePoliciesComplete() {
         await _supabase.storage.from('documents').remove(['test-admin.txt']);
       }
     }
-      "- Changed to: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"
-    );
-      '- This matches how admin roles are actually stored in your JWT tokens'
-    );
+    ("- Changed to: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'");
+    ('- This matches how admin roles are actually stored in your JWT tokens');
   } catch (_error) {
     console._error('❌ Unexpected _error:', _error.message);
   }

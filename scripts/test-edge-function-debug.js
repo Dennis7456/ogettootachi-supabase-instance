@@ -9,11 +9,11 @@ async function testEdgeFunctionDebug() {
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Debug Test Document',
-        content: 'This is a test document for debugging the Edge Function.',
-        category: 'test',
-        file_path: 'test-debug.txt',
-        file_type: 'text/plain',
+        title: 'Debug Test Document'
+        content: 'This is a test document for debugging the Edge Function.'
+        category: 'test'
+        file_path: 'test-debug.txt'
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -24,7 +24,7 @@ async function testEdgeFunctionDebug() {
     // Test 1: Standard format (what our tests use)
     const { _data: standardData, _error: standardError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (standardError) {
       console._error('❌ Standard format failed:', standardError.message);
@@ -34,9 +34,9 @@ async function testEdgeFunctionDebug() {
     const { _data: directData, _error: directError } =
       await _supabase.functions.invoke('process-document', {
         body: {
-          id: docData.id,
-          content: docData.content,
-        },
+          id: docData.id
+          content: docData.content
+        }
       });
     if (directError) {
       console._error('❌ Direct format failed:', directError.message);
@@ -46,7 +46,7 @@ async function testEdgeFunctionDebug() {
     // Test 3: Document format (alternative)
     const { _data: documentData, _error: documentError } =
       await _supabase.functions.invoke('process-document', {
-        body: { document: docData },
+        body: { document: docData }
       });
     if (documentError) {
       console._error('❌ Document format failed:', documentError.message);
@@ -56,7 +56,7 @@ async function testEdgeFunctionDebug() {
     // Test 4: Empty body
     const { _data: emptyData, _error: emptyError } =
       await _supabase.functions.invoke('process-document', {
-        body: {},
+        body: {}
       });
     if (emptyError) {
       console._error('❌ Empty body failed:', emptyError.message);
@@ -67,7 +67,7 @@ async function testEdgeFunctionDebug() {
     try {
       const { _data: invalidData, _error: invalidError } =
         await _supabase.functions.invoke('process-document', {
-          body: 'invalid json',
+          body: 'invalid json'
         });
       if (invalidError) {
         console._error('❌ Invalid JSON failed:', invalidError.message);
@@ -81,9 +81,9 @@ async function testEdgeFunctionDebug() {
     const { _data: missingData, _error: missingError } =
       await _supabase.functions.invoke('process-document', {
         body: {
-          id: docData.id,
+          id: docData.id
           // missing content
-        },
+        }
       });
     if (missingError) {
       console._error('❌ Missing fields failed:', missingError.message);
@@ -92,25 +92,24 @@ async function testEdgeFunctionDebug() {
     }
     const debugComponentCall = {
       record: {
-        id: docData.id,
-        content: docData.content,
-        title: docData.title,
-        category: docData.category,
-        file_path: docData.file_path,
-        file_type: docData.file_type,
-        created_at: docData.created_at,
-        updated_at: docData.updated_at,
-      },
+        id: docData.id
+        content: docData.content
+        title: docData.title
+        category: docData.category
+        file_path: docData.file_path
+        file_type: docData.file_type
+        created_at: docData.created_at
+        updated_at: docData.updated_at
+      }
     };
     const { _data: debugData, _error: debugError } =
       await _supabase.functions.invoke('process-document', {
-        body: debugComponentCall,
+        body: debugComponentCall
       });
     if (debugError) {
       console._error(
-        '❌ Debug component simulation failed:',
+        '❌ Debug component simulation failed:'
         debugError.message
-      );
       console._error('Error details:', debugError);
     } else {
     }

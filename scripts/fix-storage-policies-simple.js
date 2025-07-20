@@ -14,13 +14,12 @@ async function fixStoragePolicies() {
       .eq('table_name', 'objects');
     if (policiesError) {
     } else {
-        'Existing policies:',
+        'Existing policies:'
         policies?.map(p => p.policy_name) || []
-      );
     }
     // Let's try a different approach - use the storage API to test upload
     const testFile = new File(['test content'], 'test.txt', {
-      type: 'text/plain',
+      type: 'text/plain'
     });
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
@@ -37,11 +36,9 @@ CREATE POLICY "Documents are uploadable by admins" ON storage.objects
   FOR INSERT WITH CHECK (
     bucket_id = 'documents' AND 
     (auth.jwt() ->> 'role' = 'admin' OR auth.role() = 'service_role')
-  );
 CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'documents' AND auth.role() = 'authenticated'
-  );
 CREATE POLICY "Service role can access all storage" ON storage.objects
   FOR ALL USING (auth.role() = 'service_role');
       `);

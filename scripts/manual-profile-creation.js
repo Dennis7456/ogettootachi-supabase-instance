@@ -23,13 +23,13 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
       .from('profiles')
       .upsert(
         {
-          id: userId,
-          full_name: derivedFullName,
-          role: derivedRole,
-          is_active: true,
-        },
+          id: userId
+          full_name: derivedFullName
+          role: derivedRole
+          is_active: true
+        }
         {
-          onConflict: 'id',
+          onConflict: 'id'
         }
       )
       .select()
@@ -49,8 +49,7 @@ if (import.meta.main) {
   const fullName = process.argv[3];
   const role = process.argv[4];
   if (!userId) {
-      'Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]'
-    );
+    ('Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]');
     _Deno.exit(1);
   }
   createProfileForUser(userId, fullName, role);

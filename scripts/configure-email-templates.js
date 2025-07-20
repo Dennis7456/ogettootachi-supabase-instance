@@ -7,7 +7,7 @@ const _supabaseService = _createClient(supabaseUrl, supabaseServiceKey);
 // Email templates with application branding
 const emailTemplates = {
   confirm_template: {
-    subject: 'Confirm Your Email - Ogetto, Otachi & Company Advocates',
+    subject: 'Confirm Your Email - Ogetto, Otachi & Company Advocates'
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -146,10 +146,10 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`,
-  },
+</html>`
+  }
   reset_template: {
-    subject: 'Reset Your Password - Ogetto, Otachi & Company Advocates',
+    subject: 'Reset Your Password - Ogetto, Otachi & Company Advocates'
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -301,10 +301,10 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`,
-  },
+</html>`
+  }
   magic_link_template: {
-    subject: 'Sign In - Ogetto, Otachi & Company Advocates',
+    subject: 'Sign In - Ogetto, Otachi & Company Advocates'
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -441,16 +441,15 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`,
-  },
+</html>`
+  }
 };
 async function configureEmailTemplates() {
   try {
     // Note: In a real Supabase setup, you would configure these templates
-    // through the Supabase Dashboard or API. For local development,
+    // through the Supabase Dashboard or API. For local development
     // we'll create the configuration files and provide instructions.
-      '1. Go to Supabase Dashboard > Authentication > Email Templates'
-    );
+    ('1. Go to Supabase Dashboard > Authentication > Email Templates');
     // Save templates to files for easy access
     const templatesDir = path.join(process.cwd(), 'email-templates');
     if (!fs.existsSync(templatesDir)) {

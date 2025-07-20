@@ -1,11 +1,11 @@
 // Test script to create an invitation and trigger email sending
 // Invitation _data
 const invitationData = {
-  email: 'new-test@example.com',
-  role: 'staff',
-  full_name: 'New Test User',
-  department: 'Testing',
-  custom_message: 'This is a test invitation with automatic email sending.',
+  email: 'new-test@example.com'
+  role: 'staff'
+  full_name: 'New Test User'
+  department: 'Testing'
+  custom_message: 'This is a test invitation with automatic email sending.'
 };
 // Supabase service role key
 const serviceRoleKey =
@@ -13,16 +13,15 @@ const serviceRoleKey =
 async function createInvitation() {
   try {
     const response = await fetch(
-      'http://127.0.0.1:54321/functions/v1/handle-invitation',
+      'http://127.0.0.1:54321/functions/v1/handle-invitation'
       {
-        method: 'POST',
+        method: 'POST'
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${serviceRoleKey}`,
-        },
-        body: JSON.stringify(invitationData),
+          'Content-Type': 'application/json'
+          Authorization: `Bearer ${serviceRoleKey}`
+        }
+        body: JSON.stringify(invitationData)
       }
-    );
     const _data = await response.text();
     try {
       const jsonData = JSON.parse(_data);

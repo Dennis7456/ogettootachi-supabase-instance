@@ -5,7 +5,6 @@ const supabaseServiceKey =
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function fixStoragePoliciesSQL() {
     'Since the exec_sql function is not available, please run the following SQL commands'
-  );
 -- Step 1: Drop existing storage policies
 DROP POLICY IF EXISTS "Documents are uploadable by admins" ON storage.objects;
 DROP POLICY IF EXISTS "Documents are accessible by authenticated users" ON storage.objects;
@@ -20,7 +19,6 @@ CREATE POLICY "Documents are uploadable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are updatable by admins" ON storage.objects
   FOR UPDATE USING (
     bucket_id = 'documents' AND 
@@ -28,7 +26,6 @@ CREATE POLICY "Documents are updatable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are deletable by admins" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'documents' AND 
@@ -36,11 +33,9 @@ CREATE POLICY "Documents are deletable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'documents' AND auth.role() = 'authenticated'
-  );
 CREATE POLICY "Service role can access all storage" ON storage.objects
   FOR ALL USING (auth.role() = 'service_role');
   `);
@@ -65,24 +60,21 @@ CREATE POLICY "Documents are insertable by admins" ON documents
   FOR INSERT WITH CHECK (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are updatable by admins" ON documents
   FOR UPDATE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are deletable by admins" ON documents
   FOR DELETE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
   `);
   // Test current admin user metadata
   try {
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Admin authentication failed:', authError.message);

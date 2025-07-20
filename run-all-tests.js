@@ -9,37 +9,37 @@ class MasterTestRunner {
   async runAllTests() {
     const testSuites = [
       {
-        name: 'Infrastructure Health Check',
-        command: 'node monitor-invitation-system.js',
-        description: 'Quick health check of all system components',
-        critical: true,
-      },
+        name: 'Infrastructure Health Check'
+        command: 'node monitor-invitation-system.js'
+        description: 'Quick health check of all system components'
+        critical: true
+      }
       {
-        name: 'Comprehensive Test Suite',
-        command: 'node test-invitation-system-complete.js',
-        description: 'Full system test - 12 different test scenarios',
-        critical: true,
-      },
+        name: 'Comprehensive Test Suite'
+        command: 'node test-invitation-system-complete.js'
+        description: 'Full system test - 12 different test scenarios'
+        critical: true
+      }
       {
-        name: 'Real Invitation Test',
+        name: 'Real Invitation Test'
         command:
-          'node quick-test-invitation.js test-master-runner@example.com admin "Master Test"',
-        description: 'Tests actual invitation creation and email delivery',
-        critical: true,
-      },
+          'node quick-test-invitation.js test-master-runner@example.com admin "Master Test"'
+        description: 'Tests actual invitation creation and email delivery'
+        critical: true
+      }
       {
-        name: 'System Performance Check',
+        name: 'System Performance Check'
         command:
-          'time node quick-test-invitation.js perf-test@example.com staff "Performance Test"',
-        description: 'Measures system performance under normal load',
-        critical: false,
-      },
+          'time node quick-test-invitation.js perf-test@example.com staff "Performance Test"'
+        description: 'Measures system performance under normal load'
+        critical: false
+      }
       {
-        name: 'Configuration Validation',
-        command: 'grep -n "smtp_port.*1025" config/auth.toml',
-        description: 'Validates critical SMTP configuration',
-        critical: true,
-      },
+        name: 'Configuration Validation'
+        command: 'grep -n "smtp_port.*1025" config/auth.toml'
+        description: 'Validates critical SMTP configuration'
+        critical: true
+      }
     ];
     for (const testSuite of testSuites) {
       await this.runTestSuite(testSuite);
@@ -50,18 +50,18 @@ class MasterTestRunner {
     const startTime = Date.now();
     try {
       const { stdout, stderr } = await execAsync(testSuite.command, {
-        cwd: process.cwd(),
+        cwd: process.cwd()
         timeout: 60000, // 60 second timeout
       });
       const duration = Date.now() - startTime;
       const success = this.analyzeTestOutput(stdout, stderr, testSuite);
       this.results.push({
-        name: testSuite.name,
-        status: success ? 'PASS' : 'FAIL',
-        duration,
-        critical: testSuite.critical,
-        output: stdout,
-        _error: stderr,
+        name: testSuite.name
+        status: success ? 'PASS' : 'FAIL'
+        duration
+        critical: testSuite.critical
+        output: stdout
+        _error: stderr
       });
       if (success) {
       } else {
@@ -71,11 +71,11 @@ class MasterTestRunner {
     } catch (_error) {
       const duration = Date.now() - startTime;
       this.results.push({
-        name: testSuite.name,
-        status: 'ERROR',
-        duration,
-        critical: testSuite.critical,
-        _error: _error.message,
+        name: testSuite.name
+        status: 'ERROR'
+        duration
+        critical: testSuite.critical
+        _error: _error.message
       });
     }
   }
@@ -88,18 +88,15 @@ class MasterTestRunner {
       return (
         stdout.includes('ALL TESTS PASSED') ||
         (stdout.includes('Success Rate:') && !stdout.includes('0.0%'))
-      );
     }
     if (testSuite.name.includes('Invitation Test')) {
       return (
         stdout.includes('SUCCESS!') ||
         stdout.includes('EMAIL FOUND IN MAILPIT!')
-      );
     }
     if (testSuite.name.includes('Configuration')) {
       return (
         stdout.includes('smtp_port = 1025') || stdout.includes('smtp_port=1025')
-      );
     }
     // Default: success if no errors
     return !stderr || stderr.trim() === '';
@@ -113,7 +110,6 @@ class MasterTestRunner {
       r => r.critical && r.status !== 'PASS'
     ).length;
       `📈 Success Rate: ${((passed / this.results.length) * 100).toFixed(1)}%\n`
-    );
     // Detailed results
     this.results.forEach((result, _index) => {
       const icon =
@@ -124,14 +120,12 @@ class MasterTestRunner {
             : '💥';
       const critical = result.critical ? '🚨 CRITICAL' : '';
         `${_index + 1}. ${icon} ${result.name} (${result.duration}ms) ${critical}`
-      );
       if (result.status !== 'PASS' && result._error) {
       }
     });
     if (criticalFailed === 0 && passed >= this.results.length * 0.8) {
     } else if (criticalFailed === 0) {
         '⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.'
-      );
     } else {
     }
     // Recommendations
@@ -139,7 +133,6 @@ class MasterTestRunner {
     } else if (failed > 0) {
     } else {
         '3. 💾 Consider creating backup: ./backup-invitation-system.sh'
-      );
     }
     // Exit with appropriate code
     if (criticalFailed > 0) {

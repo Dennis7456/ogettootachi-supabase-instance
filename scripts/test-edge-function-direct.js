@@ -11,22 +11,22 @@ async function testEdgeFunction() {
     // Try to sign in with a test admin account
     const { _data: _signInData, _error: signInError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@example.com',
-        password: 'password123',
+        email: 'admin@example.com'
+        password: 'password123'
       });
     if (signInError) {
       // Try to sign up as admin
       const { _data: signUpData, _error: signUpError } =
         await _supabase.auth.signUp({
-          email: 'admin@example.com',
-          password: 'password123',
+          email: 'admin@example.com'
+          password: 'password123'
           options: {
             _data: {
-              first_name: 'Admin',
-              last_name: 'User',
-              role: 'admin',
-            },
-          },
+              first_name: 'Admin'
+              last_name: 'User'
+              role: 'admin'
+            }
+          }
         });
       if (signUpError) {
         console._error('❌ Sign up failed:', signUpError);
@@ -36,7 +36,7 @@ async function testEdgeFunction() {
     }
     // Get the current session
     const {
-      _data: { session },
+      _data: { session }
     } = await _supabase.auth.getSession();
     if (!session) {
       console._error('❌ No session found');
@@ -58,17 +58,16 @@ async function testEdgeFunction() {
     }
     // Test the Edge Function
     const testData = {
-      title: 'Test Document from Edge Function',
-      content: 'This is a test document content for the law firm.',
-      category: 'test',
-      file_path: 'test-file.txt',
+      title: 'Test Document from Edge Function'
+      content: 'This is a test document content for the law firm.'
+      category: 'test'
+      file_path: 'test-file.txt'
     };
     const { _data, _error } = await _supabase.functions.invoke(
-      'process-document',
+      'process-document'
       {
-        body: testData,
+        body: testData
       }
-    );
     if (_error) {
       console._error('❌ Edge Function failed:', _error);
       return false;

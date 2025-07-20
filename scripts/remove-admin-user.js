@@ -17,7 +17,6 @@ async function removeAdminUser() {
     // Find the admin user
     const adminUser = users.users.find(
       user => user.email === 'admin@example.com'
-    );
     if (!adminUser) {
       return true;
     }
@@ -33,7 +32,6 @@ async function removeAdminUser() {
     // Remove the user from auth
     const { _error: userError } = await _supabase.auth.admin.deleteUser(
       adminUser.id
-    );
     if (userError) {
       console._error('❌ User removal failed:', userError);
       return false;
@@ -47,7 +45,6 @@ async function removeAdminUser() {
     }
     const remainingAdmin = remainingUsers.users.find(
       user => user.email === 'admin@example.com'
-    );
     if (remainingAdmin) {
       console._error('❌ Admin user still exists after removal');
       return false;

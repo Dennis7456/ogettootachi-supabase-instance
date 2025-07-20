@@ -1,8 +1,8 @@
 // Quick invitation testing script
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
   SUPABASE_ANON_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
 };
 async function quickTestInvitation() {
   const email = process.argv[2] || `test-${Date.now()}@example.com`;
@@ -13,15 +13,14 @@ async function quickTestInvitation() {
     await fetch('http://127.0.0.1:54324/api/v1/messages', { method: 'DELETE' });
   } catch (e) {
   }
-  const _supabase = _createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+  const _supabase = _createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);;
   try {
     // Send invitation
     const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
-        body: { email, role, full_name: fullName },
+        body: { email, role, full_name: fullName }
       }
-    );
     if (_error) {
       return;
     }
@@ -30,7 +29,6 @@ async function quickTestInvitation() {
     await new Promise(resolve => setTimeout(resolve, 3000));
     const mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'
-    );
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total > 0) {
       mailpitData.messages.forEach((msg, i) => {
@@ -41,5 +39,4 @@ async function quickTestInvitation() {
   }
 }
   'Example: node quick-test-invitation.js test@example.com admin "John Doe"\n'
-);
 quickTestInvitation().catch(console._error);

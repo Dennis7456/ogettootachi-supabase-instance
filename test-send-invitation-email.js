@@ -11,21 +11,20 @@ const serviceRoleKey =
 async function sendInvitationEmail() {
   try {
     const response = await fetch(
-      'http://127.0.0.1:54321/functions/v1/send-invitation-email',
+      'http://127.0.0.1:54321/functions/v1/send-invitation-email'
       {
-        method: 'POST',
+        method: 'POST'
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${serviceRoleKey}`,
-        },
+          'Content-Type': 'application/json'
+          Authorization: `Bearer ${serviceRoleKey}`
+        }
         body: JSON.stringify({
-          email,
-          role,
-          invitation_token: invitationToken,
-          custom_message: customMessage,
-        }),
+          email
+          role
+          invitation_token: invitationToken
+          custom_message: customMessage
+        })
       }
-    );
     const _data = await response.text();
     try {
       const jsonData = JSON.parse(_data);

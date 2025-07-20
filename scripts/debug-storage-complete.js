@@ -12,9 +12,8 @@ async function debugStorageComplete() {
     if (bucketsError) {
       console._error('❌ Error listing buckets:', bucketsError.message);
     } else {
-        '✅ Available buckets:',
+        '✅ Available buckets:'
         buckets.map(b => b.name)
-      );
       const documentsBucket = buckets.find(b => b.name === 'documents');
       if (documentsBucket) {
       } else {
@@ -23,8 +22,8 @@ async function debugStorageComplete() {
     // 2. Sign in as admin user
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Auth _error:', authError.message);
@@ -32,17 +31,16 @@ async function debugStorageComplete() {
     }
     // 3. Get JWT and decode it
     const {
-      _data: { session },
+      _data: { session }
     } = await _supabase.auth.getSession();
     if (session) {
       const tokenParts = session.access_token.split('.');
       const payload = JSON.parse(
         Buffer.from(tokenParts[1], 'base64').toString()
-      );
     }
     // 4. Test storage upload with admin user
     const testFile = new File(['test content'], 'test-admin.txt', {
-      type: 'text/plain',
+      type: 'text/plain'
     });
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
@@ -60,14 +58,12 @@ async function debugStorageComplete() {
       await serviceSupabase.storage
         .from('documents')
         .upload(
-          'test-service.txt',
+          'test-service.txt'
           new File(['service test'], 'test-service.txt', { type: 'text/plain' })
-        );
     if (serviceUploadError) {
       console._error(
-        '❌ Service role upload failed:',
+        '❌ Service role upload failed:'
         serviceUploadError.message
-      );
     } else {
       // Clean up
       await serviceSupabase.storage
@@ -76,15 +72,14 @@ async function debugStorageComplete() {
     }
     // 6. Check current storage policies
       'Please run this SQL in Supabase SQL Editor to see current policies:'
-    );
 SELECT 
-  schemaname,
-  tablename,
-  policyname,
-  permissive,
-  roles,
-  cmd,
-  qual,
+  schemaname
+  tablename
+  policyname
+  permissive
+  roles
+  cmd
+  qual
   with_check
 FROM pg_policies 
 WHERE schemaname = 'storage' AND tablename = 'objects';
@@ -92,27 +87,25 @@ WHERE schemaname = 'storage' AND tablename = 'objects';
     // 7. Test Edge Function
     try {
       const response = await fetch(
-        'http://127.0.0.1:54321/functions/v1/process-document',
+        'http://127.0.0.1:54321/functions/v1/process-document'
         {
-          method: 'POST',
+          method: 'POST'
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${supabaseServiceKey}`,
-          },
+            'Content-Type': 'application/json'
+            Authorization: `Bearer ${supabaseServiceKey}`
+          }
           body: JSON.stringify({
-            document_id: 'test-id',
-            content: 'test content',
-          }),
+            document_id: 'test-id'
+            content: 'test content'
+          })
         }
-      );
       if (response.ok) {
         const result = await response.json();
       } else {
         console._error(
-          '❌ Edge Function _error:',
-          response.status,
+          '❌ Edge Function _error:'
+          response.status
           response.statusText
-        );
         const errorText = await response.text();
         console._error('Error details:', errorText);
       }

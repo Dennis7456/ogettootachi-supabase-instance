@@ -8,8 +8,8 @@ async function testDocumentUploadComplete() {
     // Test 1: Authentication
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Authentication failed:', authError.message);
@@ -29,12 +29,11 @@ async function testDocumentUploadComplete() {
     }
     // Test 3: File Upload
     const testFile = new File(
-      ['Test document content for upload verification'],
-      'test-document.txt',
+      ['Test document content for upload verification']
+      'test-document.txt'
       {
-        type: 'text/plain',
+        type: 'text/plain'
       }
-    );
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
       .upload(`test-${Date.now()}.txt`, testFile);
@@ -47,11 +46,11 @@ async function testDocumentUploadComplete() {
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Test Document',
-        content: 'This is a test document for verification',
-        category: 'test',
-        file_path: _uploadData.path,
-        file_type: 'text/plain',
+        title: 'Test Document'
+        content: 'This is a test document for verification'
+        category: 'test'
+        file_path: _uploadData.path
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -62,7 +61,7 @@ async function testDocumentUploadComplete() {
     // Test 5: Edge Function
     const { _data: functionData, _error: functionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (functionError) {
       console._error('❌ Edge Function failed:', functionError.message);
@@ -78,7 +77,7 @@ async function testDocumentUploadComplete() {
       This test verifies the complete document upload and processing pipeline.
     `.trim();
     const fullTestFile = new File([fullContent], 'comprehensive-test.txt', {
-      type: 'text/plain',
+      type: 'text/plain'
     });
     // Upload file
     const { _data: fullUploadData, _error: fullUploadError } =
@@ -93,11 +92,11 @@ async function testDocumentUploadComplete() {
     const { _data: fullDocData, _error: fullDocError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Comprehensive Test Document',
-        content: fullContent,
-        category: 'test',
-        file_path: fullUploadData.path,
-        file_type: 'text/plain',
+        title: 'Comprehensive Test Document'
+        content: fullContent
+        category: 'test'
+        file_path: fullUploadData.path
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -108,7 +107,7 @@ async function testDocumentUploadComplete() {
     // Process with Edge Function
     const { _data: _fullFunctionData, _error: fullFunctionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: fullDocData },
+        body: { record: fullDocData }
       });
     if (fullFunctionError) {
       console._error('❌ Full Edge Function failed:', fullFunctionError.message);

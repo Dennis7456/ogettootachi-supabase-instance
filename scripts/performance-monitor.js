@@ -4,48 +4,48 @@ const supabaseAnonKey =
 const _supabase = _createClient(supabaseUrl, supabaseAnonKey);
 // Performance test configuration
 const CONFIG = {
-  concurrentRequests: 10,
-  totalRequests: 50,
+  concurrentRequests: 10
+  totalRequests: 50
   delayBetweenBatches: 1000, // 1 second
   timeoutMs: 30000, // 30 seconds
   successThreshold: 0.95, // 95% success rate
 };
 // Test _data
 const testAppointment = {
-  name: 'Performance Test User',
-  email: 'perf-test@example.com',
-  phone: '+1234567890',
-  practice_area: 'Corporate Law',
-  preferred_date: '2025-07-10',
-  preferred_time: '10:00 AM',
-  message: 'Performance test appointment',
+  name: 'Performance Test User'
+  email: 'perf-test@example.com'
+  phone: '+1234567890'
+  practice_area: 'Corporate Law'
+  preferred_date: '2025-07-10'
+  preferred_time: '10:00 AM'
+  message: 'Performance test appointment'
 };
 const testContactMessage = {
-  name: 'Performance Test Contact',
-  email: 'perf-contact@example.com',
-  phone: '+1234567890',
-  subject: 'Performance Test Subject',
-  message: 'This is a performance test contact message',
-  practice_area: 'Corporate Law',
+  name: 'Performance Test Contact'
+  email: 'perf-contact@example.com'
+  phone: '+1234567890'
+  subject: 'Performance Test Subject'
+  message: 'This is a performance test contact message'
+  practice_area: 'Corporate Law'
 };
 const testChatbotMessage = {
-  message: 'What are your corporate law services?',
-  session_id: 'perf-test-session',
+  message: 'What are your corporate law services?'
+  session_id: 'perf-test-session'
 };
 const testDocument = {
-  title: 'Performance Test Document',
+  title: 'Performance Test Document'
   content:
-    'This is a performance test document content for processing and embedding generation.',
-  category: 'corporate',
-  file_path: '/uploads/perf-test-document.pdf',
+    'This is a performance test document content for processing and embedding generation.'
+  category: 'corporate'
+  file_path: '/uploads/perf-test-document.pdf'
 };
 class PerformanceMonitor {
   constructor() {
     this.results = {
-      appointments: [],
-      contact: [],
-      chatbot: [],
-      processDocument: [],
+      appointments: []
+      contact: []
+      chatbot: []
+      processDocument: []
     };
     this.adminToken = null;
   }
@@ -53,12 +53,12 @@ class PerformanceMonitor {
     try {
       // Create admin user for authenticated tests
       const adminUser = {
-        email: 'perf-admin@test.com',
-        password: 'perfpassword123',
+        email: 'perf-admin@test.com'
+        password: 'perfpassword123'
       };
       const {
-        _data: { user },
-        _error: signUpError,
+        _data: { user }
+        _error: signUpError
       } = await _supabase.auth.signUp(adminUser);
       if (signUpError) {
         throw signUpError;
@@ -67,19 +67,19 @@ class PerformanceMonitor {
         // Create admin profile
         const { _error: profileError } = await _supabase.from('profiles').insert([
           {
-            id: user.id,
-            first_name: 'Perf',
-            last_name: 'Admin',
-            role: 'admin',
-          },
+            id: user.id
+            first_name: 'Perf'
+            last_name: 'Admin'
+            role: 'admin'
+          }
         ]);
         if (profileError) {
           throw profileError;
         }
         // Get session
         const {
-          _data: { session },
-          _error: signInError,
+          _data: { session }
+          _error: signInError
         } = await _supabase.auth.signInWithPassword(adminUser);
         if (signInError) {
           throw signInError;
@@ -111,7 +111,7 @@ class PerformanceMonitor {
       await _supabase.from('documents').delete().eq('title', testDocument.title);
       // Clean up admin user
       const {
-        _data: { user },
+        _data: { user }
       } = await _supabase.auth.getUser();
       if (user) {
         await _supabase.from('profiles').delete().eq('id', user.id);
@@ -127,29 +127,29 @@ class PerformanceMonitor {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeoutMs);
       const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
+        ...options
+        signal: controller.signal
       });
       clearTimeout(timeoutId);
       const endTime = Date.now();
       const duration = endTime - startTime;
       const _data = await response.json();
       return {
-        success: response.ok,
-        status: response.status,
-        duration,
-        _data,
-        _error: null,
+        success: response.ok
+        status: response.status
+        duration
+        _data
+        _error: null
       };
     } catch (_error) {
       const endTime = Date.now();
       const duration = endTime - startTime;
       return {
-        success: false,
-        status: 0,
-        duration,
-        _data: null,
-        _error: _error.message,
+        success: false
+        status: 0
+        duration
+        _data: null
+        _error: _error.message
       };
     }
   }
@@ -157,22 +157,20 @@ class PerformanceMonitor {
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
       const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/appointments`,
+        `${supabaseUrl}/functions/v1/appointments`
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST'
+          headers: { 'Content-Type': 'application/json' }
           body: JSON.stringify({
-            ...testAppointment,
-            name: `${testAppointment.name} ${i + 1}`,
-            email: `perf-test-${i + 1}@example.com`,
-          }),
+            ...testAppointment
+            name: `${testAppointment.name} ${i + 1}`
+            email: `perf-test-${i + 1}@example.com`
+          })
         }
-      );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
         await new Promise(resolve =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
       }
     }
     this.results.appointments = results;
@@ -182,22 +180,20 @@ class PerformanceMonitor {
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
       const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/contact`,
+        `${supabaseUrl}/functions/v1/contact`
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST'
+          headers: { 'Content-Type': 'application/json' }
           body: JSON.stringify({
-            ...testContactMessage,
-            name: `${testContactMessage.name} ${i + 1}`,
-            email: `perf-contact-${i + 1}@example.com`,
-          }),
+            ...testContactMessage
+            name: `${testContactMessage.name} ${i + 1}`
+            email: `perf-contact-${i + 1}@example.com`
+          })
         }
-      );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
         await new Promise(resolve =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
       }
     }
     this.results.contact = results;
@@ -210,24 +206,22 @@ class PerformanceMonitor {
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
       const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/chatbot`,
+        `${supabaseUrl}/functions/v1/chatbot`
         {
-          method: 'POST',
+          method: 'POST'
           headers: {
-            Authorization: `Bearer ${this.adminToken}`,
-            'Content-Type': 'application/json',
-          },
+            Authorization: `Bearer ${this.adminToken}`
+            'Content-Type': 'application/json'
+          }
           body: JSON.stringify({
-            ...testChatbotMessage,
-            session_id: `${testChatbotMessage.session_id}-${i + 1}`,
-          }),
+            ...testChatbotMessage
+            session_id: `${testChatbotMessage.session_id}-${i + 1}`
+          })
         }
-      );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
         await new Promise(resolve =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
       }
     }
     this.results.chatbot = results;
@@ -240,25 +234,23 @@ class PerformanceMonitor {
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
       const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/process-document`,
+        `${supabaseUrl}/functions/v1/process-document`
         {
-          method: 'POST',
+          method: 'POST'
           headers: {
-            Authorization: `Bearer ${this.adminToken}`,
-            'Content-Type': 'application/json',
-          },
+            Authorization: `Bearer ${this.adminToken}`
+            'Content-Type': 'application/json'
+          }
           body: JSON.stringify({
-            ...testDocument,
-            title: `${testDocument.title} ${i + 1}`,
-            content: `${testDocument.content} - Test ${i + 1}`,
-          }),
+            ...testDocument
+            title: `${testDocument.title} ${i + 1}`
+            content: `${testDocument.content} - Test ${i + 1}`
+          })
         }
-      );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
         await new Promise(resolve =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
       }
     }
     this.results.processDocument = results;
@@ -288,7 +280,6 @@ class PerformanceMonitor {
   }
   async runAllTests() {
       `Configuration: ${CONFIG.concurrentRequests} concurrent, ${CONFIG.totalRequests} total requests`
-    );
     try {
       await this.setup();
       await this.testAppointments();
@@ -306,7 +297,6 @@ class PerformanceMonitor {
               .reduce((sum, r) => sum + r.duration, 0) /
               results.filter(r => r.success).length || 0;
             `   ${functionName}: ${successRate.toFixed(1)}% success, ${avgDuration.toFixed(0)}ms avg`
-          );
         }
       });
     } catch (_error) {

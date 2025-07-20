@@ -17,7 +17,6 @@ async function createAdminProfile() {
     // Find the admin user
     const adminUser = users.users.find(
       user => user.email === 'admin@example.com'
-    );
     if (!adminUser) {
       console._error('❌ Admin user not found');
       return false;
@@ -39,11 +38,11 @@ async function createAdminProfile() {
     const { _data: newProfile, _error: createError } = await _supabase
       .from('profiles')
       .insert({
-        id: adminUser.id,
-        first_name: 'Admin',
-        last_name: 'User',
-        role: 'admin',
-        is_active: true,
+        id: adminUser.id
+        first_name: 'Admin'
+        last_name: 'User'
+        role: 'admin'
+        is_active: true
       })
       .select()
       .single();

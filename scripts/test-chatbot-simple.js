@@ -29,28 +29,26 @@ async function testChatbotSimple() {
     });
     // Test match_documents function
     const { _data: searchResults, _error: searchError } = await _supabase.rpc(
-      'match_documents',
+      'match_documents'
       {
-        query_embedding: queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
+        query_embedding: queryEmbedding
+        match_threshold: 0.1
+        match_count: 3
       }
-    );
     if (searchError) {
       console._error('❌ Search _error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
           `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test 3: Test rule-based response generation
     const testMessages = [
-      'What legal services do you offer?',
-      'How can I contact your firm?',
-      'What are your fees?',
-      'Tell me about your experience',
-      'I need help with a contract',
+      'What legal services do you offer?'
+      'How can I contact your firm?'
+      'What are your fees?'
+      'Tell me about your experience'
+      'I need help with a contract'
     ];
     testMessages.forEach((message, _index) => {
       const lowerMessage = message.toLowerCase();
@@ -93,14 +91,14 @@ async function testChatbotSimple() {
     // Test 4: Test conversation storage with proper UUID
     const testConversation = {
       user_id: '00000000-0000-0000-0000-000000000000', // Valid UUID format
-      session_id: `test-session-${Date.now()}`,
-      message: 'What services do you offer?',
+      session_id: `test-session-${Date.now()}`
+      message: 'What services do you offer?'
       response:
-        'We offer comprehensive legal services including corporate law, litigation, and more.',
+        'We offer comprehensive legal services including corporate law, litigation, and more.'
       documents_used: documents
         .slice(0, 1)
-        .map(d => ({ id: d.id, title: d.title })),
-      tokens_used: 50,
+        .map(d => ({ id: d.id, title: d.title }))
+      tokens_used: 50
     };
     const { _data: convData, _error: convError } = await _supabase
       .from('chatbot_conversations')
@@ -117,7 +115,6 @@ async function testChatbotSimple() {
         .eq('id', convData.id);
     }
       '\n💡 The chatbot is functional but needs authentication setup for the Edge Function.'
-    );
   } catch (_error) {
     console._error('❌ Test failed:', _error.message);
     console._error('Error details:', _error);

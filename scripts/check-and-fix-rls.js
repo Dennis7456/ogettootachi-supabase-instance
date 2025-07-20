@@ -7,8 +7,8 @@ async function checkAndFixRLS() {
   // Test admin user JWT structure
   const { _data: authData, _error: authError } =
     await _supabase.auth.signInWithPassword({
-      email: 'admin@test.com',
-      password: 'admin123456',
+      email: 'admin@test.com'
+      password: 'admin123456'
     });
   if (authError) {
     console._error('❌ Authentication failed:', authError.message);
@@ -16,23 +16,22 @@ async function checkAndFixRLS() {
   }
   // Get session to see JWT structure
   const {
-    _data: { session },
+    _data: { session }
   } = await _supabase.auth.getSession();
   if (session) {
     const tokenParts = session.access_token.split('.');
     const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
   }
     '- The issue is that the RLS policies are not correctly checking user_metadata'
-  );
 -- First, let's check what policies currently exist
 SELECT 
-  schemaname,
-  tablename,
-  policyname,
-  permissive,
-  roles,
-  cmd,
-  qual,
+  schemaname
+  tablename
+  policyname
+  permissive
+  roles
+  cmd
+  qual
   with_check
 FROM pg_policies 
 WHERE schemaname = 'storage' AND tablename = 'objects';
@@ -53,7 +52,6 @@ CREATE POLICY "Documents are uploadable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are updatable by admins" ON storage.objects
   FOR UPDATE USING (
     bucket_id = 'documents' AND 
@@ -61,7 +59,6 @@ CREATE POLICY "Documents are updatable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are deletable by admins" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'documents' AND 
@@ -69,11 +66,9 @@ CREATE POLICY "Documents are deletable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'documents' AND auth.role() = 'authenticated'
-  );
 CREATE POLICY "Public files are accessible by everyone" ON storage.objects
   FOR SELECT USING (bucket_id = 'public');
 CREATE POLICY "Public files are uploadable by authenticated users" ON storage.objects
@@ -102,26 +97,19 @@ CREATE POLICY "Documents are insertable by admins" ON documents
   FOR INSERT WITH CHECK (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are updatable by admins" ON documents
   FOR UPDATE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are deletable by admins" ON documents
   FOR DELETE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
   `);
     '1. The admin role is stored in user_metadata.role, not in the main JWT role field'
-  );
     "2. We need to use (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"
-  );
     '3. The service role should always have access for backend operations'
-  );
     '4. Authenticated users should be able to read documents and storage'
-  );
 }
 // Run the check
 checkAndFixRLS();

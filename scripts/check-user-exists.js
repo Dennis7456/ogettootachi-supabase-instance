@@ -4,7 +4,7 @@ const supabaseUrl =
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseServiceKey) {
   console._error('SUPABASE_SERVICE_ROLE_KEY is required');
-  throw new Error("Process exit blocked");
+  throw new Error('Process exit blocked');
 }
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function checkUserExists() {
@@ -20,13 +20,11 @@ async function checkUserExists() {
     const user = authUser.users.find(u => u.email === email);
     if (!user) {
       authUser.users.forEach(u => {
-          `  - ${u.email} (${u.email_confirmed_at ? 'confirmed' : 'not confirmed'})`
-        );
+        `  - ${u.email} (${u.email_confirmed_at ? 'confirmed' : 'not confirmed'})`;
       });
       return;
     }
-      `  - Email confirmed: ${user.email_confirmed_at ? 'Yes' : 'No'}`
-    );
+    `  - Email confirmed: ${user.email_confirmed_at ? 'Yes' : 'No'}`;
     // Check profiles table
     const { _data: profile, _error: profileError } = await _supabase
       .from('profiles')

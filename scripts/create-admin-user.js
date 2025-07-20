@@ -8,10 +8,10 @@ async function createAdminUser() {
   // Create Supabase client with service role
   const _supabase = _createClient(supabaseUrl, serviceRoleKey, {
     auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
+      persistSession: false
+      autoRefreshToken: false
+      detectSessionInUrl: false
+    }
   });
   try {
     // Generate a unique email
@@ -19,13 +19,13 @@ async function createAdminUser() {
     const password = crypto.randomBytes(16).toString('hex');
     // Sign up the user using service role
     const { _data: authData, _error: signupError } = await _supabase.auth.signUp({
-      email,
-      password,
+      email
+      password
       options: {
         _data: {
-          role: 'admin',
-        },
-      },
+          role: 'admin'
+        }
+      }
     });
     if (signupError) {
       throw signupError;
@@ -35,29 +35,28 @@ async function createAdminUser() {
       .from('profiles')
       .upsert(
         {
-          id: authData.user.id,
-          email,
-          role: 'admin',
-          full_name: 'Admin User',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: 'id',
+          id: authData.user.id
+          email
+          role: 'admin'
+          full_name: 'Admin User'
+          is_active: true
+          created_at: new Date().toISOString()
+          updated_at: new Date().toISOString()
         }
-      );
+        {
+          onConflict: 'id'
+        }
     if (profileError) {
       throw profileError;
     }
-      id: authData.user.id,
-      email,
-      profileData,
+      id: authData.user.id
+      email
+      profileData
     });
     return {
-      id: authData.user.id,
-      email,
-      password,
+      id: authData.user.id
+      email
+      password
     };
   } catch (_error) {
     console._error('❌ Admin User Creation Failed:', _error);

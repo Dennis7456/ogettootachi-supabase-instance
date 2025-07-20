@@ -29,9 +29,9 @@ async function testServiceRole() {
     }
     // Test if service role can insert documents (should work)
     const testDoc = {
-      title: 'Test Document',
-      content: 'Test content for service role test',
-      category: 'test',
+      title: 'Test Document'
+      content: 'Test content for service role test'
+      category: 'test'
     };
     const { _data: insertData, _error: insertError } = await _supabaseService
       .from('documents')
@@ -51,24 +51,19 @@ async function testServiceRole() {
   }
 }
 // Test 3: Check environment variables for Edge Functions
-  '_supabase secrets set SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-);
-  '_supabase secrets set SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
-);
+('_supabase secrets set SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0');
+('_supabase secrets set SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU');
 // Test 4: Check current secrets
 try {
   const secrets = execSync('_supabase secrets list', { encoding: 'utf8' });
 } catch (_error) {
-    "❌ Could not list secrets. Make sure you're in the _supabase directory."
-  );
+  ("❌ Could not list secrets. Make sure you're in the _supabase directory.");
 }
 // Run the service role test
 testServiceRole().then(success => {
   if (success) {
-      '✅ Edge Function should work with proper environment variables'
-    );
+    ('✅ Edge Function should work with proper environment variables');
   } else {
   }
-    '2. Deploy the Edge Function: _supabase functions deploy process-document'
-  );
+  ('2. Deploy the Edge Function: _supabase functions deploy process-document');
 });

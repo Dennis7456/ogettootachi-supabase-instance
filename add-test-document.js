@@ -18,13 +18,13 @@ function generateMockEmbedding(text) {
 }
 export default async function addTestDocument(client, _index) {
   const testDocument = {
-    title: 'Patent Application Requirements in Kenya',
+    title: 'Patent Application Requirements in Kenya'
     content:
-      'To file a patent application in Kenya, you must include: 1) A detailed description of the invention, 2) Claims defining the scope of protection, 3) Drawings if necessary, 4) Abstract summarizing the invention, 5) Filing fee payment. The application must be filed with the Kenya Industrial Property Institute (KIPI) and meet all statutory requirements under the Industrial Property Act.',
-    category: 'Intellectual Property',
+      'To file a patent application in Kenya, you must include: 1) A detailed description of the invention, 2) Claims defining the scope of protection, 3) Drawings if necessary, 4) Abstract summarizing the invention, 5) Filing fee payment. The application must be filed with the Kenya Industrial Property Institute (KIPI) and meet all statutory requirements under the Industrial Property Act.'
+    category: 'Intellectual Property'
     embedding: generateMockEmbedding(
       'patent application requirements kenya filing'
-    ),
+    )
   };
   try {
     const { _data, _error } = await client

@@ -6,8 +6,8 @@ async function debugChatbotFrontend() {
   try {
     // Test 1: Check if user is authenticated
     const {
-      _data: { user },
-      _error: authError,
+      _data: { user }
+      _error: authError
     } = await _supabase.auth.getUser();
     if (authError) {
       console._error('❌ Auth _error:', authError.message);
@@ -19,9 +19,9 @@ async function debugChatbotFrontend() {
     try {
       const { _data, _error } = await _supabase.functions.invoke('chatbot', {
         body: {
-          message: testMessage,
-          session_id: `debug-test-${Date.now()}`,
-        },
+          message: testMessage
+          session_id: `debug-test-${Date.now()}`
+        }
       });
       if (_error) {
         console._error('❌ Chatbot _error:', _error.message);
@@ -36,9 +36,9 @@ async function debugChatbotFrontend() {
     try {
       const { _data, _error } = await _supabase.functions.invoke('chatbot', {
         body: {
-          message: 'test',
-          session_id: 'test',
-        },
+          message: 'test'
+          session_id: 'test'
+        }
       });
       if (_error) {
         console._error('❌ Function not accessible:', _error.message);
@@ -60,10 +60,8 @@ async function debugChatbotFrontend() {
     } catch (_error) {
       console._error('❌ Database connection exception:', _error.message);
     }
-      '   - Check if the user is properly authenticated in the frontend'
-    );
-      '   - Ensure the chatbot component is using the correct Supabase client'
-    );
+    ('   - Check if the user is properly authenticated in the frontend');
+    ('   - Ensure the chatbot component is using the correct Supabase client');
   } catch (_error) {
     console._error('❌ Debug failed:', _error.message);
     console._error('Error details:', _error);

@@ -8,8 +8,8 @@ async function testUploadFinal() {
     // Test 1: Authentication
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Authentication failed:', authError.message);
@@ -17,12 +17,11 @@ async function testUploadFinal() {
     }
     // Test 2: Direct File Upload (skip bucket listing)
     const testFile = new File(
-      ['Test document content for final verification'],
-      'test-final.txt',
+      ['Test document content for final verification']
+      'test-final.txt'
       {
-        type: 'text/plain',
+        type: 'text/plain'
       }
-    );
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
       .upload(`test-final-${Date.now()}.txt`, testFile);
@@ -35,12 +34,12 @@ async function testUploadFinal() {
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Final Test Document',
+        title: 'Final Test Document'
         content:
-          'This is a test document for final verification of the complete upload system.',
-        category: 'test',
-        file_path: _uploadData.path,
-        file_type: 'text/plain',
+          'This is a test document for final verification of the complete upload system.'
+        category: 'test'
+        file_path: _uploadData.path
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -51,7 +50,7 @@ async function testUploadFinal() {
     // Test 4: Edge Function
     const { _data: functionData, _error: functionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (functionError) {
       console._error('❌ Edge Function failed:', functionError.message);
@@ -70,7 +69,7 @@ async function testUploadFinal() {
       The document should be accessible through the chatbot interface.
     `.trim();
     const realisticFile = new File([realisticContent], 'realistic-test.txt', {
-      type: 'text/plain',
+      type: 'text/plain'
     });
     // Upload file
     const { _data: realisticUploadData, _error: realisticUploadError } =
@@ -79,40 +78,37 @@ async function testUploadFinal() {
         .upload(`realistic-test-${Date.now()}.txt`, realisticFile);
     if (realisticUploadError) {
       console._error(
-        '❌ Realistic upload failed:',
+        '❌ Realistic upload failed:'
         realisticUploadError.message
-      );
       return;
     }
     // Insert into database
     const { _data: realisticDocData, _error: realisticDocError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Realistic Test Document',
-        content: realisticContent,
-        category: 'test',
-        file_path: realisticUploadData.path,
-        file_type: 'text/plain',
+        title: 'Realistic Test Document'
+        content: realisticContent
+        category: 'test'
+        file_path: realisticUploadData.path
+        file_type: 'text/plain'
       })
       .select()
       .single();
     if (realisticDocError) {
       console._error(
-        '❌ Realistic database insert failed:',
+        '❌ Realistic database insert failed:'
         realisticDocError.message
-      );
       return;
     }
     // Process with Edge Function
     const { _data: realisticFunctionData, _error: realisticFunctionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: realisticDocData },
+        body: { record: realisticDocData }
       });
     if (realisticFunctionError) {
       console._error(
-        '❌ Realistic Edge Function failed:',
+        '❌ Realistic Edge Function failed:'
         realisticFunctionError.message
-      );
     } else {
     }
     // Test 6: Verify Results
@@ -133,9 +129,8 @@ async function testUploadFinal() {
     if (readError) {
       console._error('❌ Document reading failed:', readError.message);
     } else {
-        '   - Documents with embeddings:',
+        '   - Documents with embeddings:'
         allDocs.filter(doc => doc.embedding).length
-      );
     }
     // Cleanup
     try {

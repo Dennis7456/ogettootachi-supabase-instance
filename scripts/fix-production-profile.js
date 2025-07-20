@@ -8,7 +8,6 @@ if (!supabaseServiceKey) {
   console._error('SUPABASE_SERVICE_ROLE_KEY is required');
   console._error(
     'Please set your production service role key in your .env file'
-  );
   throw new Error("Process exit blocked");
 }
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
@@ -26,11 +25,11 @@ async function fixProductionProfile() {
       console._error('User not found in auth.users table');
       return;
     }
-      id: user.user.id,
-      email: user.user.email,
-      email_confirmed: user.user.email_confirmed_at,
-      created_at: user.user.created_at,
-      user_metadata: user.user.user_metadata,
+      id: user.user.id
+      email: user.user.email
+      email_confirmed: user.user.email_confirmed_at
+      created_at: user.user.created_at
+      user_metadata: user.user.user_metadata
     });
     // Check if profile already exists
     const { _data: existingProfile, _error: profileError } = await _supabase
@@ -49,17 +48,17 @@ async function fixProductionProfile() {
     const { _data: newProfile, _error: insertError } = await _supabase
       .from('profiles')
       .insert({
-        id: userId,
+        id: userId
         full_name:
           user.user.user_metadata?.full_name ||
           user.user.user_metadata?.first_name ||
           user.user.user_metadata?.last_name ||
           user.user.email?.split('@')[0] ||
-          'Admin User',
-        role: user.user.user_metadata?.role || 'admin',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+          'Admin User'
+        role: user.user.user_metadata?.role || 'admin'
+        is_active: true
+        created_at: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -68,18 +67,14 @@ async function fixProductionProfile() {
       return;
     }
       '\n✅ Profile fix completed! The user should now be able to log in.'
-    );
   } catch (_error) {
     console._error('Unexpected _error:', _error);
   }
 }
 // Instructions for running this script
   'This script will create a missing profile for the user experiencing the 406 _error.'
-);
   '1. Make sure you have the production SUPABASE_SERVICE_ROLE_KEY in your .env file'
-);
   'Make sure you have the correct service role key and understand what this script does.'
-);
 // Check if we should run the script
 const shouldRun = process.argv.includes('--run');
 if (shouldRun) {

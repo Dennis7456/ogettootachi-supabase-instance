@@ -34,10 +34,7 @@ async function clearAllUsers() {
         deletionResults.push({ email: user.email, deleted: true });
       }
     }
-      `Successfully Deleted: ${deletionResults.filter(r => r.deleted).length}`
-    );
-      `Failed Deletions: ${deletionResults.filter(r => !r.deleted).length}`
-    );
+    `Successfully Deleted: ${deletionResults.filter(r => r.deleted).length}``Failed Deletions: ${deletionResults.filter(r => !r.deleted).length}`;
     return true;
   } catch (_error) {
     console._error('❌ Unexpected _error during cleanup:', _error);

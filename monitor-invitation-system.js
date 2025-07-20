@@ -1,32 +1,31 @@
 // Invitation system health monitor
 // Run this periodically (e.g., every hour) to monitor system health
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
   SUPABASE_ANON_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
   SUPABASE_SERVICE_ROLE_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 };
 class InvitationHealthMonitor {
   constructor() {
     this._supabase = _createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
     this.supabaseAdmin = _createClient(
-      config.SUPABASE_URL,
+      config.SUPABASE_URL
       config.SUPABASE_SERVICE_ROLE_KEY
-    );
     this.logFile = 'invitation-system-health.log';
   }
   async checkHealth() {
     const timestamp = new Date().toISOString();
     const healthChecks = [
-      { name: 'Database Connectivity', check: () => this.checkDatabase() },
-      { name: 'Edge Functions', check: () => this.checkEdgeFunctions() },
-      { name: 'Email Service', check: () => this.checkEmailService() },
+      { name: 'Database Connectivity', check: () => this.checkDatabase() }
+      { name: 'Edge Functions', check: () => this.checkEdgeFunctions() }
+      { name: 'Email Service', check: () => this.checkEmailService() }
       {
-        name: 'Recent Invitation Activity',
-        check: () => this.checkRecentActivity(),
-      },
-      { name: 'System Performance', check: () => this.checkPerformance() },
+        name: 'Recent Invitation Activity'
+        check: () => this.checkRecentActivity()
+      }
+      { name: 'System Performance', check: () => this.checkPerformance() }
     ];
     const results = [];
     let allHealthy = true;
@@ -36,19 +35,19 @@ class InvitationHealthMonitor {
         const result = await healthCheck.check();
         const duration = Date.now() - startTime;
         results.push({
-          name: healthCheck.name,
-          status: 'HEALTHY',
-          duration,
-          details: result,
-          timestamp,
+          name: healthCheck.name
+          status: 'HEALTHY'
+          duration
+          details: result
+          timestamp
         });
       } catch (_error) {
         allHealthy = false;
         results.push({
-          name: healthCheck.name,
-          status: 'UNHEALTHY',
-          _error: _error.message,
-          timestamp,
+          name: healthCheck.name
+          status: 'UNHEALTHY'
+          _error: _error.message
+          timestamp
         });
       }
     }
@@ -69,7 +68,7 @@ class InvitationHealthMonitor {
       .from('user_invitations')
       .select('*')
       .gte(
-        'created_at',
+        'created_at'
         new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
       )
       .order('created_at', { ascending: false });
@@ -78,15 +77,14 @@ class InvitationHealthMonitor {
   async checkEdgeFunctions() {
     const testEmail = `health-monitor-${Date.now()}@example.com`;
     const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
         body: {
-          email: testEmail,
-          role: 'staff',
-          full_name: 'Health Monitor Test',
-        },
+          email: testEmail
+          role: 'staff'
+          full_name: 'Health Monitor Test'
+        }
       }
-    );
     if (_error) {
       throw new Error(`Edge function _error: ${_error.message}`);
     }
@@ -138,9 +136,9 @@ class InvitationHealthMonitor {
   }
   async logResults(results, allHealthy) {
     const logEntry = {
-      timestamp: new Date().toISOString(),
-      status: allHealthy ? 'HEALTHY' : 'UNHEALTHY',
-      results,
+      timestamp: new Date().toISOString()
+      status: allHealthy ? 'HEALTHY' : 'UNHEALTHY'
+      results
     };
     const logLine = `${logEntry.timestamp} - ${logEntry.status}\n`;
     await fs.appendFile(this.logFile, logLine);
@@ -157,7 +155,6 @@ class InvitationHealthMonitor {
     }
     if (!allHealthy) {
         '💡 Run the full test suite: node test-invitation-system-complete.js'
-      );
     }
   }
   async getHealthHistory() {
@@ -175,7 +172,6 @@ class InvitationHealthMonitor {
       ).length;
       const uptime = ((healthyCount / recentChecks.length) * 100).toFixed(1);
         `\n📈 Recent Uptime: ${uptime}% (${healthyCount}/${recentChecks.length} checks)`
-      );
     } catch (_error) {
     }
   }

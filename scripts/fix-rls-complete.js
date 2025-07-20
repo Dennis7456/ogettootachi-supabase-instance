@@ -5,16 +5,15 @@ const supabaseServiceKey =
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function fixRLSComplete() {
     'The issue is that we need to completely reset and recreate all RLS policies.'
-  );
 -- STEP 1: Check current policies
 SELECT 
-  schemaname,
-  tablename,
-  policyname,
-  permissive,
-  roles,
-  cmd,
-  qual,
+  schemaname
+  tablename
+  policyname
+  permissive
+  roles
+  cmd
+  qual
   with_check
 FROM pg_policies 
 WHERE schemaname = 'storage' AND tablename = 'objects'
@@ -42,7 +41,6 @@ CREATE POLICY "Documents are uploadable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are updatable by admins" ON storage.objects
   FOR UPDATE USING (
     bucket_id = 'documents' AND 
@@ -50,7 +48,6 @@ CREATE POLICY "Documents are updatable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are deletable by admins" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'documents' AND 
@@ -58,11 +55,9 @@ CREATE POLICY "Documents are deletable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'documents' AND auth.role() = 'authenticated'
-  );
 CREATE POLICY "Public files are accessible by everyone" ON storage.objects
   FOR SELECT USING (bucket_id = 'public');
 CREATE POLICY "Public files are uploadable by authenticated users" ON storage.objects
@@ -99,53 +94,48 @@ CREATE POLICY "Documents are insertable by admins" ON documents
   FOR INSERT WITH CHECK (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are updatable by admins" ON documents
   FOR UPDATE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
 CREATE POLICY "Documents are deletable by admins" ON documents
   FOR DELETE USING (
     (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
     auth.role() = 'service_role'
-  );
   `);
 -- Check the final policies
 SELECT 
-  schemaname,
-  tablename,
-  policyname,
-  permissive,
-  roles,
-  cmd,
-  qual,
+  schemaname
+  tablename
+  policyname
+  permissive
+  roles
+  cmd
+  qual
   with_check
 FROM pg_policies 
 WHERE schemaname = 'storage' AND tablename = 'objects'
 ORDER BY policyname;
   `);
     '3. After running all steps, test with: node scripts/test-upload-direct.js'
-  );
   // Test current admin user
   try {
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Admin authentication failed:', authError.message);
     } else {
       // Test JWT structure
       const {
-        _data: { session },
+        _data: { session }
       } = await _supabase.auth.getSession();
       if (session) {
         const tokenParts = session.access_token.split('.');
         const payload = JSON.parse(
           Buffer.from(tokenParts[1], 'base64').toString()
-        );
       }
     }
   } catch (_error) {

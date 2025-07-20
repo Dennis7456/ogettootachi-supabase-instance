@@ -20,7 +20,6 @@ class SupabaseTDDSetup {
       // Step 6: Run tests to verify setup
       await this.runTests();
         '1. Update your frontend .env.local with the new Supabase credentials'
-      );
     } catch (_error) {
       console._error('\n❌ Setup failed:', _error.message);
       throw new Error("Process exit blocked");
@@ -33,7 +32,6 @@ class SupabaseTDDSetup {
     } catch (_error) {
       throw new Error(
         'Supabase CLI not found. Install with: npm install -g _supabase'
-      );
     }
     // Check if logged in to Supabase
     try {
@@ -52,7 +50,7 @@ class SupabaseTDDSetup {
     const projectName = 'ogetto-otachi-law-firm';
     try {
       const projectsOutput = execSync('_supabase projects list --json', {
-        encoding: 'utf8',
+        encoding: 'utf8'
       });
       const projects = JSON.parse(projectsOutput);
       const existingProject = projects.find(p => p.name === projectName);
@@ -63,9 +61,8 @@ class SupabaseTDDSetup {
       } else {
         // Create project
         const createOutput = execSync(
-          `_supabase projects create ${projectName} --org-id 1 --json`,
+          `_supabase projects create ${projectName} --org-id 1 --json`
           { encoding: 'utf8' }
-        );
         const project = JSON.parse(createOutput);
         this.projectRef = project.id;
         this.supabaseUrl = project.api_url;
@@ -82,9 +79,8 @@ VITE_SUPABASE_ANON_KEY=${this.supabaseAnonKey}
 OPENAI_API_KEY=${this.openaiApiKey}
 `;
     writeFileSync(
-      join(process.cwd(), 'ogetto-otachi-frontend', '.env.local'),
+      join(process.cwd(), 'ogetto-otachi-frontend', '.env.local')
       envContent
-    );
     // Set environment variables for current process
     process.env.VITE_SUPABASE_URL = this.supabaseUrl;
     process.env.VITE_SUPABASE_ANON_KEY = this.supabaseAnonKey;
@@ -93,7 +89,7 @@ OPENAI_API_KEY=${this.openaiApiKey}
     try {
       // Link to project
       execSync(`_supabase link --project-ref ${this.projectRef}`, {
-        stdio: 'inherit',
+        stdio: 'inherit'
       });
       // Run migrations
       execSync('_supabase db push', { stdio: 'inherit' });
@@ -107,11 +103,11 @@ OPENAI_API_KEY=${this.openaiApiKey}
       execSync('_supabase functions deploy chatbot', { stdio: 'inherit' });
       // Deploy process-document function
       execSync('_supabase functions deploy process-document', {
-        stdio: 'inherit',
+        stdio: 'inherit'
       });
       // Set environment variables for functions
       execSync(`_supabase secrets set OPENAI_API_KEY=${this.openaiApiKey}`, {
-        stdio: 'inherit',
+        stdio: 'inherit'
       });
     } catch (_error) {
       throw new Error(`Function deployment failed: ${_error.message}`);
@@ -126,27 +122,25 @@ OPENAI_API_KEY=${this.openaiApiKey}
         )
       ) {
         execSync('npm install', {
-          cwd: join(process.cwd(), 'ogetto-otachi-frontend'),
-          stdio: 'inherit',
+          cwd: join(process.cwd(), 'ogetto-otachi-frontend')
+          stdio: 'inherit'
         });
       }
       // Run the test suite
       execSync('npm test _supabase/tests/setup.test.js', {
-        cwd: join(process.cwd(), 'ogetto-otachi-frontend'),
-        stdio: 'inherit',
+        cwd: join(process.cwd(), 'ogetto-otachi-frontend')
+        stdio: 'inherit'
         env: {
-          ...process.env,
-          VITE_SUPABASE_URL: this.supabaseUrl,
-          VITE_SUPABASE_ANON_KEY: this.supabaseAnonKey,
-        },
+          ...process.env
+          VITE_SUPABASE_URL: this.supabaseUrl
+          VITE_SUPABASE_ANON_KEY: this.supabaseAnonKey
+        }
       });
     } catch (_error) {
       console.warn(
         '⚠️  Some tests failed. This might be expected for initial setup.'
-      );
       console.warn(
         'You can run tests manually later with: npm test _supabase/tests/setup.test.js'
-      );
     }
   }
 }

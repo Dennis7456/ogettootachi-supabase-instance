@@ -1,54 +1,53 @@
 // Comprehensive invitation system test suite
 // Run this anytime to verify the system is working correctly
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
   SUPABASE_ANON_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
   SUPABASE_SERVICE_ROLE_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 };
 class InvitationSystemTester {
   constructor() {
     this._supabase = _createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
     this.supabaseAdmin = _createClient(
-      config.SUPABASE_URL,
+      config.SUPABASE_URL
       config.SUPABASE_SERVICE_ROLE_KEY
-    );
     this.results = [];
     this.testEmails = [];
   }
   async runAllTests() {
     const tests = [
       {
-        name: 'Infrastructure Health Check',
-        fn: () => this.testInfrastructure(),
-      },
-      { name: 'Database Connection Test', fn: () => this.testDatabase() },
+        name: 'Infrastructure Health Check'
+        fn: () => this.testInfrastructure()
+      }
+      { name: 'Database Connection Test', fn: () => this.testDatabase() }
       {
-        name: 'Edge Function Availability',
-        fn: () => this.testEdgeFunctions(),
-      },
-      { name: 'Email Service (Mailpit)', fn: () => this.testMailpit() },
+        name: 'Edge Function Availability'
+        fn: () => this.testEdgeFunctions()
+      }
+      { name: 'Email Service (Mailpit)', fn: () => this.testMailpit() }
       {
-        name: 'New User Invitation Flow',
-        fn: () => this.testNewUserInvitation(),
-      },
+        name: 'New User Invitation Flow'
+        fn: () => this.testNewUserInvitation()
+      }
       {
-        name: 'Existing User Invitation Flow',
-        fn: () => this.testExistingUserInvitation(),
-      },
-      { name: 'Admin Role Invitation', fn: () => this.testAdminInvitation() },
-      { name: 'Staff Role Invitation', fn: () => this.testStaffInvitation() },
-      { name: 'Invalid Email Handling', fn: () => this.testInvalidEmail() },
+        name: 'Existing User Invitation Flow'
+        fn: () => this.testExistingUserInvitation()
+      }
+      { name: 'Admin Role Invitation', fn: () => this.testAdminInvitation() }
+      { name: 'Staff Role Invitation', fn: () => this.testStaffInvitation() }
+      { name: 'Invalid Email Handling', fn: () => this.testInvalidEmail() }
       {
-        name: 'Database Record Integrity',
-        fn: () => this.testDatabaseRecords(),
-      },
-      { name: 'Email Content Validation', fn: () => this.testEmailContent() },
+        name: 'Database Record Integrity'
+        fn: () => this.testDatabaseRecords()
+      }
+      { name: 'Email Content Validation', fn: () => this.testEmailContent() }
       {
-        name: 'Token Generation Uniqueness',
-        fn: () => this.testTokenUniqueness(),
-      },
+        name: 'Token Generation Uniqueness'
+        fn: () => this.testTokenUniqueness()
+      }
     ];
     for (const test of tests) {
       await this.runTest(test.name, test.fn);
@@ -62,18 +61,18 @@ class InvitationSystemTester {
       const result = await testFn();
       const duration = Date.now() - startTime;
       this.results.push({
-        name,
-        status: 'PASS',
-        duration,
-        details: result,
+        name
+        status: 'PASS'
+        duration
+        details: result
       });
     } catch (_error) {
       const duration = Date.now() - startTime;
       this.results.push({
-        name,
-        status: 'FAIL',
-        duration,
-        _error: _error.message,
+        name
+        status: 'FAIL'
+        duration
+        _error: _error.message
       });
     }
   }
@@ -108,15 +107,14 @@ class InvitationSystemTester {
   async testEdgeFunctions() {
     // Test handle-invitation function
     const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
         body: {
-          email: 'test-health-check@example.com',
-          role: 'staff',
-          full_name: 'Test User',
-        },
+          email: 'test-health-check@example.com'
+          role: 'staff'
+          full_name: 'Test User'
+        }
       }
-    );
     if (_error) {
       throw new Error(`handle-invitation function failed: ${_error.message}`);
     }
@@ -132,14 +130,13 @@ class InvitationSystemTester {
     // Send test invitation
     const testEmail = `mailpit-test-${Date.now()}@example.com`;
     const { _data } = await this._supabase.functions.invoke('handle-invitation', {
-      body: { email: testEmail, role: 'staff', full_name: 'Mailpit Test' },
+      body: { email: testEmail, role: 'staff', full_name: 'Mailpit Test' }
     });
     // Wait for email
     await new Promise(resolve => setTimeout(resolve, 3000));
     // Check Mailpit
     const mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'
-    );
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total === 0) {
       throw new Error('Email not delivered to Mailpit');
@@ -150,11 +147,10 @@ class InvitationSystemTester {
   async testNewUserInvitation() {
     const testEmail = `new-user-${Date.now()}@example.com`;
     const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
-        body: { email: testEmail, role: 'staff', full_name: 'New User Test' },
+        body: { email: testEmail, role: 'staff', full_name: 'New User Test' }
       }
-    );
     if (_error) {
       throw new Error(`Invitation failed: ${_error.message}`);
     }
@@ -177,20 +173,19 @@ class InvitationSystemTester {
     const testEmail = `existing-user-${Date.now()}@example.com`;
     // Create user first
     await this.supabaseAdmin.auth.admin.createUser({
-      email: testEmail,
-      email_confirm: true,
+      email: testEmail
+      email_confirm: true
     });
     // Send invitation to existing user
     const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
         body: {
-          email: testEmail,
-          role: 'admin',
-          full_name: 'Existing User Test',
-        },
+          email: testEmail
+          role: 'admin'
+          full_name: 'Existing User Test'
+        }
       }
-    );
     if (_error) {
       throw new Error(`Existing user invitation failed: ${_error.message}`);
     }
@@ -203,7 +198,7 @@ class InvitationSystemTester {
   async testAdminInvitation() {
     const testEmail = `admin-test-${Date.now()}@example.com`;
     const { _data } = await this._supabase.functions.invoke('handle-invitation', {
-      body: { email: testEmail, role: 'admin', full_name: 'Admin Test' },
+      body: { email: testEmail, role: 'admin', full_name: 'Admin Test' }
     });
     const { _data: invitation } = await this.supabaseAdmin
       .from('user_invitations')
@@ -219,7 +214,7 @@ class InvitationSystemTester {
   async testStaffInvitation() {
     const testEmail = `staff-test-${Date.now()}@example.com`;
     const { _data } = await this._supabase.functions.invoke('handle-invitation', {
-      body: { email: testEmail, role: 'staff', full_name: 'Staff Test' },
+      body: { email: testEmail, role: 'staff', full_name: 'Staff Test' }
     });
     const { _data: invitation } = await this.supabaseAdmin
       .from('user_invitations')
@@ -234,19 +229,17 @@ class InvitationSystemTester {
   }
   async testInvalidEmail() {
     const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
+      'handle-invitation'
       {
         body: {
-          email: 'invalid-email',
-          role: 'staff',
-          full_name: 'Invalid Test',
-        },
+          email: 'invalid-email'
+          role: 'staff'
+          full_name: 'Invalid Test'
+        }
       }
-    );
     // Should either fail or handle gracefully
     if (_data && _data.success) {
         '   Note: System accepted invalid email - consider adding validation'
-      );
     }
     return 'Invalid email handling tested';
   }
@@ -259,7 +252,6 @@ class InvitationSystemTester {
     if (invitations.length !== this.testEmails.length) {
       throw new Error(
         `Expected ${this.testEmails.length} records, found ${invitations.length}`
-      );
     }
     // Check required fields
     for (const inv of invitations) {
@@ -282,7 +274,6 @@ class InvitationSystemTester {
     // Check latest email in Mailpit
     const mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'
-    );
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total === 0) {
       throw new Error('No emails found for content validation');
@@ -301,15 +292,14 @@ class InvitationSystemTester {
     for (let i = 0; i < 5; i++) {
       const testEmail = `token-test-${i}-${Date.now()}@example.com`;
       const { _data } = await this._supabase.functions.invoke(
-        'handle-invitation',
+        'handle-invitation'
         {
           body: {
-            email: testEmail,
-            role: 'staff',
-            full_name: `Token Test ${i}`,
-          },
+            email: testEmail
+            role: 'staff'
+            full_name: `Token Test ${i}`
+          }
         }
-      );
       if (tokens.has(_data.invitation_token)) {
         throw new Error('Duplicate token generated');
       }
@@ -339,10 +329,8 @@ class InvitationSystemTester {
     const failed = this.results.filter(r => r.status === 'FAIL').length;
     const totalTime = this.results.reduce((sum, r) => sum + r.duration, 0);
       `📊 Success Rate: ${((passed / this.results.length) * 100).toFixed(1)}%\n`
-    );
     if (failed === 0) {
         '🎉 ALL TESTS PASSED! Your invitation system is working perfectly.'
-      );
     } else {
     }
   }

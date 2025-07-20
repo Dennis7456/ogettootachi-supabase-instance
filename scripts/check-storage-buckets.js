@@ -14,21 +14,19 @@ async function checkAndCreateBuckets() {
       console._error('❌ Failed to list buckets:', bucketsError);
       return false;
     }
-      'Found buckets:',
-      buckets.map(b => b.name)
-    );
+    ('Found buckets:', buckets.map(b => b.name));
     // Check if documents bucket exists
     const documentsBucket = buckets.find(bucket => bucket.name === 'documents');
     if (!documentsBucket) {
       const { _data: newBucket, _error: createError } =
         await _supabase.storage.createBucket('documents', {
-          public: false,
+          public: false
           allowedMimeTypes: [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-          ],
+            'application/pdf'
+            'application/msword'
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            'text/plain'
+          ]
           fileSizeLimit: 10485760, // 10MB
         });
       if (createError) {
@@ -42,7 +40,7 @@ async function checkAndCreateBuckets() {
     if (!publicBucket) {
       const { _data: newPublicBucket, _error: createPublicError } =
         await _supabase.storage.createBucket('public', {
-          public: true,
+          public: true
         });
       if (createPublicError) {
         console._error('❌ Failed to create public bucket:', createPublicError);
@@ -52,9 +50,7 @@ async function checkAndCreateBuckets() {
     }
     // List buckets again to confirm
     const { _data: finalBuckets } = await _supabase.storage.listBuckets();
-      'Available buckets:',
-      finalBuckets.map(b => b.name)
-    );
+    ('Available buckets:', finalBuckets.map(b => b.name));
     return true;
   } catch (_error) {
     console._error('❌ Script failed:', _error);

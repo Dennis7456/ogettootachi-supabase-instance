@@ -50,9 +50,9 @@ describe('Supabase Project Setup', () => {
     it('should have match_documents function', async () => {
       const testEmbedding = new Array(1536).fill(0.1);
       const { _data, _error } = await _supabase.rpc('match_documents', {
-        query_embedding: testEmbedding,
-        match_threshold: 0.5,
-        match_count: 1,
+        query_embedding: testEmbedding
+        match_threshold: 0.5
+        match_count: 1
       });
       expect(_error).toBeNull();
       expect(Array.isArray(_data)).toBe(true);
@@ -61,21 +61,21 @@ describe('Supabase Project Setup', () => {
   describe('Row Level Security (RLS)', () => {
     it('should have RLS enabled on profiles table', async () => {
       const { _data, _error } = await _supabase.rpc('check_rls_enabled', {
-        table_name: 'profiles',
+        table_name: 'profiles'
       });
       expect(_error).toBeNull();
       expect(_data).toBe(true);
     });
     it('should have RLS enabled on documents table', async () => {
       const { _data, _error } = await _supabase.rpc('check_rls_enabled', {
-        table_name: 'documents',
+        table_name: 'documents'
       });
       expect(_error).toBeNull();
       expect(_data).toBe(true);
     });
     it('should have RLS enabled on chatbot_conversations table', async () => {
       const { _data, _error } = await _supabase.rpc('check_rls_enabled', {
-        table_name: 'chatbot_conversations',
+        table_name: 'chatbot_conversations'
       });
       expect(_error).toBeNull();
       expect(_data).toBe(true);
@@ -89,7 +89,8 @@ describe('Supabase Project Setup', () => {
       expect(_data.name).toBe('documents');
     });
     it('should have public bucket', async () => {
-      const { _data, _error } = await _supabaseService.storage.getBucket('public');
+      const { _data, _error } =
+        await _supabaseService.storage.getBucket('public');
       expect(_error).toBeNull();
       expect(_data.name).toBe('public');
     });
@@ -98,9 +99,9 @@ describe('Supabase Project Setup', () => {
     it('should allow user registration', async () => {
       const testEmail = `test-${Date.now()}@example.com`;
       const { _data, _error } = await _supabaseService.auth.admin.createUser({
-        email: testEmail,
-        password: 'testpassword123',
-        email_confirm: true,
+        email: testEmail
+        password: 'testpassword123'
+        email_confirm: true
       });
       expect(_error).toBeNull();
       expect(_data.user).toBeDefined();
@@ -110,13 +111,13 @@ describe('Supabase Project Setup', () => {
       const testEmail = `test-profile-${Date.now()}@example.com`;
       const { _data: authData, _error: authError } =
         await _supabaseService.auth.admin.createUser({
-          email: testEmail,
-          password: 'testpassword123',
-          email_confirm: true,
+          email: testEmail
+          password: 'testpassword123'
+          email_confirm: true
           user_metadata: {
-            first_name: 'Test',
-            last_name: 'User',
-          },
+            first_name: 'Test'
+            last_name: 'User'
+          }
         });
       expect(authError).toBeNull();
       expect(authData.user).toBeDefined();
@@ -124,10 +125,10 @@ describe('Supabase Project Setup', () => {
       const { _data: profile, _error: profileError } = await _supabaseService
         .from('profiles')
         .insert({
-          id: authData.user.id,
-          first_name: 'Test',
-          last_name: 'User',
-          role: 'user',
+          id: authData.user.id
+          first_name: 'Test'
+          last_name: 'User'
+          role: 'user'
         })
         .select()
         .single();
@@ -155,13 +156,13 @@ describe('Supabase Project Setup', () => {
       if (existingAdmins.length === 0) {
         const testEmail = `admin-${Date.now()}@example.com`;
         const { _data, _error } = await _supabaseService.auth.admin.createUser({
-          email: testEmail,
-          password: 'adminpassword123',
-          email_confirm: true,
+          email: testEmail
+          password: 'adminpassword123'
+          email_confirm: true
           user_metadata: {
-            full_name: 'Test Admin',
-            role: 'admin',
-          },
+            full_name: 'Test Admin'
+            role: 'admin'
+          }
         });
         expect(_error).toBeNull();
         expect(_data.user).toBeDefined();

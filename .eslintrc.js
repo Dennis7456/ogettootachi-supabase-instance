@@ -1,32 +1,33 @@
 module.exports = {
-  root: true,
+  root: true
   env: {
-    node: true,
+    node: true
     es2021: true
-  },
-  extends: [
-    'eslint:recommended'
-  ],
+  }
+  extends: ['eslint:recommended']
   parserOptions: {
-    ecmaVersion: 'latest',
+    ecmaVersion: 'latest'
     sourceType: 'module'
-  },
+  }
   rules: {
-    'no-unused-vars': ['warn', { 
-      vars: 'all', 
-      args: 'after-used', 
-      ignoreRestSiblings: true,
-      argsIgnorePattern: '^_'
-    }],
-    'no-console': 'warn',
+    'no-unused-vars': [
+      'warn'
+      {
+        vars: 'all'
+        args: 'after-used'
+        ignoreRestSiblings: true
+        argsIgnorePattern: '^_'
+      }
+    ]
+    'no-console': 'warn'
     'no-debugger': 'warn'
-  },
+  }
   ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    'coverage/',
-    '*.config.js',
+    'node_modules/'
+    'dist/'
+    'build/'
+    'coverage/'
+    '*.config.js'
     '*.config.cjs'
   ]
-}; 
+};

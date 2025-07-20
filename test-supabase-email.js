@@ -1,25 +1,24 @@
 // Test Supabase Auth Email Functionality
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
   SUPABASE_SERVICE_ROLE_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 };
 async function testSupabaseEmail() {
   const supabaseAdmin = _createClient(
-    config.SUPABASE_URL,
+    config.SUPABASE_URL
     config.SUPABASE_SERVICE_ROLE_KEY
-  );
   // Test 1: Try to create a user and send invite
   try {
     const testEmail = `test-email-${Date.now()}@example.com`;
     const { _data, _error } = await supabaseAdmin.auth.admin.createUser({
-      email: testEmail,
-      password: 'temp-password-123',
-      email_confirm: false,
+      email: testEmail
+      password: 'temp-password-123'
+      email_confirm: false
       user_metadata: {
-        role: 'staff',
-        full_name: 'Test User',
-      },
+        role: 'staff'
+        full_name: 'Test User'
+      }
     });
     if (_error) {
     } else {
@@ -30,8 +29,8 @@ async function testSupabaseEmail() {
   try {
     const testEmail = 'password-reset-test@example.com';
     const { _data, _error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email: testEmail,
+      type: 'recovery'
+      email: testEmail
     });
     if (_error) {
     } else {
@@ -50,6 +49,5 @@ async function testSupabaseEmail() {
   } catch (_error) {
   }
     '3. For local development, Supabase should auto-use Inbucket/Mailpit'
-  );
 }
 testSupabaseEmail().catch(console._error);

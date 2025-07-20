@@ -19,81 +19,77 @@ async function testEnhancedChatbot() {
       queryEmbedding[position] = 1;
     });
     const { _data: searchResults, _error: searchError } = await _supabase.rpc(
-      'match_documents',
+      'match_documents'
       {
-        query_embedding: queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
+        query_embedding: queryEmbedding
+        match_threshold: 0.1
+        match_count: 3
       }
-    );
     if (searchError) {
       console._error('❌ Search _error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
           `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test 2: Intent detection and conversational flows
     const testScenarios = [
       {
-        name: 'Info Request',
-        messages: ['What legal services do you offer?'],
-        expectedIntent: 'info',
-      },
+        name: 'Info Request'
+        messages: ['What legal services do you offer?']
+        expectedIntent: 'info'
+      }
       {
-        name: 'Messaging Flow',
+        name: 'Messaging Flow'
         messages: [
-          'I want to send a message to your staff',
-          'I need help with a contract dispute. My email is john@example.com',
-          'yes',
-        ],
-        expectedIntent: 'message_staff',
-      },
+          'I want to send a message to your staff'
+          'I need help with a contract dispute. My email is john@example.com'
+          'yes'
+        ]
+        expectedIntent: 'message_staff'
+      }
       {
-        name: 'Appointment Booking',
+        name: 'Appointment Booking'
         messages: [
-          'I want to book an appointment',
-          'I need help with corporate law. Monday 2 PM. My email is jane@example.com',
-          'yes',
-        ],
-        expectedIntent: 'book_appointment',
-      },
+          'I want to book an appointment'
+          'I need help with corporate law. Monday 2 PM. My email is jane@example.com'
+          'yes'
+        ]
+        expectedIntent: 'book_appointment'
+      }
       {
-        name: 'Ambiguous Query',
-        messages: ['Hello'],
-        expectedIntent: 'ambiguous',
-      },
+        name: 'Ambiguous Query'
+        messages: ['Hello']
+        expectedIntent: 'ambiguous'
+      }
     ];
     for (const scenario of testScenarios) {
       for (let i = 0; i < scenario.messages.length; i++) {
         const message = scenario.messages[i];
         // Simulate the enhanced response generation
         const response = await simulateEnhancedResponse(
-          message,
-          searchResults || [],
+          message
+          searchResults || []
           `test-session-${scenario.name}`
-        );
       }
     }
     // Test 3: Document blending and citation
     const testDocuments = [
       {
-        title: '2025 Corporate Law Services',
+        title: '2025 Corporate Law Services'
         content:
-          'Our corporate law practice includes business formation, mergers and acquisitions, and governance consulting.',
-        category: 'Corporate Law',
-      },
+          'Our corporate law practice includes business formation, mergers and acquisitions, and governance consulting.'
+        category: 'Corporate Law'
+      }
       {
-        title: 'Employment Law Guidelines',
+        title: 'Employment Law Guidelines'
         content:
-          'We provide comprehensive employment law services including contract drafting, workplace policies, and dispute resolution.',
-        category: 'Employment Law',
-      },
+          'We provide comprehensive employment law services including contract drafting, workplace policies, and dispute resolution.'
+        category: 'Employment Law'
+      }
     ];
     const blendedResponse = blendDocuments(testDocuments);
       '   ✅ Transactional workflows (messaging, booking) implemented'
-    );
   } catch (_error) {
     console._error('❌ Test failed:', _error.message);
   }

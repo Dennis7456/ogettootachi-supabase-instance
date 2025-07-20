@@ -8,8 +8,8 @@ async function testUploadDirect() {
     // Step 1: Authenticate as admin
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Authentication failed:', authError.message);
@@ -17,12 +17,11 @@ async function testUploadDirect() {
     }
     // Step 2: Test direct upload (skip bucket listing)
     const testFile = new File(
-      ['Test document content for direct upload'],
-      'test-direct.txt',
+      ['Test document content for direct upload']
+      'test-direct.txt'
       {
-        type: 'text/plain',
+        type: 'text/plain'
       }
-    );
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
       .upload(`test-direct-${Date.now()}.txt`, testFile);
@@ -35,11 +34,11 @@ async function testUploadDirect() {
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Direct Test Document',
-        content: 'This is a test document uploaded directly',
-        category: 'test',
-        file_path: _uploadData.path,
-        file_type: 'text/plain',
+        title: 'Direct Test Document'
+        content: 'This is a test document uploaded directly'
+        category: 'test'
+        file_path: _uploadData.path
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -50,7 +49,7 @@ async function testUploadDirect() {
     // Step 4: Test Edge Function
     const { _data: functionData, _error: functionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (functionError) {
       console._error('❌ Edge Function failed:', functionError.message);

@@ -9,12 +9,12 @@ async function testEdgeFunction() {
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Edge Function Test Document',
+        title: 'Edge Function Test Document'
         content:
-          'This is a test document for Edge Function debugging. It contains some sample text to process.',
-        category: 'test',
-        file_path: 'test-edge-function.txt',
-        file_type: 'text/plain',
+          'This is a test document for Edge Function debugging. It contains some sample text to process.'
+        category: 'test'
+        file_path: 'test-edge-function.txt'
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -25,7 +25,7 @@ async function testEdgeFunction() {
     // Step 2: Test Edge Function with the document
     const { _data: functionData, _error: functionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (functionError) {
       console._error('❌ Edge Function failed:', functionError.message);
@@ -59,11 +59,11 @@ async function testEdgeFunction() {
     const { _data: longDocData, _error: longDocError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Long Test Document',
-        content: longContent,
-        category: 'test',
-        file_path: 'test-long-document.txt',
-        file_type: 'text/plain',
+        title: 'Long Test Document'
+        content: longContent
+        category: 'test'
+        file_path: 'test-long-document.txt'
+        file_type: 'text/plain'
       })
       .select()
       .single();
@@ -72,17 +72,15 @@ async function testEdgeFunction() {
     } else {
       const { _data: longFunctionData, _error: longFunctionError } =
         await _supabase.functions.invoke('process-document', {
-          body: { record: longDocData },
+          body: { record: longDocData }
         });
       if (longFunctionError) {
         console._error(
-          '❌ Long document Edge Function failed:',
+          '❌ Long document Edge Function failed:'
           longFunctionError.message
-        );
       } else {
-          '✅ Long document Edge Function succeeded:',
+          '✅ Long document Edge Function succeeded:'
           longFunctionData
-        );
       }
     }
     // Cleanup

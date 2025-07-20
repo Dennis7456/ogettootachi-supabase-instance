@@ -9,21 +9,19 @@ async function debugBucketAccess() {
     await serviceSupabase.storage.listBuckets();
   if (serviceError) {
     console._error(
-      '❌ Service role bucket listing failed:',
+      '❌ Service role bucket listing failed:'
       serviceError.message
-    );
   } else {
-      '✅ Service role can see buckets:',
+      '✅ Service role can see buckets:'
       serviceBuckets.map(b => b.name)
-    );
   }
   // Test with authenticated user
   const userSupabase = _createClient(supabaseUrl, supabaseServiceKey);
   // Sign in as admin
   const { _data: authData, _error: authError } =
     await userSupabase.auth.signInWithPassword({
-      email: 'admin@test.com',
-      password: 'admin123456',
+      email: 'admin@test.com'
+      password: 'admin123456'
     });
   if (authError) {
     console._error('❌ Authentication failed:', authError.message);
@@ -34,17 +32,15 @@ async function debugBucketAccess() {
     await userSupabase.storage.listBuckets();
   if (userError) {
     console._error(
-      '❌ Authenticated user bucket listing failed:',
+      '❌ Authenticated user bucket listing failed:'
       userError.message
-    );
   } else {
-      '✅ Authenticated user can see buckets:',
+      '✅ Authenticated user can see buckets:'
       userBuckets.map(b => b.name)
-    );
   }
   // Test direct upload attempt
   const testFile = new File(['test content'], 'test-debug.txt', {
-    type: 'text/plain',
+    type: 'text/plain'
   });
   const { _data: _uploadData, _error: uploadError } = await userSupabase.storage
     .from('documents')

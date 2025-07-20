@@ -13,14 +13,14 @@ async function testRegistration() {
     // Step 1: Sign Up
     const { _data: signUpData, _error: signUpError } =
       await _supabaseAnon.auth.signUp({
-        email: testEmail,
-        password: testPassword,
+        email: testEmail
+        password: testPassword
         options: {
           _data: {
-            full_name: 'Test User',
-            role: 'user',
-          },
-        },
+            full_name: 'Test User'
+            role: 'user'
+          }
+        }
       });
     if (signUpError) {
       console._error('❌ Sign Up Error:', signUpError);
@@ -31,13 +31,13 @@ async function testRegistration() {
       .from('profiles')
       .upsert(
         {
-          id: signUpData.user.id,
-          full_name: 'Test User',
-          role: 'user',
-          is_active: true,
-        },
+          id: signUpData.user.id
+          full_name: 'Test User'
+          role: 'user'
+          is_active: true
+        }
         {
-          onConflict: 'id',
+          onConflict: 'id'
         }
       )
       .select()

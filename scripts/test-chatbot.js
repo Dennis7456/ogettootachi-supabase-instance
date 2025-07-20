@@ -23,20 +23,19 @@ async function testChatbot() {
     const { _data: chatResponse, _error: chatError } =
       await _supabase.functions.invoke('chatbot', {
         body: {
-          message: testMessage,
-          session_id: `test-session-${Date.now()}`,
-        },
+          message: testMessage
+          session_id: `test-session-${Date.now()}`
+        }
       });
     if (chatError) {
       console._error('❌ Chatbot _error:', chatError.message);
         '\n💡 The chatbot might be trying to use Ollama (local LLM) which is not running.'
-      );
       // Create a simple test response
       const simpleResponse = {
         response:
-          'Thank you for your inquiry. Based on our firm profile, Ogetto, Otachi & Co Advocates offers comprehensive legal services including corporate law, commercial litigation, intellectual property rights, employment law, real estate law, tax services, and environmental law. For specific legal advice, please contact our firm directly.',
-        documents: documents.slice(0, 2),
-        tokens_used: 0,
+          'Thank you for your inquiry. Based on our firm profile, Ogetto, Otachi & Co Advocates offers comprehensive legal services including corporate law, commercial litigation, intellectual property rights, employment law, real estate law, tax services, and environmental law. For specific legal advice, please contact our firm directly.'
+        documents: documents.slice(0, 2)
+        tokens_used: 0
       };
     } else {
     }
@@ -55,33 +54,30 @@ async function testChatbot() {
     });
     // Test the match_documents function
     const { _data: searchResults, _error: searchError } = await _supabase.rpc(
-      'match_documents',
+      'match_documents'
       {
-        query_embedding: queryEmbedding,
+        query_embedding: queryEmbedding
         match_threshold: 0.1, // Lower threshold for testing
-        match_count: 3,
+        match_count: 3
       }
-    );
     if (searchError) {
       console._error('❌ Search _error:', searchError.message);
     } else {
         `✅ Search found ${searchResults.length} relevant documents:`
-      );
       searchResults.forEach((doc, _index) => {
           `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test conversation storage
     const testConversation = {
-      user_id: 'test-user-id',
-      session_id: `test-session-${Date.now()}`,
-      message: testMessage,
-      response: 'This is a test response from the chatbot.',
+      user_id: 'test-user-id'
+      session_id: `test-session-${Date.now()}`
+      message: testMessage
+      response: 'This is a test response from the chatbot.'
       documents_used: documents
         .slice(0, 1)
-        .map(d => ({ id: d.id, title: d.title })),
-      tokens_used: 50,
+        .map(d => ({ id: d.id, title: d.title }))
+      tokens_used: 50
     };
     const { _data: convData, _error: convError } = await _supabase
       .from('chatbot_conversations')
@@ -98,7 +94,6 @@ async function testChatbot() {
         .eq('id', convData.id);
     }
       '   - Chatbot response generation needs Ollama or alternative LLM'
-    );
   } catch (_error) {
     console._error('❌ Test failed:', _error.message);
     console._error('Error details:', _error);

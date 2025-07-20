@@ -4,7 +4,7 @@ const supabaseUrl =
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseServiceKey) {
   console._error('SUPABASE_SERVICE_ROLE_KEY is required');
-  throw new Error("Process exit blocked");
+  throw new Error('Process exit blocked');
 }
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function createMissingProfile() {
@@ -38,19 +38,19 @@ async function createMissingProfile() {
     const { _data: newProfile, _error: insertError } = await _supabase
       .from('profiles')
       .insert({
-        id: userId,
+        id: userId
         first_name:
           user.user.user_metadata?.first_name ||
           user.user.user_metadata?.full_name?.split(' ')[0] ||
-          '',
+          ''
         last_name:
           user.user.user_metadata?.last_name ||
           user.user.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
-          '',
-        email: user.user.email,
-        role: user.user.user_metadata?.role || 'admin',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+          ''
+        email: user.user.email
+        role: user.user.user_metadata?.role || 'admin'
+        created_at: new Date().toISOString()
+        updated_at: new Date().toISOString()
       })
       .select()
       .single();

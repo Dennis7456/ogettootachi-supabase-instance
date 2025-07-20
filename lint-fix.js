@@ -1,6 +1,8 @@
-function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'dist', 'build']) {
+function findJSFiles(
+  dir
+  excludeDirs = ['node_modules', '.git', 'dist', 'build']
+) {
   const jsFiles = [];
-  
   function traverse(currentPath) {
     const items = fs.readdirSync(currentPath);
     for (const item of items) {
@@ -9,7 +11,6 @@ function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'dist', 'build'
       if (stat.isDirectory()) {
         // Skip excluded directories
         if (excludeDirs.includes(item)) continue;
-        
         // Recursively search subdirectories
         traverse(fullPath);
       } else if (item.endsWith('.js') || item.endsWith('.jsx')) {
@@ -22,17 +23,14 @@ function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'dist', 'build'
 }
 function runESLint(files) {
   return new Promise((resolve, reject) => {
-    const eslintProcess = spawn('npx', [
-      'eslint', 
-      ...files, 
-      '--fix', 
-      '--max-warnings', '0', 
-      '--ext', '.js,.jsx'
-    ], {
-      stdio: 'inherit',
-      shell: true
-    });
-    eslintProcess.on('close', (code) => {
+    const eslintProcess = spawn(
+      'npx'
+      ['eslint', ...files, '--fix', '--max-warnings', '0', '--ext', '.js,.jsx']
+      {
+        stdio: 'inherit'
+        shell: true
+      }
+    eslintProcess.on('close', code => {
       if (code === 0) {
         resolve(0);
       } else {
@@ -40,7 +38,7 @@ function runESLint(files) {
         reject(code);
       }
     });
-    eslintProcess.on('error', (err) => {
+    eslintProcess.on('error', err => {
       console.error('Failed to run ESLint:', err);
       reject(err);
     });
@@ -50,11 +48,9 @@ async function main() {
   try {
     const baseDir = process.cwd();
     const jsFiles = findJSFiles(baseDir);
-    
     if (jsFiles.length === 0) {
       return 0;
     }
-    
     // Chunk files to avoid command line length limits
     const chunkSize = 50;
     for (let i = 0; i < jsFiles.length; i += chunkSize) {
@@ -67,4 +63,4 @@ async function main() {
     return 1;
   }
 }
-main().then(process.exit).catch(process.exit); 
+main().then(process.exit).catch(process.exit);

@@ -27,10 +27,9 @@ async function diagnoseMissingProfiles() {
         missingProfiles.push(user);
         // Attempt to create profile
         const newProfile = await createProfileForUser(
-          user.id,
-          user.user_metadata?.full_name || user.email?.split('@')[0],
+          user.id
+          user.user_metadata?.full_name || user.email?.split('@')[0]
           user.user_metadata?.role || 'user'
-        );
         if (newProfile) {
           createdProfiles.push(newProfile);
         }
@@ -42,9 +41,9 @@ async function diagnoseMissingProfiles() {
       });
     }
     return {
-      totalUsers: users.users.length,
-      missingProfiles: missingProfiles.length,
-      createdProfiles: createdProfiles.length,
+      totalUsers: users.users.length
+      missingProfiles: missingProfiles.length
+      createdProfiles: createdProfiles.length
     };
   } catch (_error) {
     console._error('❌ Unexpected _error:', _error);

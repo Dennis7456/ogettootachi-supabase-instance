@@ -1,8 +1,8 @@
 // Comprehensive invitation system test suite
 // Run this anytime to verify the system is working correctly
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
   SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 };
 class InvitationSystemTester {
@@ -14,17 +14,17 @@ class InvitationSystemTester {
   }
   async runAllTests() {
     const tests = [
-      { name: 'Infrastructure Health Check', fn: () => this.testInfrastructure() },
-      { name: 'Database Connection Test', fn: () => this.testDatabase() },
-      { name: 'Edge Function Availability', fn: () => this.testEdgeFunctions() },
-      { name: 'Email Service (Mailpit)', fn: () => this.testMailpit() },
-      { name: 'New User Invitation Flow', fn: () => this.testNewUserInvitation() },
-      { name: 'Existing User Invitation Flow', fn: () => this.testExistingUserInvitation() },
-      { name: 'Admin Role Invitation', fn: () => this.testAdminInvitation() },
-      { name: 'Staff Role Invitation', fn: () => this.testStaffInvitation() },
-      { name: 'Invalid Email Handling', fn: () => this.testInvalidEmail() },
-      { name: 'Database Record Integrity', fn: () => this.testDatabaseRecords() },
-      { name: 'Email Content Validation', fn: () => this.testEmailContent() },
+      { name: 'Infrastructure Health Check', fn: () => this.testInfrastructure() }
+      { name: 'Database Connection Test', fn: () => this.testDatabase() }
+      { name: 'Edge Function Availability', fn: () => this.testEdgeFunctions() }
+      { name: 'Email Service (Mailpit)', fn: () => this.testMailpit() }
+      { name: 'New User Invitation Flow', fn: () => this.testNewUserInvitation() }
+      { name: 'Existing User Invitation Flow', fn: () => this.testExistingUserInvitation() }
+      { name: 'Admin Role Invitation', fn: () => this.testAdminInvitation() }
+      { name: 'Staff Role Invitation', fn: () => this.testStaffInvitation() }
+      { name: 'Invalid Email Handling', fn: () => this.testInvalidEmail() }
+      { name: 'Database Record Integrity', fn: () => this.testDatabaseRecords() }
+      { name: 'Email Content Validation', fn: () => this.testEmailContent() }
       { name: 'Token Generation Uniqueness', fn: () => this.testTokenUniqueness() }
     ];
     for (const test of tests) {
@@ -35,28 +35,25 @@ class InvitationSystemTester {
   }
   async runTest(name, testFn) {
     const startTime = Date.now();
-    
     try {
       const result = await testFn();
       const duration = Date.now() - startTime;
       
       this.results.push({
-        name,
-        status: 'PASS',
-        duration,
+        name
+        status: 'PASS'
+        duration
         details: result
       });
-      
     } catch (_error) {
       const duration = Date.now() - startTime;
       
       this.results.push({
-        name,
-        status: 'FAIL',
-        duration,
+        name
+        status: 'FAIL'
+        duration
         _error: _error.message
       });
-      
     }
   }
   async testInfrastructure() {
@@ -132,7 +129,7 @@ class InvitationSystemTester {
     
     // Create user first
     await this.supabaseAdmin.auth.admin.createUser({
-      email: testEmail,
+      email: testEmail
       email_confirm: true
     });
     // Send invitation to existing user
@@ -224,13 +221,11 @@ class InvitationSystemTester {
   }
   async testTokenUniqueness() {
     const tokens = new Set();
-    
     for (let i = 0; i < 5; i++) {
       const testEmail = `token-test-${i}-${Date.now()}@example.com`;
       const { _data } = await this._supabase.functions.invoke('handle-invitation', {
         body: { email: testEmail, role: 'staff', full_name: `Token Test ${i}` }
       });
-      
       if (tokens.has(_data.invitation_token)) {
         throw new Error('Duplicate token generated');
       }
@@ -268,4 +263,4 @@ class InvitationSystemTester {
 }
 // Run tests
 const tester = new InvitationSystemTester();
-tester.runAllTests().catch(console._error); 
+tester.runAllTests().catch(console._error);

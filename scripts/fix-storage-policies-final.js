@@ -6,7 +6,6 @@ const supabaseServiceKey =
 const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function fixStoragePoliciesFinal() {
     'The issue is that the admin role is in user_metadata, not in the main JWT role field.'
-  );
 -- Drop existing policies
 DROP POLICY IF EXISTS "Documents are uploadable by admins" ON storage.objects;
 DROP POLICY IF EXISTS "Documents are accessible by authenticated users" ON storage.objects;
@@ -21,7 +20,6 @@ CREATE POLICY "Documents are uploadable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are updatable by admins" ON storage.objects
   FOR UPDATE USING (
     bucket_id = 'documents' AND 
@@ -29,7 +27,6 @@ CREATE POLICY "Documents are updatable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are deletable by admins" ON storage.objects
   FOR DELETE USING (
     bucket_id = 'documents' AND 
@@ -37,15 +34,12 @@ CREATE POLICY "Documents are deletable by admins" ON storage.objects
       (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin' OR 
       auth.role() = 'service_role'
     )
-  );
 CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
   FOR SELECT USING (
     bucket_id = 'documents' AND auth.role() = 'authenticated'
-  );
 CREATE POLICY "Service role can access all storage" ON storage.objects
   FOR ALL USING (auth.role() = 'service_role');
   `);
     "The key change is using: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"
-  );
 }
 fixStoragePoliciesFinal();

@@ -9,8 +9,8 @@ async function checkAdminJWT() {
     // Sign in as admin user
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: 'admin@test.com'
+        password: 'admin123456'
       });
     if (authError) {
       console._error('❌ Auth _error:', authError.message);
@@ -18,7 +18,7 @@ async function checkAdminJWT() {
     }
     // Get the JWT token
     const {
-      _data: { session },
+      _data: { session }
     } = await _supabase.auth.getSession();
     if (session) {
       // Decode JWT (basic decode without verification)
@@ -26,7 +26,6 @@ async function checkAdminJWT() {
       if (tokenParts.length === 3) {
         const payload = JSON.parse(
           Buffer.from(tokenParts[1], 'base64').toString()
-        );
       }
     }
     // Check if user has admin role in profile

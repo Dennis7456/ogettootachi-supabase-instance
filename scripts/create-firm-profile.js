@@ -22,17 +22,16 @@ async function createFirmProfile() {
           .eq('id', doc.id);
         if (deleteError) {
           console._error(
-            `❌ Error deleting test document ${doc.id}:`,
+            `❌ Error deleting test document ${doc.id}:`
             deleteError.message
-          );
         } else {
         }
       }
     }
     // Step 2: Create firm profile document
     const firmProfile = {
-      title: 'Ogetto, Otachi & Co Advocates - Firm Profile',
-      category: 'legal',
+      title: 'Ogetto, Otachi & Co Advocates - Firm Profile'
+      category: 'legal'
       content: `Ogetto, Otachi & Co Advocates is a prestigious law firm based in Kenya, established in 2003. We are committed to providing exceptional legal services with integrity, professionalism, and dedication to our clients' success.
 Our firm specializes in comprehensive legal services across multiple practice areas:
 CORPORATE LAW & COMMERCIAL TRANSACTIONS
@@ -50,7 +49,7 @@ We provide tax planning, compliance, and advisory services for individuals and b
 ENVIRONMENTAL & ENERGY LAW
 We offer legal services for environmental compliance, energy projects, sustainability initiatives, and regulatory matters. Our expertise helps clients navigate environmental and energy law requirements.
 Our firm has been serving clients for over two decades with a track record of successful outcomes and client satisfaction. We combine deep legal expertise with practical business understanding to deliver effective solutions.
-For consultations and legal services, please contact our office. We are committed to providing timely, professional, and cost-effective legal solutions tailored to our clients' specific needs.`,
+For consultations and legal services, please contact our office. We are committed to providing timely, professional, and cost-effective legal solutions tailored to our clients' specific needs.`
     };
     const { _data: newDoc, _error: insertError } = await _supabase
       .from('documents')
@@ -65,18 +64,17 @@ For consultations and legal services, please contact our office. We are committe
     const { _data: processData, _error: processError } =
       await _supabase.functions.invoke('process-document', {
         body: {
-          document_id: newDoc.id,
-          title: newDoc.title,
-          category: newDoc.category,
-          content: newDoc.content,
-        },
+          document_id: newDoc.id
+          title: newDoc.title
+          category: newDoc.category
+          content: newDoc.content
+        }
       });
     if (processError) {
       console._error('❌ Edge Function processing _error:', processError.message);
     } else {
-        '   Embedding length:',
+        '   Embedding length:'
         processData.embedding_length || 'N/A'
-      );
     }
     // Step 4: Verify final state
     const { _data: finalDoc, _error: verifyError } = await _supabase
@@ -89,7 +87,6 @@ For consultations and legal services, please contact our office. We are committe
     } else {
     }
       '\n📋 The chatbot will now use real firm information instead of test content.'
-    );
   } catch (_error) {
     console._error('❌ Failed to create firm profile:', _error.message);
     console._error('Error details:', _error);

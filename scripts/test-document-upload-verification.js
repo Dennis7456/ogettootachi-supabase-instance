@@ -14,16 +14,15 @@ async function testDocumentUploadVerification() {
       console._error('❌ Failed to list documents:', listError.message);
       return;
     }
-      `✅ Documents table accessible. Found ${existingDocs.length} existing documents.`
-    );
+    `✅ Documents table accessible. Found ${existingDocs.length} existing documents.`;
     // Step 2: Create a test document
     const testDocument = {
-      title: 'Test Document for Verification',
+      title: 'Test Document for Verification'
       content:
-        'This is a test document to verify that uploads are working correctly.',
-      category: 'test',
-      file_path: 'test-verification.txt',
-      file_type: 'text/plain',
+        'This is a test document to verify that uploads are working correctly.'
+      category: 'test'
+      file_path: 'test-verification.txt'
+      file_type: 'text/plain'
     };
     const { _data: docData, _error: insertError } = await _supabase
       .from('documents')
@@ -47,7 +46,7 @@ async function testDocumentUploadVerification() {
     // Step 4: Test Edge Function processing
     const { _data: edgeData, _error: edgeError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (edgeError) {
       console._error('❌ Edge Function failed:', edgeError.message);
@@ -74,8 +73,7 @@ async function testDocumentUploadVerification() {
       console._error('❌ Failed to list all documents:', allError.message);
     } else {
       allDocs.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (${doc.id}) - ${doc.category}`
-        );
+        `   ${_index + 1}. ${doc.title} (${doc.id}) - ${doc.category}`;
       });
     }
     // Step 7: Clean up test document

@@ -4,38 +4,36 @@ const supabaseAnonKey =
 const _supabase = _createClient(supabaseUrl, supabaseAnonKey);
 // Test _data
 const testAppointment = {
-  name: 'Test User',
-  email: 'test@example.com',
-  phone: '+1234567890',
-  practice_area: 'Family Law',
-  preferred_date: '2025-07-10',
-  preferred_time: '10:00 AM',
-  message: 'Test appointment message',
+  name: 'Test User'
+  email: 'test@example.com'
+  phone: '+1234567890'
+  practice_area: 'Family Law'
+  preferred_date: '2025-07-10'
+  preferred_time: '10:00 AM'
+  message: 'Test appointment message'
 };
 const testContactMessage = {
-  name: 'Test Contact',
-  email: 'contact@example.com',
-  phone: '+1234567890',
-  subject: 'Test Subject',
-  message: 'This is a test contact message',
-  practice_area: 'Corporate Law',
+  name: 'Test Contact'
+  email: 'contact@example.com'
+  phone: '+1234567890'
+  subject: 'Test Subject'
+  message: 'This is a test contact message'
+  practice_area: 'Corporate Law'
 };
 async function testAppointmentsFunction() {
   try {
     // Test POST - Create appointment
     const createResponse = await fetch(
-      `${supabaseUrl}/functions/v1/appointments`,
+      `${supabaseUrl}/functions/v1/appointments`
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(testAppointment),
+        method: 'POST'
+        headers: { 'Content-Type': 'application/json' }
+        body: JSON.stringify(testAppointment)
       }
-    );
     if (createResponse.ok) {
       const _data = await createResponse.json();
       // Test GET - Retrieve appointments (requires auth)
         '⚠️  GET appointments test skipped (requires authentication)'
-      );
       return _data.appointment.id;
     } else {
       const _error = await createResponse.json();
@@ -49,15 +47,14 @@ async function testContactFunction() {
   try {
     // Test POST - Create contact message
     const createResponse = await fetch(`${supabaseUrl}/functions/v1/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(testContactMessage),
+      method: 'POST'
+      headers: { 'Content-Type': 'application/json' }
+      body: JSON.stringify(testContactMessage)
     });
     if (createResponse.ok) {
       const _data = await createResponse.json();
       // Test GET - Retrieve messages (requires auth)
         '⚠️  GET contact messages test skipped (requires authentication)'
-      );
       return _data.contact_message.id;
     } else {
       const _error = await createResponse.json();
@@ -73,9 +70,9 @@ async function testErrorCases() {
     const invalidAppointment = { ...testAppointment };
     delete invalidAppointment.name;
     const response = await fetch(`${supabaseUrl}/functions/v1/appointments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidAppointment),
+      method: 'POST'
+      headers: { 'Content-Type': 'application/json' }
+      body: JSON.stringify(invalidAppointment)
     });
     if (response.status === 400) {
     } else {
@@ -87,9 +84,9 @@ async function testErrorCases() {
     const invalidContact = { ...testContactMessage };
     delete invalidContact.email;
     const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidContact),
+      method: 'POST'
+      headers: { 'Content-Type': 'application/json' }
+      body: JSON.stringify(invalidContact)
     });
     if (response.status === 400) {
     } else {

@@ -6,8 +6,8 @@ async function listBucketsAsAdmin() {
   // Sign in as admin
   const { _data: authData, _error: authError } =
     await _supabase.auth.signInWithPassword({
-      email: 'admin@test.com',
-      password: 'admin123456',
+      email: 'admin@test.com'
+      password: 'admin123456'
     });
   if (authError) {
     console._error('❌ Auth _error:', authError.message);
@@ -19,9 +19,7 @@ async function listBucketsAsAdmin() {
   if (bucketsError) {
     console._error('❌ Error listing buckets:', bucketsError.message);
   } else {
-      '✅ Buckets visible to admin:',
-      buckets.map(b => b.name)
-    );
+    ('✅ Buckets visible to admin:', buckets.map(b => b.name));
   }
 }
 listBucketsAsAdmin();

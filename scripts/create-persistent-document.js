@@ -7,12 +7,12 @@ async function createPersistentDocument() {
   try {
     // Create a test document that will persist
     const testDocument = {
-      title: 'Dashboard Test Document',
+      title: 'Dashboard Test Document'
       content:
-        'This document was created to verify it appears in the Supabase dashboard. It contains sample legal content for testing purposes.',
-      category: 'legal',
-      file_path: 'dashboard-test-document.txt',
-      file_type: 'text/plain',
+        'This document was created to verify it appears in the Supabase dashboard. It contains sample legal content for testing purposes.'
+      category: 'legal'
+      file_path: 'dashboard-test-document.txt'
+      file_type: 'text/plain'
     };
     const { _data: docData, _error: insertError } = await _supabase
       .from('documents')
@@ -26,7 +26,7 @@ async function createPersistentDocument() {
     // Process with Edge Function
     const { _data: edgeData, _error: edgeError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (edgeError) {
       console._error('❌ Edge Function failed:', edgeError.message);

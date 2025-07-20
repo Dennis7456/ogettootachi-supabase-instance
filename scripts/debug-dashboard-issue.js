@@ -34,14 +34,12 @@ async function debugDashboardIssue() {
     } else {
       allDocs.forEach((doc, _index) => {
           `   ${_index + 1}. ${doc.title} (${doc.id}) - ${doc.category} - ${doc.created_at}`
-        );
       });
     }
     // Check 4: Test with anon role (what dashboard might use)
     const anonSupabase = _createClient(
-      supabaseUrl,
+      supabaseUrl
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-    );
     const { _data: anonDocs, _error: anonError } = await anonSupabase
       .from('documents')
       .select('*')
@@ -60,7 +58,6 @@ async function debugDashboardIssue() {
     } else {
       policies.forEach(policy => {
           `   - ${policy.policy_name}: ${policy.permissive ? 'PERMISSIVE' : 'RESTRICTIVE'} ${policy.cmd}`
-        );
       });
     }
     // Check 6: Check if RLS is enabled
@@ -76,11 +73,11 @@ async function debugDashboardIssue() {
     }
     // Check 7: Create a test document and immediately query it
     const testDoc = {
-      title: 'Debug Test Document',
-      content: 'This is a debug test document.',
-      category: 'debug',
-      file_path: 'debug-test.txt',
-      file_type: 'text/plain',
+      title: 'Debug Test Document'
+      content: 'This is a debug test document.'
+      category: 'debug'
+      file_path: 'debug-test.txt'
+      file_type: 'text/plain'
     };
     const { _data: newDoc, _error: createError } = await _supabase
       .from('documents')
@@ -104,9 +101,7 @@ async function debugDashboardIssue() {
       await _supabase.from('documents').delete().eq('id', newDoc.id);
     }
       "   - Check if you're looking at the correct project in Supabase dashboard"
-    );
       "   - Check if you're in the right environment (local vs remote)"
-    );
   } catch (_error) {
     console._error('❌ Debug failed:', _error.message);
     console._error('Error details:', _error);

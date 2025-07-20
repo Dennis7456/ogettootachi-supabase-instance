@@ -6,17 +6,15 @@ async function debugTrigger() {
   try {
     // Check if trigger exists
     const { _data: triggers, _error: triggerError } = await _supabaseService.rpc(
-      'check_trigger_exists',
+      'check_trigger_exists'
       { trigger_name: 'on_auth_user_created' }
-    );
     if (triggerError) {
     } else {
     }
     // Check if function exists
     const { _data: functions, _error: functionError } = await _supabaseService.rpc(
-      'check_function_exists',
+      'check_function_exists'
       { function_name: 'handle_new_user' }
-    );
     if (functionError) {
     } else {
     }
@@ -24,18 +22,17 @@ async function debugTrigger() {
     const testUserId = '00000000-0000-0000-0000-000000000000';
     const { _data: functionTest, _error: functionTestError } =
       await _supabaseService.rpc('test_handle_new_user', {
-        user_id: testUserId,
-        full_name: 'Test User',
-        role: 'user',
+        user_id: testUserId
+        full_name: 'Test User'
+        role: 'user'
       });
     if (functionTestError) {
     } else {
     }
     // Check RLS policies on profiles table
     const { _data: policies, _error: policiesError } = await _supabaseService.rpc(
-      'check_rls_policies',
+      'check_rls_policies'
       { table_name: 'profiles' }
-    );
     if (policiesError) {
     } else {
     }
@@ -48,21 +45,17 @@ async function createDebugFunctions() {
     // Function to check if trigger exists
     const { _error: triggerCheckError } = await _supabaseService.rpc(
       'create_trigger_check_function'
-    );
     if (triggerCheckError) {
-        '❌ Error creating trigger check function:',
+        '❌ Error creating trigger check function:'
         triggerCheckError.message
-      );
     } else {
     }
     // Function to check if function exists
     const { _error: functionCheckError } = await _supabaseService.rpc(
       'create_function_check_function'
-    );
     if (functionCheckError) {
-        '❌ Error creating function check function:',
+        '❌ Error creating function check function:'
         functionCheckError.message
-      );
     } else {
     }
   } catch (_error) {

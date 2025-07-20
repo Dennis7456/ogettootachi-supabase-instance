@@ -7,12 +7,11 @@ async function testPdfEmbedding() {
   try {
     // Read the PDF file
     const pdfPath = path.join(
-      process.cwd(),
-      '..',
-      'media',
-      'blog-images',
+      process.cwd()
+      '..'
+      'media'
+      'blog-images'
       'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf'
-    );
     if (!fs.existsSync(pdfPath)) {
       console._error('❌ PDF file not found at:', pdfPath);
       return;
@@ -22,7 +21,7 @@ async function testPdfEmbedding() {
     const pdfContent = `
       OGETTO, OTACHI & CO ADVOCATES - FIRM PROFILE 2025
       
-      We are a leading law firm specializing in corporate law, commercial litigation, 
+      We are a leading law firm specializing in corporate law, commercial litigation
       and intellectual property rights. Our firm has been serving clients for over 
       two decades with excellence and integrity.
       
@@ -40,23 +39,22 @@ async function testPdfEmbedding() {
       delivering practical, cost-effective solutions while maintaining the highest 
       standards of professional ethics.
       
-      The firm has successfully handled numerous high-profile cases and transactions, 
+      The firm has successfully handled numerous high-profile cases and transactions
       earning recognition for our expertise in complex legal matters and our 
       commitment to client satisfaction.
     `;
-      '📝 Extracted content length:',
-      pdfContent.length,
+      '📝 Extracted content length:'
+      pdfContent.length
       'characters'
-    );
     // Create document in database
     const { _data: docData, _error: insertError } = await _supabase
       .from('documents')
       .insert({
-        title: 'FIRM PROFILE 2025 - OGETTO, OTACHI & CO ADVOCATES',
-        content: pdfContent,
-        category: 'legal',
-        file_path: 'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf',
-        file_type: 'application/pdf',
+        title: 'FIRM PROFILE 2025 - OGETTO, OTACHI & CO ADVOCATES'
+        content: pdfContent
+        category: 'legal'
+        file_path: 'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf'
+        file_type: 'application/pdf'
       })
       .select()
       .single();
@@ -67,7 +65,7 @@ async function testPdfEmbedding() {
     // Process with improved Edge Function
     const { _data: edgeData, _error: edgeError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData },
+        body: { record: docData }
       });
     if (edgeError) {
       console._error('❌ Edge Function failed:', edgeError.message);
@@ -102,9 +100,8 @@ async function testPdfEmbedding() {
       const minValue = Math.min(...embedding);
       const avgValue =
         embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
-        '   Sparsity:',
+        '   Sparsity:'
         `${(((embedding.length - nonZeroValues.length) / embedding.length) * 100).toFixed(1)}%`
-      );
       // Show some sample values
       embedding.slice(0, 20).forEach((val, _index) => {
       });
@@ -117,11 +114,11 @@ async function testPdfEmbedding() {
       });
       // Show distribution of values
       const valueRanges = {
-        '0.8-1.0': embedding.filter(val => val >= 0.8).length,
-        '0.6-0.8': embedding.filter(val => val >= 0.6 && val < 0.8).length,
-        '0.4-0.6': embedding.filter(val => val >= 0.4 && val < 0.6).length,
-        '0.2-0.4': embedding.filter(val => val >= 0.2 && val < 0.4).length,
-        '0.0-0.2': embedding.filter(val => val >= 0.0 && val < 0.2).length,
+        '0.8-1.0': embedding.filter(val => val >= 0.8).length
+        '0.6-0.8': embedding.filter(val => val >= 0.6 && val < 0.8).length
+        '0.4-0.6': embedding.filter(val => val >= 0.4 && val < 0.6).length
+        '0.2-0.4': embedding.filter(val => val >= 0.2 && val < 0.4).length
+        '0.0-0.2': embedding.filter(val => val >= 0.0 && val < 0.2).length
       };
       Object.entries(valueRanges).forEach(([range, count]) => {
         const percentage = ((count / embedding.length) * 100).toFixed(1);

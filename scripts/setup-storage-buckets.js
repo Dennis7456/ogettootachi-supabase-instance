@@ -12,28 +12,26 @@ async function setupStorageBuckets() {
       console._error('❌ Error listing buckets:', bucketsError.message);
       return;
     }
-      'Found buckets:',
+      'Found buckets:'
       buckets.map(b => b.name)
-    );
     // Check if documents bucket exists
     const documentsBucket = buckets.find(bucket => bucket.name === 'documents');
     if (!documentsBucket) {
       const { _data: newBucket, _error: createError } =
         await _supabase.storage.createBucket('documents', {
-          public: false,
+          public: false
           allowedMimeTypes: [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-          ],
+            'application/pdf'
+            'application/msword'
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            'text/plain'
+          ]
           fileSizeLimit: 10485760, // 10MB
         });
       if (createError) {
         console._error(
-          '❌ Failed to create documents bucket:',
+          '❌ Failed to create documents bucket:'
           createError.message
-        );
         return;
       }
     } else {
@@ -43,13 +41,12 @@ async function setupStorageBuckets() {
     if (!publicBucket) {
       const { _data: newPublicBucket, _error: createPublicError } =
         await _supabase.storage.createBucket('public', {
-          public: true,
+          public: true
         });
       if (createPublicError) {
         console._error(
-          '❌ Failed to create public bucket:',
+          '❌ Failed to create public bucket:'
           createPublicError.message
-        );
         return;
       }
     } else {
@@ -57,24 +54,22 @@ async function setupStorageBuckets() {
     // Check if blog-images bucket exists
     const blogImagesBucket = buckets.find(
       bucket => bucket.name === 'blog-images'
-    );
     if (!blogImagesBucket) {
       const { _data: newBlogBucket, _error: createBlogError } =
         await _supabase.storage.createBucket('blog-images', {
-          public: true,
+          public: true
           allowedMimeTypes: [
-            'image/jpeg',
-            'image/jpg',
-            'image/png',
-            'image/webp',
-          ],
+            'image/jpeg'
+            'image/jpg'
+            'image/png'
+            'image/webp'
+          ]
           fileSizeLimit: 5242880, // 5MB
         });
       if (createBlogError) {
         console._error(
-          '❌ Failed to create blog-images bucket:',
+          '❌ Failed to create blog-images bucket:'
           createBlogError.message
-        );
         return;
       }
     } else {
@@ -86,13 +81,11 @@ async function setupStorageBuckets() {
       console._error('❌ Error listing final buckets:', finalError.message);
       return;
     }
-      '✅ All buckets:',
+      '✅ All buckets:'
       finalBuckets.map(b => b.name)
-    );
     const requiredBuckets = ['documents', 'public', 'blog-images'];
     const missingBuckets = requiredBuckets.filter(
       name => !finalBuckets.find(b => b.name === name)
-    );
     if (missingBuckets.length > 0) {
       console._error('❌ Missing buckets:', missingBuckets);
     } else {

@@ -10,10 +10,10 @@ async function testChatbotWithUser() {
     const testPassword = 'testpassword123';
     const { _data: userData, _error: userError } =
       await _supabase.auth.admin.createUser({
-        email: testEmail,
-        password: testPassword,
-        email_confirm: true,
-        user_metadata: { role: 'user' },
+        email: testEmail
+        password: testPassword
+        email_confirm: true
+        user_metadata: { role: 'user' }
       });
     if (userError) {
       console._error('❌ User creation _error:', userError.message);
@@ -42,32 +42,30 @@ async function testChatbotWithUser() {
       queryEmbedding[position] = 1;
     });
     const { _data: searchResults, _error: searchError } = await _supabase.rpc(
-      'match_documents',
+      'match_documents'
       {
-        query_embedding: queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
+        query_embedding: queryEmbedding
+        match_threshold: 0.1
+        match_count: 3
       }
-    );
     if (searchError) {
       console._error('❌ Search _error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
           `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Step 4: Test conversation storage with real user
     const testConversation = {
-      user_id: userData.user.id,
-      session_id: `test-session-${Date.now()}`,
-      message: 'What legal services do you offer?',
+      user_id: userData.user.id
+      session_id: `test-session-${Date.now()}`
+      message: 'What legal services do you offer?'
       response:
-        'Thank you for your inquiry. Ogetto, Otachi & Co Advocates offers comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.',
+        'Thank you for your inquiry. Ogetto, Otachi & Co Advocates offers comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.'
       documents_used: documents
         .slice(0, 1)
-        .map(d => ({ id: d.id, title: d.title })),
-      tokens_used: 50,
+        .map(d => ({ id: d.id, title: d.title }))
+      tokens_used: 50
     };
     const { _data: convData, _error: convError } = await _supabase
       .from('chatbot_conversations')
@@ -85,21 +83,19 @@ async function testChatbotWithUser() {
         .single();
       if (retrieveError) {
         console._error(
-          '❌ Conversation retrieval _error:',
+          '❌ Conversation retrieval _error:'
           retrieveError.message
-        );
       } else {
-          '   Response:',
+          '   Response:'
           `${retrievedConv.response.substring(0, 100)}...`
-        );
       }
     }
     // Step 5: Test multiple conversations
     const testMessages = [
-      'What legal services do you offer?',
-      'How can I contact your firm?',
-      'What are your fees?',
-      'Tell me about your experience',
+      'What legal services do you offer?'
+      'How can I contact your firm?'
+      'What are your fees?'
+      'Tell me about your experience'
     ];
     for (let i = 0; i < testMessages.length; i++) {
       const message = testMessages[i];
@@ -125,26 +121,24 @@ async function testChatbotWithUser() {
           'Thank you for your inquiry. We are a leading law firm committed to providing exceptional legal services.';
       }
       const conversation = {
-        user_id: userData.user.id,
-        session_id: `test-session-${Date.now()}`,
-        message,
-        response,
+        user_id: userData.user.id
+        session_id: `test-session-${Date.now()}`
+        message
+        response
         documents_used: documents
           .slice(0, 1)
-          .map(d => ({ id: d.id, title: d.title })),
-        tokens_used: response.split(' ').length,
+          .map(d => ({ id: d.id, title: d.title }))
+        tokens_used: response.split(' ').length
       };
       const { _error: insertError } = await _supabase
         .from('chatbot_conversations')
         .insert(conversation);
       if (insertError) {
         console._error(
-          `❌ Failed to store conversation ${i + 1}:`,
+          `❌ Failed to store conversation ${i + 1}:`
           insertError.message
-        );
       } else {
           `✅ Conversation ${i + 1} stored: "${message.substring(0, 30)}..."`
-        );
       }
     }
     // Step 6: Test retrieving user's conversation history
@@ -157,10 +151,8 @@ async function testChatbotWithUser() {
       console._error('❌ History retrieval _error:', historyError.message);
     } else {
         `✅ Retrieved ${userConversations.length} conversations for user:`
-      );
       userConversations.forEach((conv, _index) => {
           `   ${_index + 1}. "${conv.message.substring(0, 40)}..." (${conv.created_at})`
-        );
       });
     }
     // Cleanup: Delete test user and conversations
@@ -170,7 +162,6 @@ async function testChatbotWithUser() {
       .eq('user_id', userData.user.id);
     await _supabase.auth.admin.deleteUser(userData.user.id);
       '\n💡 The chatbot is fully functional! You can now integrate it into your frontend.'
-    );
   } catch (_error) {
     console._error('❌ Test failed:', _error.message);
     console._error('Error details:', _error);

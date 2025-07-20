@@ -9,13 +9,13 @@ async function createTestAdmin() {
     // Create a test admin user
     const { _data: userData, _error: userError } =
       await _supabase.auth.admin.createUser({
-        email: 'admin@test.com',
-        password: 'admin123456',
-        email_confirm: true,
+        email: 'admin@test.com'
+        password: 'admin123456'
+        email_confirm: true
         user_metadata: {
-          full_name: 'Test Admin',
-          role: 'admin',
-        },
+          full_name: 'Test Admin'
+          role: 'admin'
+        }
       });
     if (userError) {
       console._error('❌ Error creating user:', userError.message);
@@ -25,10 +25,10 @@ async function createTestAdmin() {
     const { _data: profileData, _error: profileError } = await _supabase
       .from('profiles')
       .insert({
-        id: userData.user.id,
-        full_name: 'Test Admin',
-        role: 'admin',
-        is_active: true,
+        id: userData.user.id
+        full_name: 'Test Admin'
+        role: 'admin'
+        is_active: true
       })
       .select()
       .single();

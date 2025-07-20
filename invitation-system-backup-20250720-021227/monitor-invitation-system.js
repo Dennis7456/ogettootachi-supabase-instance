@@ -1,8 +1,8 @@
 // Invitation system health monitor
 // Run this periodically (e.g., every hour) to monitor system health
 const config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+  SUPABASE_URL: 'http://127.0.0.1:54321'
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
   SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
 };
 class InvitationHealthMonitor {
@@ -14,10 +14,10 @@ class InvitationHealthMonitor {
   async checkHealth() {
     const timestamp = new Date().toISOString();
     const healthChecks = [
-      { name: 'Database Connectivity', check: () => this.checkDatabase() },
-      { name: 'Edge Functions', check: () => this.checkEdgeFunctions() },
-      { name: 'Email Service', check: () => this.checkEmailService() },
-      { name: 'Recent Invitation Activity', check: () => this.checkRecentActivity() },
+      { name: 'Database Connectivity', check: () => this.checkDatabase() }
+      { name: 'Edge Functions', check: () => this.checkEdgeFunctions() }
+      { name: 'Email Service', check: () => this.checkEmailService() }
+      { name: 'Recent Invitation Activity', check: () => this.checkRecentActivity() }
       { name: 'System Performance', check: () => this.checkPerformance() }
     ];
     const results = [];
@@ -29,22 +29,20 @@ class InvitationHealthMonitor {
         const duration = Date.now() - startTime;
         
         results.push({
-          name: healthCheck.name,
-          status: 'HEALTHY',
-          duration,
-          details: result,
+          name: healthCheck.name
+          status: 'HEALTHY'
+          duration
+          details: result
           timestamp
         });
-        
       } catch (_error) {
         allHealthy = false;
         results.push({
-          name: healthCheck.name,
-          status: 'UNHEALTHY',
-          _error: _error.message,
+          name: healthCheck.name
+          status: 'UNHEALTHY'
+          _error: _error.message
           timestamp
         });
-        
       }
     }
     await this.logResults(results, allHealthy);
@@ -85,12 +83,10 @@ class InvitationHealthMonitor {
     const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/info');
     if (!mailpitResponse.ok) throw new Error('Mailpit not accessible');
     const mailpitInfo = await mailpitResponse.json();
-    
     return `Mailpit accessible, ${mailpitInfo.Messages || 0} messages, ${mailpitInfo.SMTPAccepted || 0} SMTP accepted`;
   }
   async checkRecentActivity() {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    
     const { _data: recentInvitations } = await this.supabaseAdmin
       .from('user_invitations')
       .select('status')
@@ -103,7 +99,6 @@ class InvitationHealthMonitor {
   }
   async checkPerformance() {
     const startTime = Date.now();
-    
     // Test database query performance
     const { _data } = await this.supabaseAdmin
       .from('user_invitations')
@@ -118,8 +113,8 @@ class InvitationHealthMonitor {
   }
   async logResults(results, allHealthy) {
     const logEntry = {
-      timestamp: new Date().toISOString(),
-      status: allHealthy ? 'HEALTHY' : 'UNHEALTHY',
+      timestamp: new Date().toISOString()
+      status: allHealthy ? 'HEALTHY' : 'UNHEALTHY'
       results
     };
     const logLine = `${logEntry.timestamp} - ${logEntry.status}\n`;
@@ -142,14 +137,11 @@ class InvitationHealthMonitor {
     try {
       const logContent = fs.readFileSync(this.logFile, 'utf8');
       const lines = logContent.trim().split('\n').filter(line => line);
-      
       lines.slice(-10).forEach(line => {
       });
-      
       const recentChecks = lines.slice(-20);
       const healthyCount = recentChecks.filter(line => line.includes('HEALTHY')).length;
       const uptime = ((healthyCount / recentChecks.length) * 100).toFixed(1);
-      
     } catch (_error) {
     }
   }

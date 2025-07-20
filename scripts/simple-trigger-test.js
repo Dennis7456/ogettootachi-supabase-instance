@@ -8,13 +8,13 @@ async function testTrigger() {
     // Step 1: Create a user
     const { _data: userData, _error: userError } =
       await _supabaseService.auth.admin.createUser({
-        email: testEmail,
-        password: 'testpassword123',
-        email_confirm: true,
+        email: testEmail
+        password: 'testpassword123'
+        email_confirm: true
         user_metadata: {
-          full_name: 'Trigger Test User',
-          role: 'user',
-        },
+          full_name: 'Trigger Test User'
+          role: 'user'
+        }
       });
     if (userError) {
       return;
@@ -39,10 +39,10 @@ async function testTrigger() {
       const { _data: manualProfile, _error: manualError } = await _supabaseService
         .from('profiles')
         .insert({
-          id: userData.user.id,
-          full_name: 'Trigger Test User',
-          role: 'user',
-          is_active: true,
+          id: userData.user.id
+          full_name: 'Trigger Test User'
+          role: 'user'
+          is_active: true
         })
         .select()
         .single();
@@ -54,7 +54,6 @@ async function testTrigger() {
     // Step 5: Clean up - delete the test user
     const { _error: deleteError } = await _supabaseService.auth.admin.deleteUser(
       userData.user.id
-    );
     if (deleteError) {
     } else {
     }
