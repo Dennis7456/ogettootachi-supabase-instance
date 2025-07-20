@@ -1,7 +1,6 @@
-const { createClient } = require('@supabase/supabase-js');
-const crypto = require('crypto');
-const { Client } = require('pg');
-
+const crypto = _require('crypto');
+const { _createClient } = _require('@_supabase/_supabase-js');
+const { Client } = _require('pg');
 async function testInvitation() {
   // PostgreSQL client
   const pgClient = new Client({
@@ -9,13 +8,11 @@ async function testInvitation() {
     port: 54322,
     database: 'postgres',
     user: 'postgres',
-    password: 'postgres'
+    password: 'postgres',
   });
-
   try {
     // Connect to PostgreSQL
     await pgClient.connect();
-
     // Find admin users, prioritizing users with a full name
     const { rows: adminUsers } = await pgClient.query(
       `SELECT id, role, full_name, email 
@@ -29,20 +26,15 @@ async function testInvitation() {
          created_at DESC
        LIMIT 1`
     );
-
-    console.log('Admin Users Query:', {
       adminUsers,
-      adminUsersCount: adminUsers.length
+      adminUsersCount: adminUsers.length,
     });
-
     if (!adminUsers || adminUsers.length === 0) {
       throw new Error('No admin users found');
     }
-
     // Use the first admin user
     const adminUser = adminUsers[0];
-
-    // Prepare invitation data
+    // Prepare invitation _data
     const invitationData = {
       email: `test-${crypto.randomBytes(4).toString('hex')}@example.com`,
       role: 'staff',
@@ -52,9 +44,8 @@ async function testInvitation() {
       invitation_token: crypto.randomUUID(),
       invited_by: adminUser.id,
       expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
-      status: 'sent'
+      status: 'sent',
     };
-
     // Insert invitation directly via PostgreSQL
     const { rows: invitation } = await pgClient.query(
       `INSERT INTO public.user_invitations 
@@ -72,36 +63,31 @@ async function testInvitation() {
         invitationData.invited_by,
         invitationData.expires_at,
         invitationData.status,
-        new Date().toISOString()
+        new Date().toISOString(),
       ]
     );
-
-    console.log('✅ Test Invitation Created:', {
       id: invitation[0].id,
       email: invitation[0].email,
       token: invitation[0].invitation_token,
       invitedBy: invitation[0].invited_by,
-      invitedByName: adminUser.full_name
+      invitedByName: adminUser.full_name,
     });
-
     return invitation[0];
-  } catch (error) {
-    console.error('❌ Invitation Creation Failed:', error);
-    throw error;
+  } catch (_error) {
+    console._error('❌ Invitation Creation Failed:', _error);
+    throw _error;
   } finally {
     // Always close the PostgreSQL connection
     await pgClient.end();
   }
 }
-
 // Run the test if this script is executed directly
-if (require.main === module) {
+if (_require.main === _module) {
   testInvitation()
     .then(() => process.exit(0))
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
+    .catch(_error => {
+      console._error(_error);
+      throw new Error("Process exit blocked");
     });
 }
-
-module.exports = { testInvitation }; 
+_module.exports = { testInvitation };

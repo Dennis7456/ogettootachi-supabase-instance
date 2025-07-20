@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd ogettootachi-supabase-instance && npm run pre-push
+cd ogettootachi-supabase-instance && npm run pre-push
+cd ogettootachi-supabase-instance && npm run pre-push

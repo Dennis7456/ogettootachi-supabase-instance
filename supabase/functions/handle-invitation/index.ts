@@ -1,5 +1,5 @@
 // @ts-ignore
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 // @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -7,21 +7,22 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 declare const Deno: {
   env: {
     get(key: string): string | undefined;
-  }
-}
+  };
+};
 
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  'Access-Control-Allow-Headers':
+    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 // Improved configuration management
 const getConfig = () => ({
   SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
   SUPABASE_URL: Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321',
-  FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
+  FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173',
 });
 
 // Validate service role key with improved security
@@ -38,7 +39,7 @@ const validateServiceRoleKey = (providedToken: string): boolean => {
 const createErrorResponse = (message: string, status: number = 400) => {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 };
 
@@ -67,17 +68,19 @@ const findAdminUser = async (supabaseAdmin: any) => {
 
 // Improved invitation handling
 const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
-  const { 
-    email, 
-    role, 
-    department = '', 
-    full_name, 
-    custom_message = '' 
+  const {
+    email,
+    role,
+    department = '',
+    full_name,
+    custom_message = '',
   } = invitationData;
 
   // Validate required fields
   if (!email || !role || !full_name) {
-    throw new Error('Missing required fields: email, role, and full_name are mandatory');
+    throw new Error(
+      'Missing required fields: email, role, and full_name are mandatory'
+    );
   }
 
   // Validate email format
@@ -108,9 +111,8 @@ const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
   }
 
   // Upsert invitation with robust logic
-  const { data, error } = await supabaseAdmin
-    .from('user_invitations')
-    .upsert({
+  const { data, error } = await supabaseAdmin.from('user_invitations').upsert(
+    {
       email,
       role,
       department,
@@ -120,11 +122,13 @@ const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
       invited_by: adminUserId,
       invitation_token,
       expires_at,
-      created_at: new Date().toISOString()
-    }, {
+      created_at: new Date().toISOString(),
+    },
+    {
       onConflict: 'email',
-      returning: 'minimal'
-    });
+      returning: 'minimal',
+    }
+  );
 
   if (error) {
     console.error('Invitation upsert error:', error);
@@ -137,25 +141,28 @@ const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
     role,
     department,
     full_name,
-    token: invitation_token
+    token: invitation_token,
   });
 
   // Call the send-invitation-email function
   try {
     const config = getConfig();
-    const emailResponse = await fetch(`${config.SUPABASE_URL}/functions/v1/send-invitation-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`
-      },
-      body: JSON.stringify({
-        email,
-        role,
-        invitation_token,
-        custom_message
-      })
-    });
+    const emailResponse = await fetch(
+      `${config.SUPABASE_URL}/functions/v1/send-invitation-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          email,
+          role,
+          invitation_token,
+          custom_message,
+        }),
+      }
+    );
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
@@ -167,14 +174,15 @@ const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
     console.error('Error calling send-invitation-email function:', emailError);
   }
 
-  return { 
-    message: 'Invitation sent successfully', 
+  return {
+    success: true,
+    message: 'Invitation sent successfully',
     invitation_token,
-    email
+    email,
   };
 };
 
-serve(async (req) => {
+serve(async req => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -209,24 +217,30 @@ serve(async (req) => {
 
   try {
     // Create Supabase admin client
-    const supabaseAdmin = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
+    const supabaseAdmin = createClient(
+      config.SUPABASE_URL,
+      config.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
       }
-    });
+    );
 
     // Process invitation
     const result = await handleInvitation(supabaseAdmin, invitationData);
 
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-
   } catch (error) {
     console.error('Invitation processing error:', error);
-    return createErrorResponse(error.message || 'Failed to process invitation', 500);
+    return createErrorResponse(
+      error.message || 'Failed to process invitation',
+      500
+    );
   }
-}); 
+});

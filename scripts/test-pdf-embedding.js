@@ -1,27 +1,22 @@
-import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
-import path from 'path';
-
 const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
 async function testPdfEmbedding() {
-  console.log('=== Testing PDF Embedding with Improved Algorithm ===\n');
-
   try {
     // Read the PDF file
-    const pdfPath = path.join(process.cwd(), '..', 'media', 'blog-images', 'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf');
-    
+    const pdfPath = path.join(
+      process.cwd(),
+      '..',
+      'media',
+      'blog-images',
+      'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf'
+    );
     if (!fs.existsSync(pdfPath)) {
-      console.error('❌ PDF file not found at:', pdfPath);
-      console.log('Please make sure the PDF file is in the correct location.');
+      console._error('❌ PDF file not found at:', pdfPath);
       return;
     }
-
-    console.log('📄 PDF file found:', path.basename(pdfPath));
-    
     // For testing, we'll create a document with extracted text content
     // In a real scenario, you'd extract text from the PDF
     const pdfContent = `
@@ -49,111 +44,77 @@ async function testPdfEmbedding() {
       earning recognition for our expertise in complex legal matters and our 
       commitment to client satisfaction.
     `;
-
-    console.log('📝 Extracted content length:', pdfContent.length, 'characters');
-    console.log('📊 Content preview:', pdfContent.substring(0, 200) + '...');
-
+      '📝 Extracted content length:',
+      pdfContent.length,
+      'characters'
+    );
     // Create document in database
-    console.log('\n1️⃣ Creating document in database...');
-    const { data: docData, error: insertError } = await supabase
+    const { _data: docData, _error: insertError } = await _supabase
       .from('documents')
       .insert({
         title: 'FIRM PROFILE 2025 - OGETTO, OTACHI & CO ADVOCATES',
         content: pdfContent,
         category: 'legal',
         file_path: 'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf',
-        file_type: 'application/pdf'
+        file_type: 'application/pdf',
       })
       .select()
       .single();
-
     if (insertError) {
-      console.error('❌ Failed to create document:', insertError.message);
+      console._error('❌ Failed to create document:', insertError.message);
       return;
     }
-
-    console.log('✅ Document created with ID:', docData.id);
-
     // Process with improved Edge Function
-    console.log('\n2️⃣ Processing with improved Edge Function...');
-    const { data: edgeData, error: edgeError } = await supabase.functions.invoke('process-document', {
-      body: { record: docData }
-    });
-
+    const { _data: edgeData, _error: edgeError } =
+      await _supabase.functions.invoke('process-document', {
+        body: { record: docData },
+      });
     if (edgeError) {
-      console.error('❌ Edge Function failed:', edgeError.message);
+      console._error('❌ Edge Function failed:', edgeError.message);
       return;
     }
-
-    console.log('✅ Edge Function processed successfully!');
-    console.log('   Response:', edgeData);
-
     // Get the processed document
-    console.log('\n3️⃣ Retrieving processed document...');
-    const { data: finalDoc, error: finalError } = await supabase
+    const { _data: finalDoc, _error: finalError } = await _supabase
       .from('documents')
       .select('*')
       .eq('id', docData.id)
       .single();
-
     if (finalError) {
-      console.error('❌ Failed to retrieve document:', finalError.message);
+      console._error('❌ Failed to retrieve document:', finalError.message);
       return;
     }
-
-    console.log('✅ Document retrieved successfully!');
-    console.log('   Title:', finalDoc.title);
-    console.log('   Has embedding:', !!finalDoc.embedding);
-    
     if (finalDoc.embedding) {
-      console.log('   Embedding length:', finalDoc.embedding.length);
-      
       // Parse the embedding (it might be stored as a string)
       let embedding;
       if (typeof finalDoc.embedding === 'string') {
         try {
           embedding = JSON.parse(finalDoc.embedding);
         } catch (e) {
-          console.error('❌ Failed to parse embedding string:', e.message);
+          console._error('❌ Failed to parse embedding string:', e.message);
           return;
         }
       } else {
         embedding = finalDoc.embedding;
       }
-      
-      console.log('   Parsed embedding length:', embedding.length);
-      
       // Analyze the embedding
       const nonZeroValues = embedding.filter(val => val > 0);
       const maxValue = Math.max(...embedding);
       const minValue = Math.min(...embedding);
-      const avgValue = embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
-      
-      console.log('\n📊 Embedding Analysis:');
-      console.log('   Total dimensions:', embedding.length);
-      console.log('   Non-zero values:', nonZeroValues.length);
-      console.log('   Sparsity:', ((embedding.length - nonZeroValues.length) / embedding.length * 100).toFixed(1) + '%');
-      console.log('   Max value:', maxValue.toFixed(4));
-      console.log('   Min value:', minValue.toFixed(4));
-      console.log('   Average value:', avgValue.toFixed(4));
-      
+      const avgValue =
+        embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
+        '   Sparsity:',
+        `${(((embedding.length - nonZeroValues.length) / embedding.length) * 100).toFixed(1)}%`
+      );
       // Show some sample values
-      console.log('\n🔍 Sample embedding values (first 20):');
-      embedding.slice(0, 20).forEach((val, index) => {
-        console.log(`   [${index}]: ${val.toFixed(4)}`);
+      embedding.slice(0, 20).forEach((val, _index) => {
       });
-      
       // Show highest values
       const sortedIndices = embedding
-        .map((val, index) => ({ val, index }))
+        .map((val, _index) => ({ val, _index }))
         .sort((a, b) => b.val - a.val)
         .slice(0, 10);
-      
-      console.log('\n🏆 Top 10 highest values:');
       sortedIndices.forEach((item, rank) => {
-        console.log(`   ${rank + 1}. [${item.index}]: ${item.val.toFixed(4)}`);
       });
-      
       // Show distribution of values
       const valueRanges = {
         '0.8-1.0': embedding.filter(val => val >= 0.8).length,
@@ -162,39 +123,23 @@ async function testPdfEmbedding() {
         '0.2-0.4': embedding.filter(val => val >= 0.2 && val < 0.4).length,
         '0.0-0.2': embedding.filter(val => val >= 0.0 && val < 0.2).length,
       };
-      
-      console.log('\n📈 Value Distribution:');
       Object.entries(valueRanges).forEach(([range, count]) => {
-        const percentage = (count / embedding.length * 100).toFixed(1);
-        console.log(`   ${range}: ${count} values (${percentage}%)`);
+        const percentage = ((count / embedding.length) * 100).toFixed(1);
       });
     }
-
     // Clean up
-    console.log('\n4️⃣ Cleaning up test document...');
-    const { error: deleteError } = await supabase
+    const { _error: deleteError } = await _supabase
       .from('documents')
       .delete()
       .eq('id', docData.id);
-
     if (deleteError) {
-      console.error('❌ Failed to clean up:', deleteError.message);
+      console._error('❌ Failed to clean up:', deleteError.message);
     } else {
-      console.log('✅ Test document cleaned up');
     }
-
-    console.log('\n🎉 PDF embedding test completed!');
-    console.log('\n📋 Summary:');
-    console.log('   - Improved embedding algorithm deployed');
-    console.log('   - Better semantic representation of legal content');
-    console.log('   - More distributed values (less sparse)');
-    console.log('   - Legal terms get higher weights');
-
-  } catch (error) {
-    console.error('❌ Test failed:', error.message);
-    console.error('Error details:', error);
+  } catch (_error) {
+    console._error('❌ Test failed:', _error.message);
+    console._error('Error details:', _error);
   }
 }
-
 // Run the test
-testPdfEmbedding(); 
+testPdfEmbedding();

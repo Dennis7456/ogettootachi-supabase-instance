@@ -14,6 +14,7 @@ This directory contains comprehensive tests for the Supabase Edge Functions.
 ### Prerequisites
 
 1. **Start Supabase locally:**
+
    ```bash
    supabase start
    ```
@@ -26,6 +27,7 @@ This directory contains comprehensive tests for the Supabase Edge Functions.
 ### Test Commands
 
 #### Individual Function Tests
+
 ```bash
 # Test specific functions
 npm run test:appointments
@@ -35,6 +37,7 @@ npm run test:process-document
 ```
 
 #### All Tests
+
 ```bash
 # Run all function tests
 npm run test:all
@@ -44,21 +47,28 @@ npm run test:coverage
 ```
 
 #### Quick Edge Function Test
+
 ```bash
 npm run test:edge
 ```
-This runs a simple test script that checks if the functions are working without requiring authentication.
+
+This runs a simple test script that checks if the functions are working without requiring
+authentication.
 
 #### Full Test Suite
+
 ```bash
 npm run test:functions
 ```
+
 This runs the complete test suite with authentication, database operations, and error handling.
 
 #### Watch Mode
+
 ```bash
 npm run test:functions:watch
 ```
+
 This runs tests in watch mode, automatically re-running when files change.
 
 ## Test Coverage
@@ -66,6 +76,7 @@ This runs tests in watch mode, automatically re-running when files change.
 ### Appointments Function Tests
 
 #### POST `/functions/v1/appointments`
+
 - ✅ Create appointment with valid data
 - ✅ Reject missing required fields
 - ✅ Reject invalid email format
@@ -75,6 +86,7 @@ This runs tests in watch mode, automatically re-running when files change.
 - ✅ Validate pagination parameters
 
 #### GET `/functions/v1/appointments`
+
 - ✅ Return appointments for authenticated admin
 - ✅ Reject unauthorized requests
 - ✅ Filter by status
@@ -82,12 +94,14 @@ This runs tests in watch mode, automatically re-running when files change.
 - ✅ Validate pagination limits
 
 #### PUT `/functions/v1/appointments/{id}`
+
 - ✅ Update appointment status
 - ✅ Reject invalid status
 - ✅ Update notes
 - ✅ Handle missing appointment
 
 #### DELETE `/functions/v1/appointments/{id}`
+
 - ✅ Delete appointment
 - ✅ Verify deletion
 - ✅ Admin-only access
@@ -95,6 +109,7 @@ This runs tests in watch mode, automatically re-running when files change.
 ### Contact Messages Function Tests
 
 #### POST `/functions/v1/contact`
+
 - ✅ Create contact message with valid data
 - ✅ Reject missing required fields
 - ✅ Reject invalid email format
@@ -103,6 +118,7 @@ This runs tests in watch mode, automatically re-running when files change.
 - ✅ Validate message content
 
 #### GET `/functions/v1/contact`
+
 - ✅ Return messages for authenticated admin
 - ✅ Reject unauthorized requests
 - ✅ Filter by status
@@ -113,6 +129,7 @@ This runs tests in watch mode, automatically re-running when files change.
 ### AI Chatbot Function Tests
 
 #### POST `/functions/v1/chatbot`
+
 - ✅ Process message and return AI response
 - ✅ Reject request without authorization
 - ✅ Reject request with missing message
@@ -125,16 +142,19 @@ This runs tests in watch mode, automatically re-running when files change.
 - ✅ Concurrent request handling
 
 #### Error Handling
+
 - ✅ Handle OpenAI API errors gracefully
 - ✅ Handle database errors gracefully
 
 #### Performance
+
 - ✅ Respond within reasonable time
 - ✅ Handle concurrent requests
 
 ### Document Processing Function Tests
 
 #### POST `/functions/v1/process-document`
+
 - ✅ Process document and generate embedding
 - ✅ Reject request without authorization
 - ✅ Reject request from non-admin users
@@ -146,29 +166,36 @@ This runs tests in watch mode, automatically re-running when files change.
 - ✅ Store document in database with embedding
 
 #### Error Handling
+
 - ✅ Handle OpenAI API errors gracefully
 - ✅ Handle database errors gracefully
 - ✅ Handle malformed JSON
 
 #### Performance
+
 - ✅ Process document within reasonable time
 - ✅ Handle concurrent document processing
 
 #### Embedding Quality
+
 - ✅ Generate consistent embeddings for similar content
 - ✅ Generate different embeddings for different content
 
 ## Enhanced Features
 
 ### Rate Limiting
+
 All functions now include rate limiting:
+
 - **100 requests per minute** per client
 - **Rate limit headers** in responses
 - **429 status code** when limit exceeded
 - **Retry-After header** with wait time
 
 ### Structured Logging
+
 Comprehensive logging for monitoring:
+
 - **Request tracking** with method, path, client ID
 - **Performance metrics** with response times
 - **User context** with user ID and role
@@ -176,14 +203,18 @@ Comprehensive logging for monitoring:
 - **Business metrics** with operation counts
 
 ### Enhanced Error Handling
+
 Improved error responses with:
+
 - **Specific HTTP status codes** (401, 403, 404, 429, 500)
 - **Detailed error messages** with context
 - **Timestamps** for all responses
 - **Consistent error format** across all functions
 
 ### Input Validation
+
 Comprehensive validation for:
+
 - **Required fields** checking
 - **Email format** validation
 - **Date validation** (no past dates)
@@ -196,6 +227,7 @@ Comprehensive validation for:
 Tests use the following test data:
 
 ### Test Appointment
+
 ```javascript
 {
   name: 'Test User',
@@ -209,6 +241,7 @@ Tests use the following test data:
 ```
 
 ### Test Contact Message
+
 ```javascript
 {
   name: 'Test Contact',
@@ -221,6 +254,7 @@ Tests use the following test data:
 ```
 
 ### Test Chatbot Message
+
 ```javascript
 {
   message: 'What are your services for corporate law?',
@@ -229,6 +263,7 @@ Tests use the following test data:
 ```
 
 ### Test Document
+
 ```javascript
 {
   title: 'Test Legal Document',
@@ -243,11 +278,13 @@ Tests use the following test data:
 Tests create temporary users for authentication:
 
 ### Admin User
+
 - Email: `admin@test.com`
 - Password: `testpassword123`
 - Role: `admin`
 
 ### Regular User
+
 - Email: `test@example.com`
 - Password: `testpassword123`
 - Role: `user`
@@ -257,6 +294,7 @@ Users are automatically cleaned up after tests complete.
 ## Database Cleanup
 
 Tests automatically clean up:
+
 - Test appointments
 - Test contact messages
 - Test chatbot conversations
@@ -267,6 +305,7 @@ Tests automatically clean up:
 ## Error Handling
 
 Tests verify proper error handling for:
+
 - Missing required fields
 - Invalid email formats
 - Past appointment dates
@@ -281,6 +320,7 @@ Tests verify proper error handling for:
 ## Performance Testing
 
 Tests include performance validation:
+
 - **Response time** limits (10-15 seconds)
 - **Concurrent request** handling
 - **Large content** processing
@@ -289,6 +329,7 @@ Tests include performance validation:
 ## Environment
 
 Tests run against the local Supabase instance:
+
 - URL: `http://127.0.0.1:54321`
 - Database: Local PostgreSQL
 - Functions: Local Edge Functions
@@ -298,21 +339,25 @@ Tests run against the local Supabase instance:
 ### Common Issues
 
 1. **Supabase not running:**
+
    ```bash
    supabase start
    ```
 
 2. **Database not migrated:**
+
    ```bash
    npm run migrate
    ```
 
 3. **Functions not deployed:**
+
    ```bash
    npm run deploy-functions
    ```
 
 4. **Port conflicts:**
+
    ```bash
    supabase stop
    supabase start
@@ -325,6 +370,7 @@ Tests run against the local Supabase instance:
 ### Debug Mode
 
 Run tests with debug output:
+
 ```bash
 DEBUG=* npm run test:functions
 ```
@@ -332,6 +378,7 @@ DEBUG=* npm run test:functions
 ### Coverage Report
 
 Generate coverage report:
+
 ```bash
 npm run test:coverage
 ```
@@ -341,6 +388,7 @@ npm run test:coverage
 After running tests successfully:
 
 1. **Deploy to production:**
+
    ```bash
    npm run deploy-all
    ```
@@ -348,11 +396,13 @@ After running tests successfully:
 2. **Update frontend API calls** to use Edge Functions
 
 3. **Monitor logs** for production issues:
+
    ```bash
    npm run logs
    ```
 
 4. **Review API documentation:**
+
    ```bash
    npm run docs
    ```
@@ -370,14 +420,16 @@ The enhanced edge functions are now production-ready with:
 - ✅ **Input validation** for all endpoints
 - ✅ **Performance testing** and optimization
 - ✅ **Security best practices** implementation
-- ✅ **API documentation** for developers 
+- ✅ **API documentation** for developers
 
 # User Invitation Function Tests
 
 ## Overview
+
 This test suite validates the user invitation functionality for the Supabase edge function.
 
 ## Test Scenarios Covered
+
 1. **Initial Invitation**
    - Successfully send an invitation
    - Validate response structure
@@ -399,21 +451,25 @@ This test suite validates the user invitation functionality for the Supabase edg
    - Confirm token and expiration generation
 
 ## Prerequisites
+
 - Deno runtime
 - Supabase local development environment
 - Test admin user created
 
 ## Running Tests
+
 ```bash
 deno test tests/functions/user_invitation.test.ts
 ```
 
 ## Configuration
+
 - Test uses environment variables for Supabase configuration
 - Requires service role key for admin operations
 - Uses a predefined test admin email and password
 
 ## Notes
+
 - Tests are designed to run in a local development environment
 - Assumes Supabase local instance is running
-- Test data is dynamically generated for each test run 
+- Test data is dynamically generated for each test run

@@ -20,7 +20,7 @@ export function test(options: {
         console.error(`Step failed: ${name}`, error);
         throw error;
       }
-    }
+    },
   };
 
   // Wrap the test function to provide additional logging and error handling
@@ -37,4 +37,4 @@ export function test(options: {
 
   // Execute the test
   runTest();
-} 
+}

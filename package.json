@@ -1,17 +1,53 @@
 {
-  "name": "ogettootachi-supabase-instance",
+  "name": "ogetto-otachi-invitation-system",
   "version": "1.0.0",
-  "description": "Supabase instance for Ogetto Otachi law firm",
-  "main": "index.js",
+  "description": "Invitation system for Ogetto, Otachi & Co Advocates",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "./lint-fix.sh",
+    "lint:check": "./lint-fix.sh",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "./test-all.sh",
+    "test:complete": "node test-invitation-system-complete.js",
+    "test:health": "node monitor-invitation-system.js",
+    "test:quick": "node quick-test-invitation.js test-ci@example.com staff 'CI Test'",
+    "pre-commit": "lint-staged",
+    "pre-push": "./pre-push-checks.sh",
+    "setup": "npm install && npx husky install",
+    "prepare": "husky install",
+    "backup": "./backup-invitation-system.sh",
+    "check-all": "npm run format:check && npm run lint:check && npm run test",
+    "fix-all": "npm run format && npm run lint && npm run test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "./lint-fix.sh",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-security": "^1.7.1",
+    "prettier": "^3.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3"
+  },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.5"
-  }
+    "@supabase/supabase-js": "^2.0.0"
+  },
+  "keywords": [
+    "invitation",
+    "supabase",
+    "law-firm",
+    "user-management"
+  ],
+  "author": "Ogetto, Otachi & Co Advocates",
+  "license": "MIT"
 }

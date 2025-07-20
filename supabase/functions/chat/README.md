@@ -1,6 +1,7 @@
 # Chat Edge Function
 
-A production-grade Supabase Edge Function that provides AI-powered chat capabilities using WASM-based embeddings and text generation.
+A production-grade Supabase Edge Function that provides AI-powered chat capabilities using
+WASM-based embeddings and text generation.
 
 ## Features
 
@@ -28,6 +29,7 @@ Client Request → Edge Function → WASM Models → pgvector Search → Respons
 ### POST `/chat`
 
 **Request Body:**
+
 ```json
 {
   "query": "What are the requirements for filing a patent application?",
@@ -36,6 +38,7 @@ Client Request → Edge Function → WASM Models → pgvector Search → Respons
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -103,11 +106,13 @@ Required environment variables:
 ## Deployment
 
 1. **Deploy the function:**
+
    ```bash
    supabase functions deploy chat
    ```
 
 2. **Run the migration:**
+
    ```bash
    supabase db push
    ```
@@ -136,6 +141,7 @@ The function handles various error scenarios:
 ## Logging
 
 Structured JSON logging with levels:
+
 - `info`: General operational events
 - `warn`: Non-critical issues
 - `error`: Critical failures
@@ -161,4 +167,4 @@ Structured JSON logging with levels:
 - Streaming responses
 - Conversation history
 - Custom model fine-tuning
-- Multi-modal support (images, documents) 
+- Multi-modal support (images, documents)

@@ -1,4 +1,5 @@
-import { defineConfig } from 'vitest/config'
+import { _createClient } from '@_supabase/_supabase-js';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -13,4 +14,4 @@ export default defineConfig({
       '@': './',
     },
   },
-}) 
+});

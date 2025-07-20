@@ -2,7 +2,9 @@
 
 ## 1. Overview
 
-This project uses a GitHub Actions workflow to automate daily backups of the Supabase database. The workflow securely connects to the remote Supabase instance, creates a backup using a custom script, and uploads the backup as a GitHub Actions artifact for download and disaster recovery.
+This project uses a GitHub Actions workflow to automate daily backups of the Supabase database. The
+workflow securely connects to the remote Supabase instance, creates a backup using a custom script,
+and uploads the backup as a GitHub Actions artifact for download and disaster recovery.
 
 ---
 
@@ -11,7 +13,7 @@ This project uses a GitHub Actions workflow to automate daily backups of the Sup
 ### a. GitHub Actions Workflow
 
 - **Location:** `.github/workflows/supabase-backup.yml`
-- **Triggers:**  
+- **Triggers:**
   - Scheduled: Runs daily at midnight UTC (`cron: '0 0 * * *'`)
   - Manual: Can be triggered via the GitHub Actions UI
 
@@ -37,7 +39,8 @@ This project uses a GitHub Actions workflow to automate daily backups of the Sup
 ### b. Backup Script
 
 - **Location:** `backup_supabase.sh`
-- **Purpose:** Connects to the remote Supabase database and creates a compressed backup using `pg_dump`.
+- **Purpose:** Connects to the remote Supabase database and creates a compressed backup using
+  `pg_dump`.
 - **Key Features:**
   - Loads environment variables from `.env` if present (for local/manual use)
   - Requires all necessary secrets to be set as environment variables
@@ -45,6 +48,7 @@ This project uses a GitHub Actions workflow to automate daily backups of the Sup
   - Retains only the 7 most recent backups (older ones are deleted automatically)
 
 **Script Logic (simplified):**
+
 ```bash
 # Load secrets from environment or .env
 # Set backup directory and retention policy
@@ -60,7 +64,8 @@ This project uses a GitHub Actions workflow to automate daily backups of the Sup
 2. **Find the latest successful run** of the "Supabase Backup" workflow.
 3. **Click on the run**, scroll to the "Artifacts" section at the bottom.
 4. **Download the artifact** (it will be a zip file containing one or more `.dump` files).
-5. **Extract the `.dump` file** to your desired location, e.g., `ogettootachi-supabase-instance/backups/`.
+5. **Extract the `.dump` file** to your desired location, e.g.,
+   `ogettootachi-supabase-instance/backups/`.
 
 ---
 
@@ -93,9 +98,11 @@ pg_restore \
   --verbose \
   backups/supabase_backup_<timestamp>.dump
 ```
+
 - Replace `<timestamp>` with the actual timestamp in your downloaded file name.
 
 **Notes:**
+
 - The `--clean` flag drops existing objects before recreating them.
 - The `--no-owner` flag avoids ownership issues.
 - The `--verbose` flag provides detailed output.
@@ -107,16 +114,20 @@ pg_restore \
 - **File Not Found:**  
   Ensure you use the correct relative path to the `.dump` file from your current directory.
 - **Permission Errors:**  
-  Warnings about privileges or event triggers are normal when restoring to a local dev environment and can be ignored.
+  Warnings about privileges or event triggers are normal when restoring to a local dev environment
+  and can be ignored.
 - **User Mismatch:**  
-  If you want your local `auth.users` table to match remote, always restore from the latest backup after resetting the local DB.
+  If you want your local `auth.users` table to match remote, always restore from the latest backup
+  after resetting the local DB.
 
 ---
 
 ## 6. Security
 
-- **Secrets** are never stored in the repository. They are injected at runtime via GitHub Actions secrets.
-- **Backups** are stored as GitHub Actions artifacts, accessible only to users with access to the repository.
+- **Secrets** are never stored in the repository. They are injected at runtime via GitHub Actions
+  secrets.
+- **Backups** are stored as GitHub Actions artifacts, accessible only to users with access to the
+  repository.
 
 ---
 

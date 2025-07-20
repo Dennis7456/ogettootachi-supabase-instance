@@ -1,394 +1,406 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>You're Invited - Ogetto, Otachi & Company Advocates</title>
     <style>
-        /* Import Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
-        
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Open Sans', sans-serif;
-            line-height: 1.6;
-            color: #2d3748;
-            background-color: #f7fafc;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* Email container */
+      /* Import Google Fonts */
+      @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+      /* Reset and base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Open Sans', sans-serif;
+        line-height: 1.6;
+        color: #2d3748;
+        background-color: #f7fafc;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Email container */
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(135deg, #467c37 0%, #1a365d 100%);
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .logo {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 20px;
+      }
+
+      .logo-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #d4af37;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+      }
+
+      .logo-icon svg {
+        width: 30px;
+        height: 30px;
+        fill: #2d3748;
+      }
+
+      .company-name {
+        font-family: 'EB Garamond', serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .company-tagline {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 400;
+        letter-spacing: 0.5px;
+      }
+
+      /* Main content */
+      .content {
+        padding: 40px 30px;
+        background-color: #ffffff;
+      }
+
+      .invitation-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: #2d3748;
+        text-align: center;
+        margin-bottom: 20px;
+        line-height: 1.2;
+      }
+
+      .invitation-subtitle {
+        font-size: 18px;
+        color: #4a5568;
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 400;
+      }
+
+      .message {
+        font-size: 16px;
+        color: #4a5568;
+        line-height: 1.7;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      /* CTA Button */
+      .cta-container {
+        text-align: center;
+        margin: 40px 0;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #467c37 0%, #1a365d 100%);
+        color: #ffffff;
+        text-decoration: none;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(70, 124, 55, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .cta-button:hover::before {
+        left: 100%;
+      }
+
+      .cta-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(70, 124, 55, 0.4);
+      }
+
+      /* Features section */
+      .features {
+        background-color: #f8f9fa;
+        padding: 30px;
+        margin: 30px 0;
+        border-radius: 12px;
+        border-left: 4px solid #467c37;
+      }
+
+      .features-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 15px;
+      }
+
+      .features-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .features-list li {
+        padding: 8px 0;
+        color: #4a5568;
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .features-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #467c37;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      /* Footer */
+      .footer {
+        background-color: #2d3748;
+        padding: 30px;
+        text-align: center;
+        color: #ffffff;
+      }
+
+      .footer-content {
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .footer-title {
+        font-family: 'EB Garamond', serif;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #d4af37;
+      }
+
+      .footer-text {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .contact-info {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.5;
+      }
+
+      .contact-info a {
+        color: #d4af37;
+        text-decoration: none;
+      }
+
+      .contact-info a:hover {
+        text-decoration: underline;
+      }
+
+      /* Responsive design */
+      @media (max-width: 600px) {
         .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          margin: 0;
+          box-shadow: none;
         }
-        
-        /* Header */
+
         .header {
-            background: linear-gradient(135deg, #467c37 0%, #1a365d 100%);
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+          padding: 30px 20px;
         }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
-        }
-        
-        .logo {
-            position: relative;
-            z-index: 1;
-            margin-bottom: 20px;
-        }
-        
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background-color: #d4af37;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
-        
-        .logo-icon svg {
-            width: 30px;
-            height: 30px;
-            fill: #2d3748;
-        }
-        
-        .company-name {
-            font-family: 'EB Garamond', serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .company-tagline {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 400;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Main content */
+
         .content {
-            padding: 40px 30px;
-            background-color: #ffffff;
+          padding: 30px 20px;
         }
-        
+
         .invitation-title {
-            font-family: 'EB Garamond', serif;
-            font-size: 32px;
-            font-weight: 700;
-            color: #2d3748;
-            text-align: center;
-            margin-bottom: 20px;
-            line-height: 1.2;
+          font-size: 26px;
         }
-        
+
         .invitation-subtitle {
-            font-size: 18px;
-            color: #4a5568;
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 400;
+          font-size: 16px;
         }
-        
-        .message {
-            font-size: 16px;
-            color: #4a5568;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        /* CTA Button */
-        .cta-container {
-            text-align: center;
-            margin: 40px 0;
-        }
-        
+
         .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #467c37 0%, #1a365d 100%);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(70, 124, 55, 0.3);
-            position: relative;
-            overflow: hidden;
+          padding: 14px 28px;
+          font-size: 15px;
         }
-        
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .cta-button:hover::before {
-            left: 100%;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(70, 124, 55, 0.4);
-        }
-        
-        /* Features section */
+
         .features {
-            background-color: #f8f9fa;
-            padding: 30px;
-            margin: 30px 0;
-            border-radius: 12px;
-            border-left: 4px solid #467c37;
+          padding: 20px;
         }
-        
-        .features-title {
-            font-family: 'EB Garamond', serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 15px;
-        }
-        
-        .features-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .features-list li {
-            padding: 8px 0;
-            color: #4a5568;
-            position: relative;
-            padding-left: 25px;
-        }
-        
-        .features-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #467c37;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        
-        /* Footer */
+
         .footer {
-            background-color: #2d3748;
-            padding: 30px;
-            text-align: center;
-            color: #ffffff;
+          padding: 25px 20px;
         }
-        
-        .footer-content {
-            max-width: 400px;
-            margin: 0 auto;
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1a202c;
         }
-        
-        .footer-title {
-            font-family: 'EB Garamond', serif;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #d4af37;
+
+        .email-container {
+          background-color: #2d3748;
         }
-        
-        .footer-text {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-            margin-bottom: 20px;
+
+        .content {
+          background-color: #2d3748;
         }
-        
-        .contact-info {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.5;
+
+        .invitation-title {
+          color: #ffffff;
         }
-        
-        .contact-info a {
-            color: #d4af37;
-            text-decoration: none;
+
+        .invitation-subtitle,
+        .message {
+          color: #e2e8f0;
         }
-        
-        .contact-info a:hover {
-            text-decoration: underline;
+
+        .features {
+          background-color: #4a5568;
         }
-        
-        /* Responsive design */
-        @media (max-width: 600px) {
-            .email-container {
-                margin: 0;
-                box-shadow: none;
-            }
-            
-            .header {
-                padding: 30px 20px;
-            }
-            
-            .content {
-                padding: 30px 20px;
-            }
-            
-            .invitation-title {
-                font-size: 26px;
-            }
-            
-            .invitation-subtitle {
-                font-size: 16px;
-            }
-            
-            .cta-button {
-                padding: 14px 28px;
-                font-size: 15px;
-            }
-            
-            .features {
-                padding: 20px;
-            }
-            
-            .footer {
-                padding: 25px 20px;
-            }
+
+        .features-title {
+          color: #ffffff;
         }
-        
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1a202c;
-            }
-            
-            .email-container {
-                background-color: #2d3748;
-            }
-            
-            .content {
-                background-color: #2d3748;
-            }
-            
-            .invitation-title {
-                color: #ffffff;
-            }
-            
-            .invitation-subtitle,
-            .message {
-                color: #e2e8f0;
-            }
-            
-            .features {
-                background-color: #4a5568;
-            }
-            
-            .features-title {
-                color: #ffffff;
-            }
-            
-            .features-list li {
-                color: #e2e8f0;
-            }
+
+        .features-list li {
+          color: #e2e8f0;
         }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                <div class="company-name">Ogetto, Otachi & Company</div>
-                <div class="company-tagline">ADVOCATES</div>
-            </div>
+      <!-- Header -->
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              />
+            </svg>
+          </div>
+          <div class="company-name">Ogetto, Otachi & Company</div>
+          <div class="company-tagline">ADVOCATES</div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="content">
-            <h1 class="invitation-title">You're Invited</h1>
-            <p class="invitation-subtitle">Join our professional legal platform</p>
-            
-            <p class="message">
-                You have been invited to create a user account on our secure legal services platform. 
-                This invitation grants you access to our comprehensive legal resources, appointment scheduling, 
-                and direct communication with our legal team.
-            </p>
-            
-            <!-- CTA Button -->
-            <div class="cta-container">
-                <a href="{{ .ConfirmationURL }}" class="cta-button">
-                    Accept Invitation
-                </a>
-            </div>
-            
-            <!-- Features -->
-            <div class="features">
-                <h3 class="features-title">What you'll have access to:</h3>
-                <ul class="features-list">
-                    <li>Secure document upload and management</li>
-                    <li>Direct messaging with legal professionals</li>
-                    <li>Appointment scheduling and management</li>
-                    <li>Case status tracking and updates</li>
-                    <li>Legal resources and insights</li>
-                    <li>24/7 platform accessibility</li>
-                </ul>
-            </div>
-            
-            <p class="message">
-                Click the button above to accept your invitation and set up your account. 
-                If you have any questions or need assistance, please don't hesitate to contact us.
-            </p>
+      </div>
+
+      <!-- Main Content -->
+      <div class="content">
+        <h1 class="invitation-title">You're Invited</h1>
+        <p class="invitation-subtitle">Join our professional legal platform</p>
+
+        <p class="message">
+          You have been invited to create a user account on our secure legal
+          services platform. This invitation grants you access to our
+          comprehensive legal resources, appointment scheduling, and direct
+          communication with our legal team.
+        </p>
+
+        <!-- CTA Button -->
+        <div class="cta-container">
+          <a href="{{ .ConfirmationURL }}" class="cta-button">
+            Accept Invitation
+          </a>
         </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-content">
-                <div class="footer-title">Ogetto, Otachi & Company Advocates</div>
-                <p class="footer-text">
-                    Providing exceptional legal services with integrity, professionalism, and dedication to our clients' success.
-                </p>
-                <div class="contact-info">
-                    <strong>Contact Us:</strong><br>
-                    Email: <a href="mailto:info@ogettootachi.com">info@ogettootachi.com</a><br>
-                    Phone: <a href="tel:+254700000000">+254 700 000 000</a><br>
-                    Website: <a href="{{ .SiteURL }}">{{ .SiteURL }}</a>
-                </div>
-            </div>
+
+        <!-- Features -->
+        <div class="features">
+          <h3 class="features-title">What you'll have access to:</h3>
+          <ul class="features-list">
+            <li>Secure document upload and management</li>
+            <li>Direct messaging with legal professionals</li>
+            <li>Appointment scheduling and management</li>
+            <li>Case status tracking and updates</li>
+            <li>Legal resources and insights</li>
+            <li>24/7 platform accessibility</li>
+          </ul>
         </div>
+
+        <p class="message">
+          Click the button above to accept your invitation and set up your
+          account. If you have any questions or need assistance, please don't
+          hesitate to contact us.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-title">Ogetto, Otachi & Company Advocates</div>
+          <p class="footer-text">
+            Providing exceptional legal services with integrity,
+            professionalism, and dedication to our clients' success.
+          </p>
+          <div class="contact-info">
+            <strong>Contact Us:</strong><br />
+            Email:
+            <a href="mailto:info@ogettootachi.com">info@ogettootachi.com</a
+            ><br />
+            Phone: <a href="tel:+254700000000">+254 700 000 000</a><br />
+            Website: <a href="{{ .SiteURL }}">{{ .SiteURL }}</a>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
-</html> 
+  </body>
+</html>

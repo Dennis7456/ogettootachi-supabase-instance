@@ -1,15 +1,9 @@
 // Script to configure email templates in Supabase
 // This script applies the email template configuration with proper branding
-
-import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
-import path from 'path';
-
 const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-
-const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
-
+const supabaseServiceKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+const _supabaseService = _createClient(supabaseUrl, supabaseServiceKey);
 // Email templates with application branding
 const emailTemplates = {
   confirm_template: {
@@ -152,9 +146,8 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`
+</html>`,
   },
-  
   reset_template: {
     subject: 'Reset Your Password - Ogetto, Otachi & Company Advocates',
     html: `<!DOCTYPE html>
@@ -308,9 +301,8 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`
+</html>`,
   },
-  
   magic_link_template: {
     subject: 'Sign In - Ogetto, Otachi & Company Advocates',
     html: `<!DOCTYPE html>
@@ -449,75 +441,33 @@ const emailTemplates = {
         </div>
     </div>
 </body>
-</html>`
-  }
+</html>`,
+  },
 };
-
 async function configureEmailTemplates() {
-  console.log('🔧 Configuring Email Templates...\n');
-
   try {
     // Note: In a real Supabase setup, you would configure these templates
     // through the Supabase Dashboard or API. For local development,
     // we'll create the configuration files and provide instructions.
-
-    console.log('📧 Email Templates Configuration:');
-    console.log('✅ Email confirmation template: Configured');
-    console.log('✅ Password reset template: Configured');
-    console.log('✅ Magic link template: Configured');
-    
-    console.log('\n🎨 Design Elements Applied:');
-    console.log('   Primary Color: #467c37 (Green)');
-    console.log('   Secondary Color: #d4af37 (Gold)');
-    console.log('   Text Color: #2d3748 (Charcoal)');
-    console.log('   Accent Color: #1a365d (Navy)');
-    console.log('   Company Name: Ogetto, Otachi & Company Advocates');
-    console.log('   Logo: Scale icon (⚖️)');
-
-    console.log('\n📋 Template Features:');
-    console.log('   ✅ Responsive design');
-    console.log('   ✅ Branded header with gradient');
-    console.log('   ✅ Professional typography');
-    console.log('   ✅ Clear call-to-action buttons');
-    console.log('   ✅ Security notices and warnings');
-    console.log('   ✅ Footer with company information');
-
-    console.log('\n🔧 For Production Setup:');
-    console.log('1. Go to Supabase Dashboard > Authentication > Email Templates');
-    console.log('2. Copy the HTML templates from the config/auth.toml file');
-    console.log('3. Paste into the respective template fields');
-    console.log('4. Configure SMTP settings for email delivery');
-    console.log('5. Test email delivery with real email addresses');
-
-    console.log('\n📧 Local Development:');
-    console.log('   Check Inbucket at: http://127.0.0.1:54324');
-    console.log('   All emails will be captured here for testing');
-
+      '1. Go to Supabase Dashboard > Authentication > Email Templates'
+    );
     // Save templates to files for easy access
     const templatesDir = path.join(process.cwd(), 'email-templates');
     if (!fs.existsSync(templatesDir)) {
       fs.mkdirSync(templatesDir);
     }
-
     Object.entries(emailTemplates).forEach(([templateName, template]) => {
       const fileName = `${templateName}.html`;
       const filePath = path.join(templatesDir, fileName);
       fs.writeFileSync(filePath, template.html);
-      console.log(`   📄 Saved ${fileName}`);
     });
-
-    console.log('\n✅ Email templates configuration completed!');
-    console.log('📁 Templates saved to: email-templates/');
-
-  } catch (error) {
-    console.error('❌ Email template configuration failed:', error.message);
-    throw error;
+  } catch (_error) {
+    console._error('❌ Email template configuration failed:', _error.message);
+    throw _error;
   }
 }
-
 // Run the configuration if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   configureEmailTemplates();
 }
-
-export default configureEmailTemplates; 
+export default configureEmailTemplates;

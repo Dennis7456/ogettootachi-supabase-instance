@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document provides comprehensive documentation for the Supabase Edge Functions used by the Ogetto Otachi Law Firm website. All functions are deployed on Supabase and provide secure, scalable backend services.
+This document provides comprehensive documentation for the Supabase Edge Functions used by the
+Ogetto Otachi Law Firm website. All functions are deployed on Supabase and provide secure, scalable
+backend services.
 
 ## Base URL
 
@@ -12,7 +14,8 @@ https://your-project-ref.supabase.co/functions/v1/
 
 ## Authentication
 
-Most endpoints require authentication using JWT tokens. Include the token in the Authorization header:
+Most endpoints require authentication using JWT tokens. Include the token in the Authorization
+header:
 
 ```
 Authorization: Bearer <your-jwt-token>
@@ -20,7 +23,8 @@ Authorization: Bearer <your-jwt-token>
 
 ## Rate Limiting
 
-All endpoints are rate-limited to 100 requests per minute per client. Rate limit headers are included in responses:
+All endpoints are rate-limited to 100 requests per minute per client. Rate limit headers are
+included in responses:
 
 - `X-RateLimit-Limit`: Maximum requests per window
 - `X-RateLimit-Remaining`: Remaining requests in current window
@@ -30,6 +34,7 @@ All endpoints are rate-limited to 100 requests per minute per client. Rate limit
 ## Common Response Format
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -40,6 +45,7 @@ All endpoints are rate-limited to 100 requests per minute per client. Rate limit
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -71,6 +77,7 @@ All endpoints are rate-limited to 100 requests per minute per client. Rate limit
 Creates a new appointment request.
 
 #### Request Body
+
 ```json
 {
   "name": "John Doe",
@@ -84,6 +91,7 @@ Creates a new appointment request.
 ```
 
 #### Required Fields
+
 - `name` (string): Client's full name
 - `email` (string): Valid email address
 - `practice_area` (string): Legal practice area
@@ -91,10 +99,12 @@ Creates a new appointment request.
 - `preferred_time` (string): Time in HH:MM or HH:MM AM/PM format
 
 #### Optional Fields
+
 - `phone` (string): Phone number
 - `message` (string): Additional message
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -116,6 +126,7 @@ Creates a new appointment request.
 ```
 
 #### Validation Rules
+
 - Email must be in valid format
 - Date cannot be in the past
 - Time must be in valid format (HH:MM or HH:MM AM/PM)
@@ -127,16 +138,19 @@ Creates a new appointment request.
 Retrieves appointments with optional filtering and pagination.
 
 #### Query Parameters
+
 - `status` (optional): Filter by status (`pending`, `confirmed`, `completed`, `cancelled`)
 - `limit` (optional): Number of records to return (1-100, default: 50)
 - `offset` (optional): Number of records to skip (default: 0)
 
 #### Example Request
+
 ```
 GET /appointments?status=pending&limit=20&offset=0
 ```
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -174,6 +188,7 @@ GET /appointments?status=pending&limit=20&offset=0
 Updates an existing appointment.
 
 #### Request Body
+
 ```json
 {
   "status": "confirmed",
@@ -182,6 +197,7 @@ Updates an existing appointment.
 ```
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -203,6 +219,7 @@ Updates an existing appointment.
 Deletes an appointment.
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -222,6 +239,7 @@ Deletes an appointment.
 Submits a contact form message.
 
 #### Request Body
+
 ```json
 {
   "name": "Jane Smith",
@@ -234,16 +252,19 @@ Submits a contact form message.
 ```
 
 #### Required Fields
+
 - `name` (string): Contact person's name
 - `email` (string): Valid email address
 - `subject` (string): Message subject
 - `message` (string): Message content
 
 #### Optional Fields
+
 - `phone` (string): Phone number
 - `practice_area` (string): Relevant practice area
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -270,12 +291,14 @@ Submits a contact form message.
 Retrieves contact messages with optional filtering and pagination.
 
 #### Query Parameters
+
 - `status` (optional): Filter by status (`new`, `read`, `in_progress`, `resolved`, `archived`)
 - `priority` (optional): Filter by priority (`low`, `normal`, `high`, `urgent`)
 - `limit` (optional): Number of records to return (1-100, default: 50)
 - `offset` (optional): Number of records to skip (default: 0)
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -309,6 +332,7 @@ Retrieves contact messages with optional filtering and pagination.
 Sends a message to the AI chatbot and receives a response.
 
 #### Request Body
+
 ```json
 {
   "message": "What are your services for corporate law?",
@@ -317,10 +341,12 @@ Sends a message to the AI chatbot and receives a response.
 ```
 
 #### Required Fields
+
 - `message` (string): User's message
 - `session_id` (string): Session identifier for conversation tracking
 
 #### Response
+
 ```json
 {
   "response": "Our corporate law services include business registration, mergers and acquisitions, contract drafting, and compliance consulting. We help businesses navigate legal requirements and protect their interests.",
@@ -337,6 +363,7 @@ Sends a message to the AI chatbot and receives a response.
 ```
 
 #### Features
+
 - **Context-Aware Responses**: Uses legal document embeddings for relevant answers
 - **Conversation Tracking**: Stores conversation history with session IDs
 - **Token Usage Monitoring**: Tracks OpenAI API token consumption
@@ -353,6 +380,7 @@ Sends a message to the AI chatbot and receives a response.
 Processes and stores legal documents with AI-generated embeddings.
 
 #### Request Body
+
 ```json
 {
   "title": "Employment Law Guidelines",
@@ -363,14 +391,17 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Required Fields
+
 - `title` (string): Document title
 - `content` (string): Document content
 
 #### Optional Fields
+
 - `category` (string): Document category (default: "general")
 - `file_path` (string): Original file path
 
 #### Response
+
 ```json
 {
   "success": true,
@@ -387,6 +418,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Features
+
 - **AI Embeddings**: Generates vector embeddings using OpenAI
 - **Semantic Search**: Enables similarity-based document retrieval
 - **Category Organization**: Supports document categorization
@@ -399,6 +431,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ### Common Error Responses
 
 #### Validation Error (400)
+
 ```json
 {
   "success": false,
@@ -409,6 +442,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Authentication Error (401)
+
 ```json
 {
   "success": false,
@@ -419,6 +453,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Authorization Error (403)
+
 ```json
 {
   "success": false,
@@ -429,6 +464,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Rate Limit Error (429)
+
 ```json
 {
   "success": false,
@@ -439,6 +475,7 @@ Processes and stores legal documents with AI-generated embeddings.
 ```
 
 #### Method Not Allowed (405)
+
 ```json
 {
   "success": false,
@@ -456,15 +493,15 @@ Processes and stores legal documents with AI-generated embeddings.
 
 ```javascript
 // Create appointment
-const createAppointment = async (appointmentData) => {
+const createAppointment = async appointmentData => {
   const response = await fetch('/functions/v1/appointments', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(appointmentData)
+    body: JSON.stringify(appointmentData),
   });
-  
+
   return await response.json();
 };
 
@@ -474,11 +511,11 @@ const getAppointments = async (token, filters = {}) => {
   const response = await fetch(`/functions/v1/appointments?${params}`, {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
   });
-  
+
   return await response.json();
 };
 
@@ -487,15 +524,15 @@ const sendChatbotMessage = async (token, message, sessionId) => {
   const response = await fetch('/functions/v1/chatbot', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       message,
-      session_id: sessionId
-    })
+      session_id: sessionId,
+    }),
   });
-  
+
   return await response.json();
 };
 ```
@@ -542,6 +579,7 @@ All functions include structured logging with the following information:
 - **Business metrics**: Appointment counts, message types
 
 ### Log Format
+
 ```json
 {
   "timestamp": "2025-01-27T10:30:00.000Z",
@@ -579,6 +617,7 @@ All functions include structured logging with the following information:
 ## Deployment
 
 ### Local Development
+
 ```bash
 # Start Supabase locally
 supabase start
@@ -591,13 +630,16 @@ supabase functions deploy process-document
 ```
 
 ### Production Deployment
+
 ```bash
 # Deploy to production
 supabase functions deploy --project-ref your-project-ref
 ```
 
 ### Environment Variables
+
 Required environment variables:
+
 - `SUPABASE_URL`: Your Supabase project URL
 - `SUPABASE_ANON_KEY`: Your Supabase anonymous key
 - `OPENAI_API_KEY`: OpenAI API key for AI features
@@ -616,4 +658,4 @@ For technical support or questions about the API:
 
 ---
 
-*Last updated: January 27, 2025* 
+_Last updated: January 27, 2025_
