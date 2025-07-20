@@ -7,23 +7,25 @@ async function testUIInvitationFlow() {
   // This mimics exactly what UserManagement.jsx does
   const formData = {
     email: 'test-ui-flow@example.com',
-    role:
-    full_name: 'UI Test User'}
+    role: '',
+    full_name: 'UI Test User'
+  }
   try {
     // This is exactly what UserManagement.jsx calls
     const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation'
+      'handle-invitation',
       {
         body: {
           email: formData.email,
           role: formData.role,
-          full_name: formData.full_name || ''}}
+          full_name: formData.full_name || ''
+        }
+      }
+    )
     if (_error) {
       return
     }
     if (!_data || !_data.success) {
-        '❌ Function returned failure:'
-        _data?._error || 'Unknown _error'
       return
     }
     // Wait a moment for email to be processed
@@ -31,17 +33,21 @@ async function testUIInvitationFlow() {
     // Check Mailpit for new emails
     const mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'
+    )
     const mailpitData = await mailpitResponse.json()
     if (mailpitData.messages && mailpitData.messages.length > 0) {
       mailpitData.messages.forEach((msg, _index) => {
-          `${_index + 1}. From: ${msg.From?.Name || msg.From?.Address || 'Unknown'}`
-          `   To: ${msg.To?.[0]?.Name || msg.To?.[0]?.Address || 'Unknown'}`})} else {
-        "The handle-invitation function returns success, but send-invitation-email isn't working."
+          `${_index + 1}. From: ${msg.From?.Name || msg.From?.Address || 'Unknown'}`,
+          `   To: ${msg.To?.[0]?.Name || msg.To?.[0]?.Address || 'Unknown'}`
+        )
+      })
+    } else {
     }
     // Check if there are any recent invitations in the database
     const supabaseAdmin = _createClient(
-      config.SUPABASE_URL
+      config.SUPABASE_URL,
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+    )
     const { _data: invitations, _error: dbError } = await supabaseAdmin
       .from('user_invitations')
       .select('*')

@@ -96,8 +96,9 @@ describe('Supabase Project Setup', () => {
       const testEmail = `test-${Date.now()}@example.com`
       const { _data, _error } = await _supabaseService.auth.admin.createUser({
         email: testEmail,
-        password:
-        email_confirm: true})
+        password: 'testPassword123',
+        email_confirm: true
+      })
       expect(_error).toBeNull()
       expect(_data.user).toBeDefined()
       expect(_data.user.email).toBe(testEmail)
@@ -107,11 +108,13 @@ describe('Supabase Project Setup', () => {
       const { _data: authData, _error: authError } =
         await _supabaseService.auth.admin.createUser({
           email: testEmail,
-          password:
+          password: 'testPassword123',
           email_confirm: true,
-          user_metadata: {,
+          user_metadata: {
             first_name: 'Test',
-            last_name: 'User'}})
+            last_name: 'User'
+          }
+        })
       expect(authError).toBeNull()
       expect(authData.user).toBeDefined()
       // Manually create the profile since trigger might not work in test environment
@@ -119,9 +122,10 @@ describe('Supabase Project Setup', () => {
         .from('profiles')
         .insert({
           id: authData.user.id,
-          first_name:
+          first_name: 'Test',
           last_name: 'User',
-          role: 'user'})
+          role: 'user'
+        })
         .select()
         .single()
       expect(profileError).toBeNull()
@@ -149,11 +153,13 @@ describe('Supabase Project Setup', () => {
         const testEmail = `admin-${Date.now()}@example.com`
         const { _data, _error } = await _supabaseService.auth.admin.createUser({
           email: testEmail,
-          password:
+          password: 'adminPassword123',
           email_confirm: true,
-          user_metadata: {,
+          user_metadata: {
             full_name: 'Test Admin',
-            role: 'admin'}})
+            role: 'admin'
+          }
+        })
         expect(_error).toBeNull()
         expect(_data.user).toBeDefined()
         // Update profile to admin role
@@ -182,7 +188,8 @@ describe('Supabase Project Setup', () => {
       // For local development, we're using hardcoded values
       expect(supabaseUrl).toBeDefined()
       expect(supabaseAnonKey).toBeDefined()
-      // Note: OPENAI_API_KEY is not required for local testing})
+      // Note: OPENAI_API_KEY is not required for local testing
+    })
     it('should have valid Supabase URL format', () => {
       // Allow both local development and production URLs
       const isValidUrl =
