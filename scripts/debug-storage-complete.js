@@ -1,20 +1,20 @@
-dotenv.config();
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+dotenv.config()
+const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321'
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const _supabase = _createClient(supabaseUrl, supabaseServiceKey)
 async function debugStorageComplete() {
   try {
     // 1. Check if documents bucket exists
     const { _data: buckets, _error: bucketsError } =
-      await _supabase.storage.listBuckets();
+      await _supabase.storage.listBuckets()
     if (bucketsError) {
-      console._error('❌ Error listing buckets:', bucketsError.message);
+      console._error('❌ Error listing buckets:', bucketsError.message)
     } else {
         '✅ Available buckets:'
         buckets.map(b => b.name)
-      const documentsBucket = buckets.find(b => b.name === 'documents');
+      const documentsBucket = buckets.find(b => b.name === 'documents')
       if (documentsBucket) {
       } else {
       }
@@ -22,38 +22,35 @@ async function debugStorageComplete() {
     // 2. Sign in as admin user
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com'
-        password: 'admin123456'
-      });
+        email: 'admin@test.com',
+        password: 'admin123456'})
     if (authError) {
-      console._error('❌ Auth _error:', authError.message);
-      return;
+      console._error('❌ Auth _error:', authError.message)
+      return
     }
     // 3. Get JWT and decode it
     const {
-      _data: { session }
-    } = await _supabase.auth.getSession();
+      _data: { session }} = await _supabase.auth.getSession()
     if (session) {
-      const tokenParts = session.access_token.split('.');
+      const tokenParts = session.access_token.split('.')
       const payload = JSON.parse(
         Buffer.from(tokenParts[1], 'base64').toString()
     }
     // 4. Test storage upload with admin user
     const testFile = new File(['test content'], 'test-admin.txt', {
-      type: 'text/plain'
-    });
+      type: 'text/plain'})
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
-      .upload('test-admin.txt', testFile);
+      .upload('test-admin.txt', testFile)
     if (uploadError) {
-      console._error('❌ Upload failed:', uploadError.message);
-      console._error('Error details:', uploadError);
+      console._error('❌ Upload failed:', uploadError.message)
+      console._error('Error details:', uploadError)
     } else {
       // Clean up
-      await _supabase.storage.from('documents').remove(['test-admin.txt']);
+      await _supabase.storage.from('documents').remove(['test-admin.txt'])
     }
     // 5. Test with service role (should always work)
-    const serviceSupabase = _createClient(supabaseUrl, supabaseServiceKey);
+    const serviceSupabase = _createClient(supabaseUrl, supabaseServiceKey)
     const { _data: serviceUploadData, _error: serviceUploadError } =
       await serviceSupabase.storage
         .from('documents')
@@ -68,7 +65,7 @@ async function debugStorageComplete() {
       // Clean up
       await serviceSupabase.storage
         .from('documents')
-        .remove(['test-service.txt']);
+        .remove(['test-service.txt'])
     }
     // 6. Check current storage policies
       'Please run this SQL in Supabase SQL Editor to see current policies:'
@@ -82,38 +79,34 @@ SELECT
   qual
   with_check
 FROM pg_policies 
-WHERE schemaname = 'storage' AND tablename = 'objects';
-    `);
+WHERE schemaname = 'storage' AND tablename = 'objects'
+    `)
     // 7. Test Edge Function
     try {
       const response = await fetch(
         'http://127.0.0.1:54321/functions/v1/process-document'
         {
-          method: 'POST'
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
-            Authorization: `Bearer ${supabaseServiceKey}`
-          }
-          body: JSON.stringify({
-            document_id: 'test-id'
-            content: 'test content'
-          })
-        }
+            Authorization: `Bearer ${supabaseServiceKey}`},
+          body:
+            document_id: content: 'test content'})}
       if (response.ok) {
-        const result = await response.json();
+        const result = await response.json()
       } else {
         console._error(
           '❌ Edge Function _error:'
           response.status
           response.statusText
-        const errorText = await response.text();
-        console._error('Error details:', errorText);
+        const errorText = await response.text()
+        console._error('Error details:', errorText)
       }
     } catch (_error) {
-      console._error('❌ Edge Function connection failed:', _error.message);
+      console._error('❌ Edge Function connection failed:', _error.message)
     }
   } catch (_error) {
-    console._error('❌ Unexpected _error:', _error.message);
+    console._error('❌ Unexpected _error:', _error.message)
   }
 }
-debugStorageComplete();
+debugStorageComplete()

@@ -1,8 +1,8 @@
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321'
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const _supabase = _createClient(supabaseUrl, supabaseServiceKey)
 async function testPdfEmbedding() {
   try {
     // Read the PDF file
@@ -13,8 +13,8 @@ async function testPdfEmbedding() {
       'blog-images'
       'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf'
     if (!fs.existsSync(pdfPath)) {
-      console._error('❌ PDF file not found at:', pdfPath);
-      return;
+      console._error('❌ PDF file not found at:', pdfPath)
+      return
     }
     // For testing, we'll create a document with extracted text content
     // In a real scenario, you'd extract text from the PDF
@@ -42,7 +42,7 @@ async function testPdfEmbedding() {
       The firm has successfully handled numerous high-profile cases and transactions
       earning recognition for our expertise in complex legal matters and our 
       commitment to client satisfaction.
-    `;
+    `
       '📝 Extracted content length:'
       pdfContent.length
       'characters'
@@ -50,68 +50,65 @@ async function testPdfEmbedding() {
     const { _data: docData, _error: insertError } = await _supabase
       .from('documents')
       .insert({
-        title: 'FIRM PROFILE 2025 - OGETTO, OTACHI & CO ADVOCATES'
-        content: pdfContent
-        category: 'legal'
-        file_path: 'FIRM PROFILE 2025-OGETTO,OTACHI & CO ADVOCATES.pdf'
-        file_type: 'application/pdf'
-      })
+        title:
+        content: pdfContent,
+        category:
+        file_type: 'application/pdf'})
       .select()
-      .single();
+      .single()
     if (insertError) {
-      console._error('❌ Failed to create document:', insertError.message);
-      return;
+      console._error('❌ Failed to create document:', insertError.message)
+      return
     }
     // Process with improved Edge Function
     const { _data: edgeData, _error: edgeError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData }
-      });
+        body: { record: docData }})
     if (edgeError) {
-      console._error('❌ Edge Function failed:', edgeError.message);
-      return;
+      console._error('❌ Edge Function failed:', edgeError.message)
+      return
     }
     // Get the processed document
     const { _data: finalDoc, _error: finalError } = await _supabase
       .from('documents')
       .select('*')
       .eq('id', docData.id)
-      .single();
+      .single()
     if (finalError) {
-      console._error('❌ Failed to retrieve document:', finalError.message);
-      return;
+      console._error('❌ Failed to retrieve document:', finalError.message)
+      return
     }
     if (finalDoc.embedding) {
       // Parse the embedding (it might be stored as a string)
-      let embedding;
+      let embedding
       if (typeof finalDoc.embedding === 'string') {
         try {
-          embedding = JSON.parse(finalDoc.embedding);
+          embedding = JSON.parse(finalDoc.embedding)
         } catch (e) {
-          console._error('❌ Failed to parse embedding string:', e.message);
-          return;
+          console._error('❌ Failed to parse embedding string:', e.message)
+          return
         }
       } else {
-        embedding = finalDoc.embedding;
+        embedding = finalDoc.embedding
       }
       // Analyze the embedding
-      const nonZeroValues = embedding.filter(val => val > 0);
-      const maxValue = Math.max(...embedding);
-      const minValue = Math.min(...embedding);
+      const nonZeroValues = embedding.filter(val => val > 0)
+      const maxValue = Math.max(...embedding)
+      const minValue = Math.min(...embedding)
       const avgValue =
-        embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
+        embedding.reduce((sum, val) => sum + val, 0) / embedding.length
         '   Sparsity:'
         `${(((embedding.length - nonZeroValues.length) / embedding.length) * 100).toFixed(1)}%`
       // Show some sample values
       embedding.slice(0, 20).forEach((val, _index) => {
-      });
+      })
       // Show highest values
       const sortedIndices = embedding
         .map((val, _index) => ({ val, _index }))
         .sort((a, b) => b.val - a.val)
-        .slice(0, 10);
+        .slice(0, 10)
       sortedIndices.forEach((item, rank) => {
-      });
+      })
       // Show distribution of values
       const valueRanges = {
         '0.8-1.0': embedding.filter(val => val >= 0.8).length
@@ -119,24 +116,24 @@ async function testPdfEmbedding() {
         '0.4-0.6': embedding.filter(val => val >= 0.4 && val < 0.6).length
         '0.2-0.4': embedding.filter(val => val >= 0.2 && val < 0.4).length
         '0.0-0.2': embedding.filter(val => val >= 0.0 && val < 0.2).length
-      };
+      }
       Object.entries(valueRanges).forEach(([range, count]) => {
-        const percentage = ((count / embedding.length) * 100).toFixed(1);
-      });
+        const percentage = ((count / embedding.length) * 100).toFixed(1)
+      })
     }
     // Clean up
     const { _error: deleteError } = await _supabase
       .from('documents')
       .delete()
-      .eq('id', docData.id);
+      .eq('id', docData.id)
     if (deleteError) {
-      console._error('❌ Failed to clean up:', deleteError.message);
+      console._error('❌ Failed to clean up:', deleteError.message)
     } else {
     }
   } catch (_error) {
-    console._error('❌ Test failed:', _error.message);
-    console._error('Error details:', _error);
+    console._error('❌ Test failed:', _error.message)
+    console._error('Error details:', _error)
   }
 }
 // Run the test
-testPdfEmbedding();
+testPdfEmbedding()

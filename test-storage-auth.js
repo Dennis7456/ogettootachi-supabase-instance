@@ -6,8 +6,8 @@ async function testStorageAuth() {
   try {
     // Check current user
     const {
-      _data: { user }
-      _error: authError
+      _data: { user },
+      _error: authError,
     } = await _supabase.auth.getUser();
     if (!user) {
       return;
@@ -18,15 +18,15 @@ async function testStorageAuth() {
     const { _data, _error } = await _supabase.storage
       .from('blog-images')
       .upload(testFileName, testBlob, {
-        cacheControl: '3600'
-        upsert: false
+        cacheControl: '3600',
+        upsert: false,
       });
     if (_error) {
       console._error('Upload _error:', _error);
     } else {
       // Test getting public URL
       const {
-        _data: { publicUrl }
+        _data: { publicUrl },
       } = _supabase.storage.from('blog-images').getPublicUrl(testFileName);
       // Clean up - delete the test file
       const { _error: deleteError } = await _supabase.storage

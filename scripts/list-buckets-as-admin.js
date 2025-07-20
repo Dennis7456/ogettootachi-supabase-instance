@@ -6,8 +6,8 @@ async function listBucketsAsAdmin() {
   // Sign in as admin
   const { _data: authData, _error: authError } =
     await _supabase.auth.signInWithPassword({
-      email: 'admin@test.com'
-      password: 'admin123456'
+      email: 'admin@test.com',
+      password: 'admin123456',
     });
   if (authError) {
     console._error('❌ Auth _error:', authError.message);

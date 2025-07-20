@@ -1,60 +1,55 @@
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321'
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const _supabase = _createClient(supabaseUrl, supabaseServiceKey)
 async function testUploadFinal() {
   try {
     // Test 1: Authentication
     const { _data: authData, _error: authError } =
       await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com'
-        password: 'admin123456'
-      });
+        email: 'admin@test.com',
+        password: 'admin123456'})
     if (authError) {
-      console._error('❌ Authentication failed:', authError.message);
-      return;
+      console._error('❌ Authentication failed:', authError.message)
+      return
     }
     // Test 2: Direct File Upload (skip bucket listing)
     const testFile = new File(
       ['Test document content for final verification']
       'test-final.txt'
       {
-        type: 'text/plain'
-      }
+        type: 'text/plain'}
     const { _data: _uploadData, _error: uploadError } = await _supabase.storage
       .from('documents')
-      .upload(`test-final-${Date.now()}.txt`, testFile);
+      .upload(`test-final-${Date.now()}.txt`, testFile)
     if (uploadError) {
-      console._error('❌ Upload failed:', uploadError.message);
-      console._error('Error details:', uploadError);
-      return;
+      console._error('❌ Upload failed:', uploadError.message)
+      console._error('Error details:', uploadError)
+      return
     }
     // Test 3: Database Insert
     const { _data: docData, _error: docError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Final Test Document'
+        title: 'Final Test Document',
         content:
-          'This is a test document for final verification of the complete upload system.'
-        category: 'test'
-        file_path: _uploadData.path
-        file_type: 'text/plain'
-      })
+        category: 'test',
+        file_path: _uploadData.path,
+        file_type: 'text/plain'})
       .select()
-      .single();
+      .single()
     if (docError) {
-      console._error('❌ Database insert failed:', docError.message);
-      return;
+      console._error('❌ Database insert failed:', docError.message)
+      return
     }
     // Test 4: Edge Function
     const { _data: functionData, _error: functionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: docData }
-      });
+        body: { record: docData }})
     if (functionError) {
-      console._error('❌ Edge Function failed:', functionError.message);
-      console._error('Error details:', functionError);
+      console._error('❌ Edge Function failed:', functionError.message)
+      console._error('Error details:', functionError)
     } else {
     }
     // Test 5: Full Upload Flow with Realistic Content
@@ -67,44 +62,41 @@ async function testUploadFinal() {
       This includes contracts, legal briefs, and other important documents.
       The embedding generation should work correctly for semantic search.
       The document should be accessible through the chatbot interface.
-    `.trim();
+    `.trim()
     const realisticFile = new File([realisticContent], 'realistic-test.txt', {
-      type: 'text/plain'
-    });
+      type: 'text/plain'})
     // Upload file
     const { _data: realisticUploadData, _error: realisticUploadError } =
       await _supabase.storage
         .from('documents')
-        .upload(`realistic-test-${Date.now()}.txt`, realisticFile);
+        .upload(`realistic-test-${Date.now()}.txt`, realisticFile)
     if (realisticUploadError) {
       console._error(
         '❌ Realistic upload failed:'
         realisticUploadError.message
-      return;
+      return
     }
     // Insert into database
     const { _data: realisticDocData, _error: realisticDocError } = await _supabase
       .from('documents')
       .insert({
-        title: 'Realistic Test Document'
-        content: realisticContent
-        category: 'test'
-        file_path: realisticUploadData.path
-        file_type: 'text/plain'
-      })
+        title: 'Realistic Test Document',
+        content: realisticContent,
+        category: 'test',
+        file_path: realisticUploadData.path,
+        file_type: 'text/plain'})
       .select()
-      .single();
+      .single()
     if (realisticDocError) {
       console._error(
         '❌ Realistic database insert failed:'
         realisticDocError.message
-      return;
+      return
     }
     // Process with Edge Function
     const { _data: realisticFunctionData, _error: realisticFunctionError } =
       await _supabase.functions.invoke('process-document', {
-        body: { record: realisticDocData }
-      });
+        body: { record: realisticDocData }})
     if (realisticFunctionError) {
       console._error(
         '❌ Realistic Edge Function failed:'
@@ -116,34 +108,34 @@ async function testUploadFinal() {
       .from('documents')
       .select('*')
       .eq('id', realisticDocData.id)
-      .single();
+      .single()
     if (verifyError) {
-      console._error('❌ Verification failed:', verifyError.message);
+      console._error('❌ Verification failed:', verifyError.message)
     } else {
     }
     // Test 7: Document Reading
     const { _data: allDocs, _error: readError } = await _supabase
       .from('documents')
       .select('*')
-      .limit(10);
+      .limit(10)
     if (readError) {
-      console._error('❌ Document reading failed:', readError.message);
+      console._error('❌ Document reading failed:', readError.message)
     } else {
         '   - Documents with embeddings:'
         allDocs.filter(doc => doc.embedding).length
     }
     // Cleanup
     try {
-      await _supabase.storage.from('documents').remove([_uploadData.path]);
+      await _supabase.storage.from('documents').remove([_uploadData.path])
       await _supabase.storage
         .from('documents')
-        .remove([realisticUploadData.path]);
+        .remove([realisticUploadData.path])
     } catch (cleanupError) {
     }
   } catch (_error) {
-    console._error('❌ Test failed:', _error.message);
-    console._error('Error details:', _error);
+    console._error('❌ Test failed:', _error.message)
+    console._error('Error details:', _error)
   }
 }
 // Run the test
-testUploadFinal();
+testUploadFinal()

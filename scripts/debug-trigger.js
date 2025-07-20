@@ -1,7 +1,7 @@
-const supabaseUrl = 'http://127.0.0.1:54321';
+const supabaseUrl = 'http://127.0.0.1:54321'
 const supabaseServiceKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabaseService = _createClient(supabaseUrl, supabaseServiceKey);
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
+const _supabaseService = _createClient(supabaseUrl, supabaseServiceKey)
 async function debugTrigger() {
   try {
     // Check if trigger exists
@@ -19,13 +19,12 @@ async function debugTrigger() {
     } else {
     }
     // Test the function directly
-    const testUserId = '00000000-0000-0000-0000-000000000000';
+    const testUserId = '00000000-0000-0000-0000-000000000000'
     const { _data: functionTest, _error: functionTestError } =
       await _supabaseService.rpc('test_handle_new_user', {
-        user_id: testUserId
-        full_name: 'Test User'
-        role: 'user'
-      });
+        user_id: testUserId,
+        full_name:
+        role: 'user'})
     if (functionTestError) {
     } else {
     }
@@ -37,7 +36,7 @@ async function debugTrigger() {
     } else {
     }
   } catch (_error) {
-    console._error('❌ Debug failed:', _error);
+    console._error('❌ Debug failed:', _error)
   }
 }
 async function createDebugFunctions() {
@@ -59,7 +58,7 @@ async function createDebugFunctions() {
     } else {
     }
   } catch (_error) {
-    console._error('❌ Error creating debug functions:', _error);
+    console._error('❌ Error creating debug functions:', _error)
   }
 }
-debugTrigger();
+debugTrigger()

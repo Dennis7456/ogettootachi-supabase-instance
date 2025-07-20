@@ -1,23 +1,20 @@
 module.exports = {
-  root: true
+  root: true,
   env: {
-    node: true
-    es2021: true
-  }
-  extends: ['eslint:recommended']
-  parserOptions: {
-    ecmaVersion: 'latest'
-    sourceType: 'module'
-  }
+    node: true,
+    es2021: true},
+  extends: ['eslint:recommended'],
+  parserOptions: {,
+    ecmaVersion: 'latest',
+    sourceType: 'module'},
   rules: {
     'no-unused-vars': [
       'warn'
       {
-        vars: 'all'
-        args: 'after-used'
-        ignoreRestSiblings: true
-        argsIgnorePattern: '^_'
-      }
+        vars: 'all',
+        args:
+        ignoreRestSiblings: true,
+        argsIgnorePattern: '^_'}
     ]
     'no-console': 'warn'
     'no-debugger': 'warn'
@@ -30,4 +27,4 @@ module.exports = {
     '*.config.js'
     '*.config.cjs'
   ]
-};
+}
