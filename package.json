@@ -4,8 +4,9 @@
   "description": "Invitation system for Ogetto, Otachi & Co Advocates",
   "type": "module",
   "scripts": {
-    "lint": "./lint-fix.sh",
-    "lint:check": "./lint-fix.sh",
+    "lint": "eslint .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "./test-all.sh",
@@ -18,11 +19,14 @@
     "prepare": "husky install",
     "backup": "./backup-invitation-system.sh",
     "check-all": "npm run format:check && npm run lint:check && npm run test",
-    "fix-all": "npm run format && npm run lint && npm run test"
+    "fix-all": "npm run format && npm run lint && npm run test",
+    "fix:all": "npm run format && npm run lint:fix",
+    "fix:project": "node scripts/fix-project-linting.js",
+    "fix:syntax": "node scripts/fix-syntax-errors.js"
   },
   "lint-staged": {
     "*.{js,jsx}": [
-      "./lint-fix.sh",
+      "eslint --fix",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [
@@ -30,17 +34,18 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.45.0",
+    "@eslint/js": "^8.57.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-security": "^1.7.1",
-    "prettier": "^3.0.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.3"
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
+    "@supabase/supabase-js": "^2.52.0"
   },
   "keywords": [
     "invitation",

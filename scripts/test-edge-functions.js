@@ -1,9 +1,22 @@
-const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseAnonKey =
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+import { execSync } from 'child_process';
+
+const _supabaseUrl = 'http://127.0.0.1:54321';
+const _supabaseAnonKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
-const _supabase = _createClient(supabaseUrl, supabaseAnonKey);
+
+const _supabase = createClient(_supabaseUrl, _supabaseAnonKey);
+
+// Utility function for logging errors
+const _logError = (prefix, _error) => {
+  if (_error) {
+    console.error(`❌ ${prefix}:`, _error.message || _error);
+  }
+};
+
 // Test _data
-const testAppointment = {
+const _testAppointment = {
   name: 'Test User',
   email: 'test-user@example.com',
   phone: '+1234567890',
@@ -12,7 +25,8 @@ const testAppointment = {
   preferred_time: '10:00 AM',
   message: 'Test appointment message',
 };
-const testContactMessage = {
+
+const _testContactMessage = {
   name: 'Test Contact',
   email: 'test-contact@example.com',
   phone: '+1234567890',
@@ -20,25 +34,28 @@ const testContactMessage = {
   message: 'This is a test contact message',
   practice_area: 'Corporate Law',
 };
+
 async function testAppointmentsFunction() {
   try {
     // Test POST - Create appointment
-    const createResponse = await fetch(
-      `${supabaseUrl}/functions/v1/appointments`,
+    const _createResponse = await fetch(
+      `${_supabaseUrl}/functions/v1/appointments`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(testAppointment),
+        body: JSON.stringify(_testAppointment),
       }
     );
-    if (createResponse.ok) {
-      const _data = await createResponse.json();
-      // Test GET - Retrieve appointments (requires auth)
-        '⚠️  GET appointments test skipped (requires authentication)'
-      );
+
+    if (_createResponse.ok) {
+      const _data = await _createResponse.json();
+      
+      console.log('⚠️  GET appointments test skipped (requires authentication)');
+      
       return _data.appointment.id;
     } else {
-      const _error = await createResponse.json();
+      const _error = await _createResponse.json();
+      _logError('Appointments function error', _error);
       return null;
     }
   } catch (_error) {
@@ -46,22 +63,25 @@ async function testAppointmentsFunction() {
     return null;
   }
 }
+
 async function testContactFunction() {
   try {
     // Test POST - Create contact message
-    const createResponse = await fetch(`${supabaseUrl}/functions/v1/contact`, {
+    const _createResponse = await fetch(`${_supabaseUrl}/functions/v1/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(testContactMessage),
+      body: JSON.stringify(_testContactMessage),
     });
-    if (createResponse.ok) {
-      const _data = await createResponse.json();
-      // Test GET - Retrieve messages (requires auth)
-        '⚠️  GET contact messages test skipped (requires authentication)'
-      );
+
+    if (_createResponse.ok) {
+      const _data = await _createResponse.json();
+      
+      console.log('⚠️  GET contact messages test skipped (requires authentication)');
+      
       return _data.contact_message.id;
     } else {
-      const _error = await createResponse.json();
+      const _error = await _createResponse.json();
+      _logError('Contact function error', _error);
       return null;
     }
   } catch (_error) {
@@ -69,33 +89,41 @@ async function testContactFunction() {
     return null;
   }
 }
+
 async function testErrorCases() {
   // Test invalid appointment data
   try {
-    const invalidAppointment = { ...testAppointment };
-    delete invalidAppointment.name;
-    const response = await fetch(`${supabaseUrl}/functions/v1/appointments`, {
+    const _invalidAppointment = { ..._testAppointment };
+    delete _invalidAppointment.name;
+
+    const _response = await fetch(`${_supabaseUrl}/functions/v1/appointments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidAppointment),
+      body: JSON.stringify(_invalidAppointment),
     });
-    if (response.status === 400) {
+
+    if (_response.status === 400) {
+      console.log('✅ Invalid appointment data test passed');
     } else {
       console.warn('⚠️ Unexpected response for invalid appointment data');
     }
   } catch (_error) {
     console.error('Error testing invalid appointment:', _error);
   }
+
   // Test invalid contact data
   try {
-    const invalidContact = { ...testContactMessage };
-    delete invalidContact.email;
-    const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
+    const _invalidContact = { ..._testContactMessage };
+    delete _invalidContact.email;
+
+    const _response = await fetch(`${_supabaseUrl}/functions/v1/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidContact),
+      body: JSON.stringify(_invalidContact),
     });
-    if (response.status === 400) {
+
+    if (_response.status === 400) {
+      console.log('✅ Invalid contact data test passed');
     } else {
       console.warn('⚠️ Unexpected response for invalid contact data');
     }
@@ -103,29 +131,37 @@ async function testErrorCases() {
     console.error('Error testing invalid contact:', _error);
   }
 }
-async function cleanupTestData(appointmentId, contactId) {
+
+async function cleanupTestData(_appointmentId, _contactId) {
   try {
-    if (appointmentId) {
-      await _supabase.from('appointments').delete().eq('id', appointmentId);
+    if (_appointmentId) {
+      await _supabase.from('appointments').delete().eq('id', _appointmentId);
     }
-    if (contactId) {
-      await _supabase.from('contact_messages').delete().eq('id', contactId);
+    if (_contactId) {
+      await _supabase.from('contact_messages').delete().eq('id', _contactId);
     }
-  } catch (_error) {}
+  } catch (_error) {
+    console.warn('Cleanup failed:', _error.message);
+  }
 }
+
 async function main() {
   try {
     // Check if Supabase is running
-    execSync('_supabase status', { stdio: 'pipe' });
+    execSync('supabase status', { stdio: 'pipe' });
+
     // Test functions
-    const appointmentId = await testAppointmentsFunction();
-    const contactId = await testContactFunction();
+    const _appointmentId = await testAppointmentsFunction();
+    const _contactId = await testContactFunction();
+    
     await testErrorCases();
+
     // Cleanup
-    await cleanupTestData(appointmentId, contactId);
+    await cleanupTestData(_appointmentId, _contactId);
   } catch (_error) {
-    console._error('❌ Testing failed:', _error.message);
+    console.error('❌ Testing failed:', _error.message);
     throw new Error('Process exit blocked');
   }
 }
+
 main();

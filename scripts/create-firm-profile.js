@@ -1,35 +1,50 @@
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
-const supabaseServiceKey =
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+
+// Utility function for logging errors
+const _logError = (prefix, _error) => {
+  if (_error) {
+    console.error(`❌ ${prefix}:`, _error.message || _error);
+  }
+};
+
+const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
+
 async function createFirmProfile() {
   try {
     // Step 1: Delete the test document
-    const { _data: testDocs, _error: fetchError } = await _supabase
+    const { _data: _testDocs, _error: _fetchError } = await _supabase
       .from('documents')
       .select('id, title')
       .eq('title', 'Dashboard Test Document');
-    if (fetchError) {
-      console.error('❌ Error fetching test documents:', fetchError.message);
+
+    _logError('Error fetching test documents', _fetchError);
+
+    if (_fetchError) {
       return;
     }
-    if (testDocs && testDocs.length > 0) {
-      for (const doc of testDocs) {
-        const { _error: deleteError } = await _supabase
+
+    if (_testDocs && _testDocs.length > 0) {
+      for (const _doc of _testDocs) {
+        const { _error: _deleteError } = await _supabase
           .from('documents')
           .delete()
-          .eq('id', doc.id);
-        if (deleteError) {
-          console.error(
-            `❌ Error deleting test document ${doc.id}:`,
-            deleteError.message
-          );
-        }
+          .eq('id', _doc.id);
+
+        _logError(`Error deleting test document ${_doc.id}`, _deleteError);
       }
     }
+
     // Step 2: Create firm profile document
-    const firmProfile = {
+    const _firmProfile = {
       title: 'Ogetto, Otachi & Co Advocates - Firm Profile',
       category: 'legal',
       content: `Ogetto, Otachi & Co Advocates is a prestigious law firm based in Kenya, established in 2003. We are committed to providing exceptional legal services with integrity, professionalism, and dedication to our clients' success.
@@ -51,44 +66,47 @@ We offer legal services for environmental compliance, energy projects, sustainab
 Our firm has been serving clients for over two decades with a track record of successful outcomes and client satisfaction. We combine deep legal expertise with practical business understanding to deliver effective solutions.
 For consultations and legal services, please contact our office. We are committed to providing timely, professional, and cost-effective legal solutions tailored to our clients' specific needs.`,
     };
-    const { _data: newDoc, _error: insertError } = await _supabase
+
+    const { _data: _newDoc, _error: _insertError } = await _supabase
       .from('documents')
-      .insert(firmProfile)
+      .insert(_firmProfile)
       .select()
       .single();
-    if (insertError) {
-      console.error('❌ Error creating firm profile:', insertError.message);
+
+    _logError('Error creating firm profile', _insertError);
+
+    if (_insertError) {
       return;
     }
+
     // Step 3: Process with Edge Function
-    const { _data: processData, _error: processError } =
+    const { _data: _processData, _error: _processError } =
       await _supabase.functions.invoke('process-document', {
         body: {
-          document_id: newDoc.id,
-          title: newDoc.title,
-          category: newDoc.category,
-          content: newDoc.content,
+          document_id: _newDoc.id,
+          title: _newDoc.title,
+          category: _newDoc.category,
+          content: _newDoc.content,
         },
       });
-    if (processError) {
-      console.error('❌ Edge Function processing error:', processError.message);
-    } else {
-    }
+
+    _logError('Edge Function processing error', _processError);
+
     // Step 4: Verify final state
-    const { _data: finalDoc, _error: verifyError } = await _supabase
+    const { _data: _finalDoc, _error: _verifyError } = await _supabase
       .from('documents')
       .select('*')
-      .eq('id', newDoc.id)
+      .eq('id', _newDoc.id)
       .single();
-    if (verifyError) {
-      console.error('❌ Verification error:', verifyError.message);
-    }
-      '📋 The chatbot will now use real firm information instead of test content.'
-    );
+
+    _logError('Verification error', _verifyError);
+
+    console.log('📋 The chatbot will now use real firm information instead of test content.');
   } catch (_error) {
     console.error('❌ Failed to create firm profile:', _error.message);
     console.error('Error details:', _error);
   }
 }
+
 // Run the function
 createFirmProfile();

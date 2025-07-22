@@ -1,27 +1,31 @@
-// Comprehensive invitation system test suite
-// Run this anytime to verify the system is working correctly
-const config = {
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+import { setTimeout } from 'timers/promises';
+
+const _config = {
   SUPABASE_URL: 'http://127.0.0.1:54321',
   SUPABASE_ANON_KEY:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
   SUPABASE_SERVICE_ROLE_KEY:
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
 };
+
 class InvitationSystemTester {
   constructor() {
-    this._supabase = _createClient(
-      config.SUPABASE_URL,
-      config.SUPABASE_ANON_KEY
+    this._supabase = createClient(
+      _config.SUPABASE_URL,
+      _config.SUPABASE_ANON_KEY
     );
-    this.supabaseAdmin = _createClient(
-      config.SUPABASE_URL,
-      config.SUPABASE_SERVICE_ROLE_KEY
+    this.supabaseAdmin = createClient(
+      _config.SUPABASE_URL,
+      _config.SUPABASE_SERVICE_ROLE_KEY
     );
     this.results = [];
     this.testEmails = [];
   }
+
   async runAllTests() {
-    const tests = [
+    const _tests = [
       {
         name: 'Infrastructure Health Check',
         fn: () => this.testInfrastructure(),
@@ -71,33 +75,37 @@ class InvitationSystemTester {
         fn: () => this.testTokenUniqueness(),
       },
     ];
-    for (const test of tests) {
-      await this.runTest(test.name, test.fn);
+
+    for (const _test of _tests) {
+      await this.runTest(_test.name, _test.fn);
     }
+
     await this.cleanup();
     this.printSummary();
   }
-  async runTest(name, testFn) {
-    const startTime = Date.now();
+
+  async runTest(_name, _testFn) {
+    const _startTime = Date.now();
     try {
-      const result = await testFn();
-      const duration = Date.now() - startTime;
+      const _result = await _testFn();
+      const _duration = Date.now() - _startTime;
       this.results.push({
-        name,
+        name: _name,
         status: 'PASS',
-        duration,
-        details: result,
+        duration: _duration,
+        details: _result,
       });
     } catch (_error) {
-      const duration = Date.now() - startTime;
+      const _duration = Date.now() - _startTime;
       this.results.push({
-        name,
+        name: _name,
         status: 'FAIL',
-        duration,
+        duration: _duration,
         _error: _error.message,
       });
     }
   }
+
   async testInfrastructure() {
     // Test Supabase connectivity
     const { _data, _error } = await this._supabase
@@ -105,6 +113,7 @@ class InvitationSystemTester {
       .select('count')
       .limit(1);
     if (_error) {
+      throw new Error('Supabase connection failed');
     }
     // Test Mailpit connectivity
     const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/info');
@@ -113,6 +122,7 @@ class InvitationSystemTester {
     }
     return 'All infrastructure services are accessible';
   }
+
   async testDatabase() {
     // Test database schema
     const { _data: tables, _error } = await this.supabaseAdmin
@@ -125,6 +135,7 @@ class InvitationSystemTester {
     }
     return 'Database schema is correct';
   }
+
   async testEdgeFunctions() {
     // Test handle-invitation function
     const { _data, _error } = await this._supabase.functions.invoke(
@@ -138,12 +149,15 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
+      throw new Error('Edge function invocation failed');
     }
     if (!_data.success) {
+      throw new Error('Edge function did not return success');
     }
     this.testEmails.push('test-health-check@example.com');
     return 'Edge functions are responding correctly';
   }
+
   async testMailpit() {
     // Clear Mailpit
     await fetch('http://127.0.0.1:54324/api/v1/messages', { method: 'DELETE' });
@@ -156,7 +170,7 @@ class InvitationSystemTester {
       }
     );
     // Wait for email
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await setTimeout(3000);
     // Check Mailpit
     const mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'
@@ -168,6 +182,7 @@ class InvitationSystemTester {
     this.testEmails.push(testEmail);
     return `Email delivered successfully (${mailpitData.total} messages in Mailpit)`;
   }
+
   async testNewUserInvitation() {
     const testEmail = `new-user-${Date.now()}@example.com`;
     const { _data, _error } = await this._supabase.functions.invoke(
@@ -177,8 +192,10 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
+      throw new Error('New user invitation function failed');
     }
     if (!_data.success) {
+      throw new Error('New user invitation did not return success');
     }
     // Verify database record
     const { _data: invitation } = await this.supabaseAdmin
@@ -187,11 +204,12 @@ class InvitationSystemTester {
       .eq('email', testEmail)
       .single();
     if (!invitation) {
-      throw new Error('Database record not created');
+      throw new Error('Database record not created for new user');
     }
     this.testEmails.push(testEmail);
     return `New user invitation created with token: ${_data.invitation_token}`;
   }
+
   async testExistingUserInvitation() {
     const testEmail = `existing-user-${Date.now()}@example.com`;
     // Create user first
@@ -211,12 +229,15 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
+      throw new Error('Existing user invitation function failed');
     }
     if (!_data.success) {
+      throw new Error('Existing user invitation did not return success');
     }
     this.testEmails.push(testEmail);
     return 'Existing user invitation handled correctly';
   }
+
   async testAdminInvitation() {
     const testEmail = `admin-test-${Date.now()}@example.com`;
     const { _data } = await this._supabase.functions.invoke(
@@ -236,6 +257,7 @@ class InvitationSystemTester {
     this.testEmails.push(testEmail);
     return 'Admin invitation created with correct role';
   }
+
   async testStaffInvitation() {
     const testEmail = `staff-test-${Date.now()}@example.com`;
     const { _data } = await this._supabase.functions.invoke(
@@ -255,6 +277,7 @@ class InvitationSystemTester {
     this.testEmails.push(testEmail);
     return 'Staff invitation created with correct role';
   }
+
   async testInvalidEmail() {
     const { _data, _error } = await this._supabase.functions.invoke(
       'handle-invitation',
@@ -274,32 +297,37 @@ class InvitationSystemTester {
     }
     return 'Invalid email handling tested';
   }
+
   async testDatabaseRecords() {
     // Check that all test records were created
-    const { _data: invitations } = await this.supabaseAdmin
+    const { _data: _invitations } = await this.supabaseAdmin
       .from('user_invitations')
       .select('*')
       .in('email', this.testEmails);
-    if (invitations.length !== this.testEmails.length) {
-      throw new Error(
+
+    if (_invitations.length !== this.testEmails.length) {
+      throw new Error(`Expected ${this.testEmails.length} invitations, found ${_invitations.length}`);
     }
+
     // Check required fields
-    for (const inv of invitations) {
-      if (!inv.invitation_token) {
+    for (const _inv of _invitations) {
+      if (!_inv.invitation_token) {
         throw new Error('Missing invitation token');
       }
-      if (!inv.email) {
+      if (!_inv.email) {
         throw new Error('Missing email');
       }
-      if (!inv.role) {
+      if (!_inv.role) {
         throw new Error('Missing role');
       }
-      if (!inv.created_at) {
+      if (!_inv.created_at) {
         throw new Error('Missing created_at');
       }
     }
-    return `All ${invitations.length} database records are properly structured`;
+
+    return `All ${_invitations.length} database records are properly structured`;
   }
+
   async testEmailContent() {
     // Check latest email in Mailpit
     const mailpitResponse = await fetch(
@@ -318,6 +346,7 @@ class InvitationSystemTester {
     }
     return 'Email content validation passed';
   }
+
   async testTokenUniqueness() {
     const tokens = new Set();
     for (let i = 0; i < 5; i++) {
@@ -340,6 +369,7 @@ class InvitationSystemTester {
     }
     return `Generated ${tokens.size} unique tokens`;
   }
+
   async cleanup() {
     // Delete test invitations
     const { _error } = await this.supabaseAdmin
@@ -347,6 +377,7 @@ class InvitationSystemTester {
       .delete()
       .in('email', this.testEmails);
     if (_error) {
+      console.warn('Failed to delete test invitations:', _error.message);
     }
     // Delete test users
     const { _data: users } = await this.supabaseAdmin.auth.admin.listUsers();
@@ -356,17 +387,27 @@ class InvitationSystemTester {
       }
     }
   }
+
   printSummary() {
-    const passed = this.results.filter(r => r.status === 'PASS').length;
-    const failed = this.results.filter(r => r.status === 'FAIL').length;
-    const totalTime = this.results.reduce((sum, r) => sum + r.duration, 0);
-    if (failed === 0) {
+    const _passed = this.results.filter(_r => _r.status === 'PASS').length;
+    const _failed = this.results.filter(_r => _r.status === 'FAIL').length;
+    const _totalTime = this.results.reduce((_sum, _r) => _sum + _r.duration, 0);
+
+    if (_failed === 0) {
+      console.log(
         '🎉 ALL TESTS PASSED! Your invitation system is working perfectly.'
       );
     } else {
+      console.log(`❌ ${_failed} tests failed. Please review the results.`);
     }
+
+    console.log(`Total Tests: ${this.results.length}`);
+    console.log(`Passed: ${_passed}`);
+    console.log(`Failed: ${_failed}`);
+    console.log(`Total Execution Time: ${_totalTime}ms`);
   }
 }
+
 // Run tests
-const tester = new InvitationSystemTester();
-tester.runAllTests().catch(console.error);
+const _tester = new InvitationSystemTester();
+_tester.runAllTests().catch(console.error);

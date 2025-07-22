@@ -1,4 +1,9 @@
-module.exports = {
-  '*.{js,jsx}': ['./lint-fix.sh', 'prettier --write'],
-  '*.{json,md,yml,yaml}': ['prettier --write'],
+export default {
+  '*.{js,jsx}': [
+    'eslint --fix',
+    'prettier --write'
+  ],
+  '*.{json,md,yml,yaml}': [
+    'prettier --write'
+  ]
 };

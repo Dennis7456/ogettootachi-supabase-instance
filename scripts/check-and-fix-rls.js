@@ -1,34 +1,54 @@
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
-const supabaseServiceKey =
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+import { Buffer } from 'node:buffer';
+
+const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+
+const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
+
+// Utility function for logging errors
+const _logError = (prefix, _error) => {
+  if (_error) {
+    console.error(`❌ ${prefix}:`, _error.message || _error);
+  }
+};
+
 async function checkAndFixRLS() {
   try {
     // Test admin user JWT structure
-    const { _data: authData, _error: authError } =
+    const { _data: _authData, _error: _authError } =
       await _supabase.auth.signInWithPassword({
         email: 'admin@test.com',
         password: 'admin123456',
       });
-    if (authError) {
-      console.error('❌ Authentication failed:', authError.message);
+
+    _logError('Authentication failed', _authError);
+    
+    if (_authError) {
       return;
     }
+
     // Get session to see JWT structure
     const {
       _data: { session },
     } = await _supabase.auth.getSession();
+
     if (session) {
-      const tokenParts = session.access_token.split('.');
-      const payload = JSON.parse(
-        Buffer.from(tokenParts[1], 'base64').toString()
+      const _tokenParts = session.access_token.split('.');
+      const _payload = JSON.parse(
+        Buffer.from(_tokenParts[1], 'base64').toString()
       );
+      
+      console.log('JWT Payload:', _payload);
     }
-      '- The issue is that the RLS policies are not correctly checking user_metadata'
-    );
+
+    console.log('- The issue is that the RLS policies are not correctly checking user_metadata');
+
     // Note: The following SQL commands should be run manually or through a database migration
-    const sqlCommands = [
+    const _sqlCommands = [
       // Check existing policies
       `SELECT 
         schemaname,
@@ -93,13 +113,16 @@ async function checkAndFixRLS() {
        CREATE POLICY "Service role can access all storage" ON storage.objects
         FOR ALL USING (auth.role() = 'service_role');`,
     ];
-    sqlCommands.forEach((cmd, index) => {
+
+    _sqlCommands.forEach((_cmd, _index) => {
+      console.log(`SQL Command ${_index + 1}:`, _cmd);
     });
-      'Please run these SQL commands manually through your database migration tool.'
-    );
+
+    console.log('Please run these SQL commands manually through your database migration tool.');
   } catch (_error) {
     console.error('❌ Unexpected error:', _error.message);
   }
 }
+
 // Run the check
 checkAndFixRLS();

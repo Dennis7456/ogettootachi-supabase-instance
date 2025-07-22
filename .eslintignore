@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+backups/
+*.config.js
+*.md
+*.json
+.git/
+.husky/
+*.log
+coverage/
+test-results/
+playwright-report/ 

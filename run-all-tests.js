@@ -1,13 +1,24 @@
-// Master test runner - runs all invitation system tests
-// Usage: node run-all-tests.js
+/* eslint-disable no-console, no-undef, no-unused-vars */
+import { promisify } from 'util';
+import { exec } from 'child_process';
+
 const execAsync = promisify(exec);
+
 class MasterTestRunner {
   constructor() {
     this.results = [];
     this.startTime = Date.now();
   }
+
+  // Utility function for logging errors
+  _logError(prefix, error) {
+    if (error) {
+      console.error(`❌ ${prefix}:`, error.message);
+    }
+  }
+
   async runAllTests() {
-    const testSuites = [
+    const _testSuites = [
       {
         name: 'Infrastructure Health Check',
         command: 'node health-check.js',
@@ -41,67 +52,72 @@ class MasterTestRunner {
         critical: true,
       },
     ];
-    for (const testSuite of testSuites) {
-      await this.runTestSuite(testSuite);
+
+    for (const _testSuite of _testSuites) {
+      await this.runTestSuite(_testSuite);
     }
+
     await this.generateSummaryReport();
   }
-  async runTestSuite(testSuite) {
-    const startTime = Date.now();
+
+  async runTestSuite(_testSuite) {
+    const _startTime = Date.now();
     try {
-      const { stdout, stderr } = await execAsync(testSuite.command, {
+      const { stdout, stderr } = await execAsync(_testSuite.command, {
         cwd: process.cwd(),
         timeout: 60000, // 60 second timeout
       });
-      const duration = Date.now() - startTime;
-      const success = this.analyzeTestOutput(stdout, stderr, testSuite);
+      const _duration = Date.now() - _startTime;
+      const _success = this.analyzeTestOutput(stdout, stderr, _testSuite);
+      
       this.results.push({
-        name: testSuite.name,
-        status: success ? 'PASS' : 'FAIL',
-        duration: duration,
-        critical: testSuite.critical,
+        name: _testSuite.name,
+        status: _success ? 'PASS' : 'FAIL',
+        duration: _duration,
+        critical: _testSuite.critical,
         output: stdout,
         error: stderr,
       });
-      if (success) {
-      } else {
+
+      if (!_success) {
         if (stderr) {
           console.error('Error details:', stderr);
         }
       }
     } catch (_error) {
-      const duration = Date.now() - startTime;
+      const _duration = Date.now() - _startTime;
       this.results.push({
-        name: testSuite.name,
+        name: _testSuite.name,
         status: 'ERROR',
-        duration: duration,
-        critical: testSuite.critical,
+        duration: _duration,
+        critical: _testSuite.critical,
         error: _error.message,
       });
       console.error(
-        `❌ ${testSuite.name} encountered an error:`,
+        `❌ ${_testSuite.name} encountered an error:`,
         _error.message
       );
     }
   }
-  analyzeTestOutput(stdout, stderr, testSuite) {
+
+  analyzeTestOutput(stdout, stderr, _testSuite) {
     // Analyze different types of test outputs
-    if (testSuite.name.includes('Health Check')) {
+    if (_testSuite.name.includes('Health Check')) {
       return stdout.includes('HEALTHY') && !stderr;
     }
-    if (testSuite.name.includes('Comprehensive')) {
+    if (_testSuite.name.includes('Comprehensive')) {
       return (
         stdout.includes('ALL TESTS PASSED') ||
         (stdout.includes('Success Rate: ') && !stdout.includes('0.0%'))
       );
     }
-    if (testSuite.name.includes('Invitation Test')) {
+    if (_testSuite.name.includes('Invitation Test')) {
       return (
         stdout.includes('SUCCESS!') ||
         stdout.includes('EMAIL FOUND IN MAILPIT!')
       );
     }
-    if (testSuite.name.includes('Configuration')) {
+    if (_testSuite.name.includes('Configuration')) {
       return (
         stdout.includes('smtp_port = 1025') || stdout.includes('smtp_port=1025')
       );
@@ -109,52 +125,71 @@ class MasterTestRunner {
     // Default: success if no errors
     return !stderr || stderr.trim() === '';
   }
+
   async generateSummaryReport() {
-    const totalTime = Date.now() - this.startTime;
-    const passed = this.results.filter(r => r.status === 'PASS').length;
-    const failed = this.results.filter(r => r.status === 'FAIL').length;
-    const errors = this.results.filter(r => r.status === 'ERROR').length;
-    const criticalFailed = this.results.filter(
+    const _totalTime = Date.now() - this.startTime;
+    const _passed = this.results.filter(r => r.status === 'PASS').length;
+    const _failed = this.results.filter(r => r.status === 'FAIL').length;
+    const _errors = this.results.filter(r => r.status === 'ERROR').length;
+    const _criticalFailed = this.results.filter(
       r => r.critical && r.status !== 'PASS'
-    )
-      .length`📈 Success Rate: ${((passed / this.results.length) * 100).toFixed(1)}%\n`;
+    ).length;
+
+    console.log(`📈 Success Rate: ${((_passed / this.results.length) * 100).toFixed(1)}%`);
+
     // Detailed results
-    this.results.forEach((result, _index) => {
-      const icon =
-        result.status === 'PASS'
+    this.results.forEach((_result, _index) => {
+      const _icon =
+        _result.status === 'PASS'
           ? '✅'
-          : result.status === 'FAIL'
+          : _result.status === 'FAIL'
             ? '❌'
             : '💥';
-      const critical = result.critical
-        ? '🚨 CRITICAL'
-        : ''`${_index + 1}. ${icon} ${result.name} (${result.duration}ms) ${critical}`;
-      if (result.status !== 'PASS' && result._error) {
+      const _critical = _result.critical ? '🚨 CRITICAL' : '';
+      
+      console.log(
+        `${_index + 1}. ${_icon} ${_result.name} (${_result.duration}ms) ${_critical}`
+      );
+
+      if (_result.status !== 'PASS' && _result.error) {
+        console.error(`   Error details: ${_result.error}`);
       }
     });
-    if (criticalFailed === 0 && passed >= this.results.length * 0.8) {
-    } else if (criticalFailed === 0) {
-      ('⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.');
+
+    // System health assessment
+    if (_criticalFailed === 0 && _passed >= this.results.length * 0.8) {
+      console.log('✨ SYSTEM FULLY HEALTHY');
+    } else if (_criticalFailed === 0) {
+      console.warn('⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.');
     } else {
+      console.error('❌ SYSTEM UNHEALTHY - Critical tests failed');
     }
+
     // Recommendations
-    if (criticalFailed > 0) {
-    } else if (failed > 0) {
+    if (_criticalFailed > 0) {
+      console.warn('1. 🔧 Immediate investigation required');
+      console.warn('2. 🚫 Deployment blocked');
+    } else if (_failed > 0) {
+      console.warn('1. 🔍 Review non-critical test failures');
+      console.warn('2. 🛠️ Consider minor system adjustments');
     } else {
-      ('3. 💾 Consider creating backup: ./backup-invitation-system.sh');
+      console.log('3. 💾 Consider creating backup: ./backup-invitation-system.sh');
     }
+
     // Exit with appropriate code
-    if (criticalFailed > 0) {
+    if (_criticalFailed > 0) {
       throw new Error('Critical tests failed. Deployment blocked.');
     }
   }
 }
+
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const runner = new MasterTestRunner();
-  runner.runAllTests().catch(_error => {
-    console._error('💥 Master test runner failed:', _error.message);
+  const _runner = new MasterTestRunner();
+  _runner.runAllTests().catch(_error => {
+    console.error('💥 Master test runner failed:', _error.message);
     throw new Error('Process exit blocked');
   });
 }
+
 export default MasterTestRunner;

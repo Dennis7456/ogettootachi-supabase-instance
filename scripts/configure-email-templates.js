@@ -1,11 +1,16 @@
-// Script to configure email templates in Supabase
-// This script applies the email template configuration with proper branding
-const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseServiceKey =
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const _supabaseUrl = 'http://127.0.0.1:54321';
+const _supabaseServiceKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabaseService = _createClient(supabaseUrl, supabaseServiceKey);
+
+const _supabaseService = createClient(_supabaseUrl, _supabaseServiceKey);
+
 // Email templates with application branding
-const emailTemplates = {
+const _emailTemplates = {
   confirm_template: {
     subject: 'Confirm Your Email Address',
     html: `<!DOCTYPE html>
@@ -401,29 +406,39 @@ const emailTemplates = {
 </html>`,
   },
 };
+
 async function configureEmailTemplates() {
   try {
     // Note: In a real Supabase setup, you would configure these templates
     // through the Supabase Dashboard or API. For local development
     // we'll create the configuration files and provide instructions.
-    ('1. Go to Supabase Dashboard > Authentication > Email Templates');
+    console.log('1. Go to Supabase Dashboard > Authentication > Email Templates');
+
     // Save templates to files for easy access
-    const templatesDir = path.join(process.cwd(), 'email-templates');
-    if (!fs.existsSync(templatesDir)) {
-      fs.mkdirSync(templatesDir);
+    const _templatesDir = path.join(process.cwd(), 'email-templates');
+    
+    if (!fs.existsSync(_templatesDir)) {
+      fs.mkdirSync(_templatesDir);
     }
-    Object.entries(emailTemplates).forEach(([templateName, template]) => {
-      const fileName = `${templateName}.html`;
-      const filePath = path.join(templatesDir, fileName);
-      fs.writeFileSync(filePath, template.html);
+
+    Object.entries(_emailTemplates).forEach(([_templateName, _template]) => {
+      const _fileName = `${_templateName}.html`;
+      const _filePath = path.join(_templatesDir, _fileName);
+      
+      fs.writeFileSync(_filePath, _template.html);
+      console.log(`Created template: ${_fileName}`);
     });
+
+    console.log('Email templates configuration completed successfully');
   } catch (_error) {
-    console._error('❌ Email template configuration failed:', _error.message);
+    console.error('❌ Email template configuration failed:', _error.message);
     throw _error;
   }
 }
+
 // Run the configuration if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   configureEmailTemplates();
 }
+
 export default configureEmailTemplates;

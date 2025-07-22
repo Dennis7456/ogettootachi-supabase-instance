@@ -1,39 +1,51 @@
-const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
-const supabaseServiceKey =
+/* eslint-disable no-console, no-undef */
+import { createClient } from '@supabase/supabase-js';
+
+const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-const _supabase = _createClient(supabaseUrl, supabaseServiceKey);
+
+const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
+
 async function testEnhancedChatbot() {
   try {
     // Test 1: Document retrieval and synthesis
-    const searchQuery = 'legal services';
+    const _searchQuery = 'legal services';
+    
     // Create embedding for search
-    const words = searchQuery.toLowerCase().split(/\s+/);
-    const queryEmbedding = new Array(1536).fill(0);
-    words.forEach(word => {
-      const hash = word.split('').reduce((a, b) => {
-        a = (a << 5) - a + b.charCodeAt(0);
-        return a & a;
+    const _words = _searchQuery.toLowerCase().split(/\s+/);
+    const _queryEmbedding = new Array(1536).fill(0);
+    
+    _words.forEach(_word => {
+      const _hash = _word.split('').reduce((_a, _b) => {
+        _a = (_a << 5) - _a + _b.charCodeAt(0);
+        return _a & _a;
       }, 0);
-      const position = Math.abs(hash) % 1536;
-      queryEmbedding[position] = 1;
+      
+      const _position = Math.abs(_hash) % 1536;
+      _queryEmbedding[_position] = 1;
     });
-    const { _data: searchResults, _error: searchError } = await _supabase.rpc(
+
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
       'match_documents',
       {
-        query_embedding: queryEmbedding,
+        query_embedding: _queryEmbedding,
         match_threshold: 0.1,
         match_count: 3,
       }
     );
-    if (searchError) {
-      console.error('❌ Search error:', searchError.message);
+
+    if (_searchError) {
+      console.error('❌ Search error:', _searchError.message);
     } else {
-      searchResults.forEach((doc, _index) => {
+      _searchResults.forEach((_doc, _index) => {
+        console.log(`Search result ${_index + 1}:`, _doc);
       });
     }
+
     // Test 2: Intent detection and conversational flows
-    const testScenarios = [
+    const _testScenarios = [
       {
         name: 'Info Request',
         messages: ['What legal services do you offer?'],
@@ -63,17 +75,25 @@ async function testEnhancedChatbot() {
         expectedIntent: 'ambiguous',
       },
     ];
-    for (const scenario of testScenarios) {
-      for (let i = 0; i < scenario.messages.length; i++) {
-        const message = scenario.messages[i];
+
+    for (const _scenario of _testScenarios) {
+      for (let _i = 0; _i < _scenario.messages.length; _i++) {
+        const _message = _scenario.messages[_i];
+        
         // Simulate the enhanced response generation
-        const response = await simulateEnhancedResponse(
-          message,
-          searchResults || [],
+        const _response = await simulateEnhancedResponse(
+          _message, 
+          _searchResults || [], 
+          `test-session-${_i}`
+        );
+        
+        console.log(`Scenario: ${_scenario.name}, Message: ${_message}`);
+        console.log('Response:', _response);
       }
     }
+
     // Test 3: Document blending and citation
-    const testDocuments = [
+    const _testDocuments = [
       {
         title: '2025 Corporate Law Services',
         content:
@@ -87,73 +107,83 @@ async function testEnhancedChatbot() {
         category: 'Employment Law',
       },
     ];
-    const blendedResponse = blendDocuments(testDocuments);
-      '   ✅ Transactional workflows (messaging, booking) implemented'
-    );
+
+    const _blendedResponse = blendDocuments(_testDocuments);
+    console.log('Blended Response:', _blendedResponse);
+    
+    console.log('✅ Transactional workflows (messaging, booking) implemented');
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
   }
 }
+
 // Simulate the enhanced response generation
-async function simulateEnhancedResponse(message, documents, sessionId) {
-  const lower = message.toLowerCase();
+async function simulateEnhancedResponse(_message, _documents, _sessionId) {
+  const _lower = _message.toLowerCase();
+  
   // Simple intent detection
-  let intent = 'info';
-  if (/\b(book|appointment|schedule|consultation|meet)\b/.test(lower)) {
-    intent = 'book_appointment';
-  } else if (/\b(contact|message|reach|email|phone|send)\b/.test(lower)) {
-    intent = 'message_staff';
+  let _intent = 'info';
+  
+  if (/\b(book|appointment|schedule|consultation|meet)\b/.test(_lower)) {
+    _intent = 'book_appointment';
+  } else if (/\b(contact|message|reach|email|phone|send)\b/.test(_lower)) {
+    _intent = 'message_staff';
   } else if (
     /\b(service|practice|offer|area|policy|team|case|experience|unique|about|who|what|where|when|how)\b/.test(
-      lower
+      _lower
     )
   ) {
-    intent = 'info';
-  } else if (message.length < 10) {
-    intent = 'ambiguous';
+    _intent = 'info';
+  } else if (_message.length < 10) {
+    _intent = 'ambiguous';
   }
+
   // Generate appropriate response
-  switch (intent) {
+  switch (_intent) {
     case 'info':
-      if (documents.length > 0) {
-        const docSummary = blendDocuments(documents);
-        return `Here's what I found from our internal resources: \n${docSummary}\n\nWould you like to schedule a consultation or send a message to our staff?`;
+      if (_documents.length > 0) {
+        const _docSummary = blendDocuments(_documents);
+        return `Here's what I found from our internal resources: \n${_docSummary}\n\nWould you like to schedule a consultation or send a message to our staff?`;
       } else {
-        return "I couldn't find a direct answer in our internal documents, but I'm here to help. Would you like to schedule a consultation or send a message to our staff?";
+        return 'I couldn\'t find a direct answer in our internal documents, but I\'m here to help. Would you like to schedule a consultation or send a message to our staff?';
       }
     case 'message_staff':
-      if (lower.includes('@') || /\d{10}/.test(lower)) {
-        return "Perfect! I'll help you send a message to our staff. Should I proceed with sending your message?";
+      if (_lower.includes('@') || /\d{10}/.test(_lower)) {
+        return 'Perfect! I\'ll help you send a message to our staff. Should I proceed with sending your message?';
       } else {
-        return "I'd be happy to help you send a message to our staff! Please provide your message and contact information.";
+        return 'I\'d be happy to help you send a message to our staff! Please provide your message and contact information.';
       }
     case 'book_appointment':
-      if (lower.includes('@') || /\d{10}/.test(lower)) {
-        return "Great! I'll help you schedule a consultation. Should I check availability and book this appointment?";
+      if (_lower.includes('@') || /\d{10}/.test(_lower)) {
+        return 'Great! I\'ll help you schedule a consultation. Should I check availability and book this appointment?';
       } else {
-        return "Great! I'd be happy to help you schedule a consultation. Please provide your preferred date/time and contact information.";
+        return 'Great! I\'d be happy to help you schedule a consultation. Please provide your preferred date/time and contact information.';
       }
     case 'ambiguous':
       return 'I want to make sure I help you best. Are you looking for information about our services, to send a message, or to schedule a consultation?';
     default:
-      return "I'm here to help! What would you like to know about our services?";
+      return 'I\'m here to help! What would you like to know about our services?';
   }
 }
+
 // Document blending function (same as in the edge function)
-function blendDocuments(docs) {
-  if (!docs.length) {
+function blendDocuments(_docs) {
+  if (!_docs.length) {
     return '';
   }
-  const summary = docs
-    .map((doc, i) => {
-      const cite = doc.title
-        ? ` (see: ${doc.title}${doc.category ? `, ${doc.category}` : ''})`
+  
+  const _summary = _docs
+    .map((_doc, _i) => {
+      const _cite = _doc.title
+        ? ` (see: ${_doc.title}${_doc.category ? `, ${_doc.category}` : ''})`
         : '';
-      const content = doc.content.replace(/\s+/g, ' ').slice(0, 350);
-      return `- ${content}${cite}`;
+      const _content = _doc.content.replace(/\s+/g, ' ').slice(0, 350);
+      return `- ${_content}${_cite}`;
     })
     .join('\n');
-  return summary;
+  
+  return _summary;
 }
+
 // Run the test
 testEnhancedChatbot();
