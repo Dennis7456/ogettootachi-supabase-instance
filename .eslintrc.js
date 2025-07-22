@@ -13,7 +13,7 @@ export default {
       'error',
       'single',
       {
-        avoidEscape: true,
+        avoidEscape: false,
         allowTemplateLiterals: false,
       },
     ],
@@ -24,6 +24,7 @@ export default {
         argsIgnorePattern: '^_',
       },
     ],
-    'quote-props': ['error', 'as-needed'],
+    'quote-props': ['error', 'always'],
+    'jsx-quotes': ['error', 'prefer-single'],
   },
 };
