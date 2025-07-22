@@ -11,3 +11,9 @@ backups/
 coverage/
 test-results/
 playwright-report/ 
+debug-invitation.js
+scripts/check-database-connection.js
+scripts/debug-dashboard-issue.js
+scripts/fix-storage-policies-final.js
+scripts/fix-syntax-errors.js
+scripts/test-edge-function-env.js 

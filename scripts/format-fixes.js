@@ -1,16 +1,16 @@
 /* eslint-disable no-console, no-undef */
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 function fixCommas(_content) {
   // Fix missing commas in object definitions
-  _content = _content.replace(/(\w+):\s*([^,\n]+)(\n\s*\w+:)/g, '$1: $2,$3');
+  _content = _content.replace(/(\w+):\s*([^,\n]+)(\n\s*\w+:)/g, "$1: $2,$3");
 
   // Fix missing commas in arrays
-  _content = _content.replace(/(\w+)\s*(\n\s*\w+)/g, '$1,$2');
+  _content = _content.replace(/(\w+)\s*(\n\s*\w+)/g, "$1,$2");
 
   // Fix _createClient calls
-  _content = _content.replace(/(_createClient\(\s*\w+\.\w+)\s*(\w+\.\w+\s*\))/g, '$1, $2');
+  _content = _content.replace(/(_createClient\(\s*\w+\.\w+)\s*(\w+\.\w+\s*\))/g, "$1, $2");
 
   return _content;
 }
@@ -24,9 +24,9 @@ function processDirectory(_dir) {
 
     if (_stat.isDirectory()) {
       processDirectory(_fullPath);
-    } else if (_file.endsWith('.js')) {
+    } else if (_file.endsWith(".js")) {
       try {
-        let _content = fs.readFileSync(_fullPath, 'utf8');
+        let _content = fs.readFileSync(_fullPath, "utf8");
         const _fixedContent = fixCommas(_content);
 
         if (_content !== _fixedContent) {

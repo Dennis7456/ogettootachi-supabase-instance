@@ -5,11 +5,11 @@ async function verifySetup() {
   try {
     // Note: This will test against your currently selected Supabase project
     // Get current project info
-    console.log('Verifying production setup...');
+    console.log("Verifying production setup...");
     // TODO: Implement actual verification logic
-    console.log('Production setup verification completed.');
+    console.log("Production setup verification completed.");
   } catch (_error) {
-    console.error('Error verifying production setup:', _error);
+    console.error("Error verifying production setup:", _error);
   }
 }
 

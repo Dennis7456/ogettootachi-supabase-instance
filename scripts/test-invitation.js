@@ -1,13 +1,13 @@
-import crypto from 'crypto';
-import { Client } from 'pg';
+import crypto from "crypto";
+import { Client } from "pg";
 
 // Debug logging function to replace console.log
 function debugLog(...args) {
-  if (process.env.DEBUG === 'true') {
+  if (process.env.DEBUG === "true") {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
-      .join(' ');
+      .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
+      .join(" ");
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -15,11 +15,11 @@ function debugLog(...args) {
 async function testInvitation() {
   // PostgreSQL client
   const pgClient = new Client({
-    host: '127.0.0.1',
+    host: "127.0.0.1",
     port: 54322,
-    database: 'postgres',
-    user: 'postgres',
-    password: 'postgres',
+    database: "postgres",
+    user: "postgres",
+    password: "postgres",
   });
 
   try {
@@ -40,7 +40,7 @@ async function testInvitation() {
       LIMIT 1`);
 
     if (!adminUsers || adminUsers.length === 0) {
-      throw new Error('No admin users found');
+      throw new Error("No admin users found");
     }
 
     // Use the first admin user
@@ -48,15 +48,15 @@ async function testInvitation() {
 
     // Prepare invitation data
     const invitationData = {
-      email: `test-${crypto.randomBytes(4).toString('hex')}@example.com`,
-      role: 'staff',
-      full_name: 'Test User',
-      department: 'Legal',
-      custom_message: 'Welcome to the team!',
+      email: `test-${crypto.randomBytes(4).toString("hex")}@example.com`,
+      role: "staff",
+      full_name: "Test User",
+      department: "Legal",
+      custom_message: "Welcome to the team!",
       invitation_token: crypto.randomUUID(),
       invited_by: adminUser.id,
       expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
-      status: 'sent',
+      status: "sent",
     };
 
     // Insert invitation directly via PostgreSQL
@@ -80,7 +80,7 @@ async function testInvitation() {
       ]
     );
 
-    debugLog('✅ Invitation created successfully');
+    debugLog("✅ Invitation created successfully");
 
     return {
       id: invitation[0].id,
@@ -90,7 +90,7 @@ async function testInvitation() {
       invitedByName: adminUser.full_name,
     };
   } catch (error) {
-    debugLog('❌ Invitation Creation Failed:', error);
+    debugLog("❌ Invitation Creation Failed:", error);
     throw error;
   } finally {
     // Always close the PostgreSQL connection
@@ -102,11 +102,11 @@ async function testInvitation() {
 if (import.meta.main) {
   testInvitation()
     .then(() => {
-      debugLog('✅ Test completed successfully');
+      debugLog("✅ Test completed successfully");
       process.exit(0);
     })
     .catch((error) => {
-      debugLog('❌ Test failed:', error);
+      debugLog("❌ Test failed:", error);
       process.exit(1);
     });
 }

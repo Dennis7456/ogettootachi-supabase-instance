@@ -1,9 +1,9 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-import fs from 'fs';
-import path from 'path';
-import { spawn } from 'child_process';
+import fs from "fs";
+import path from "path";
+import { spawn } from "child_process";
 
-function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'dist', 'build']) {
+function findJSFiles(_dir, _excludeDirs = ["node_modules", ".git", "dist", "build"]) {
   const _jsFiles = [];
 
   function traverse(_currentPath) {
@@ -19,7 +19,7 @@ function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'dist', 'buil
 
         // Recursively search subdirectories
         traverse(_fullPath);
-      } else if (_item.endsWith('.js') || _item.endsWith('.jsx')) {
+      } else if (_item.endsWith(".js") || _item.endsWith(".jsx")) {
         _jsFiles.push(_fullPath);
       }
     }
@@ -32,15 +32,15 @@ function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'dist', 'buil
 function runESLint(_files) {
   return new Promise((_resolve, _reject) => {
     const _eslintProcess = spawn(
-      'npx',
-      ['eslint', ..._files, '--fix', '--max-warnings', '0', '--ext', '.js,.jsx'],
+      "npx",
+      ["eslint", ..._files, "--fix", "--max-warnings", "0", "--ext", ".js,.jsx"],
       {
-        stdio: 'inherit',
+        stdio: "inherit",
         shell: true,
       }
     );
 
-    _eslintProcess.on('close', (_code) => {
+    _eslintProcess.on("close", (_code) => {
       if (_code === 0) {
         _resolve(0);
       } else {
@@ -48,8 +48,8 @@ function runESLint(_files) {
       }
     });
 
-    _eslintProcess.on('error', (_err) => {
-      console.error('Failed to run ESLint:', _err);
+    _eslintProcess.on("error", (_err) => {
+      console.error("Failed to run ESLint:", _err);
       _reject(_err);
     });
   });
@@ -61,7 +61,7 @@ async function main() {
     const _jsFiles = findJSFiles(_baseDir);
 
     if (_jsFiles.length === 0) {
-      console.log('No JavaScript files found to lint.');
+      console.log("No JavaScript files found to lint.");
       return 0;
     }
 
@@ -73,10 +73,10 @@ async function main() {
       await runESLint(_chunk);
     }
 
-    console.log('ESLint auto-fix completed successfully.');
+    console.log("ESLint auto-fix completed successfully.");
     return 0;
   } catch (_error) {
-    console.error('Unexpected error during ESLint auto-fix:', _error);
+    console.error("Unexpected error during ESLint auto-fix:", _error);
     return 1;
   }
 }

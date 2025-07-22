@@ -1,6 +1,6 @@
 /* eslint-disable no-console, no-undef */
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 function findJSFiles(dir) {
   const files = fs.readdirSync(dir);
@@ -12,7 +12,7 @@ function findJSFiles(dir) {
 
     if (stat.isDirectory()) {
       jsFiles.push(...findJSFiles(fullPath));
-    } else if (file.endsWith('.js')) {
+    } else if (file.endsWith(".js")) {
       jsFiles.push(fullPath);
     }
   });
@@ -22,10 +22,10 @@ function findJSFiles(dir) {
 
 function fixSyntaxErrors(filePath) {
   try {
-    const content = fs.readFileSync(filePath, 'utf8');
+    const content = fs.readFileSync(filePath, "utf8");
 
     // Remove extra parentheses
-    const cleanedContent = content.replace(/\)\s*\)/g, ')').replace(/\(\s*\(/g, '(');
+    const cleanedContent = content.replace(/\)\s*\)/g, ")").replace(/\(\s*\(/g, "(");
 
     fs.writeFileSync(filePath, cleanedContent);
     console.log(`Fixed syntax errors in ${filePath}`);

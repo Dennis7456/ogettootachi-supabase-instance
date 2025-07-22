@@ -1,14 +1,14 @@
 /* eslint-disable no-console, no-undef */
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-import { Buffer } from 'node:buffer';
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+import { Buffer } from "node:buffer";
 
 dotenv.config();
 
-const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const _supabaseUrl = process.env.SUPABASE_URL || "http://localhost:54321";
 const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 // Utility function for logging errors
 const _logError = (prefix, _error) => {
@@ -20,7 +20,7 @@ const _logError = (prefix, _error) => {
 const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
 async function fixRLSComplete() {
-  console.log('The issue is that we need to completely reset and recreate all RLS policies.');
+  console.log("The issue is that we need to completely reset and recreate all RLS policies.");
 
   // Note: The following SQL commands should be run manually through Supabase SQL Editor
   const _sqlCommands = [
@@ -157,16 +157,16 @@ async function fixRLSComplete() {
     console.log(`SQL Command ${_index + 1}:`, _cmd);
   });
 
-  console.log('3. After running all steps, test with: node scripts/test-upload-direct.js');
+  console.log("3. After running all steps, test with: node scripts/test-upload-direct.js");
 
   // Test current admin user
   try {
     const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
-      email: 'admin@test.com',
-      password: 'admin123456',
+      email: "admin@test.com",
+      password: "admin123456",
     });
 
-    _logError('Admin authentication failed', _authError);
+    _logError("Admin authentication failed", _authError);
 
     if (_authData) {
       // Test JWT structure
@@ -175,13 +175,13 @@ async function fixRLSComplete() {
       } = await _supabase.auth.getSession();
 
       if (session) {
-        const _tokenParts = session.access_token.split('.');
-        const _payload = JSON.parse(Buffer.from(_tokenParts[1], 'base64').toString());
-        console.log('JWT Payload:', _payload);
+        const _tokenParts = session.access_token.split(".");
+        const _payload = JSON.parse(Buffer.from(_tokenParts[1], "base64").toString());
+        console.log("JWT Payload:", _payload);
       }
     }
   } catch (_error) {
-    console.error('❌ Error testing admin user:', _error.message);
+    console.error("❌ Error testing admin user:", _error.message);
   }
 }
 

@@ -1,13 +1,13 @@
 /* eslint-disable no-console, no-undef */
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
+const _supabaseUrl = process.env.SUPABASE_URL || "http://localhost:54321";
 const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 // Utility function for logging errors
 const _logError = (prefix, _error) => {
@@ -21,7 +21,7 @@ const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 async function fixStoragePoliciesSQL() {
   try {
     console.log(
-      'Since the exec_sql function is not available, please run the following SQL commands'
+      "Since the exec_sql function is not available, please run the following SQL commands"
     );
 
     // Step 1: Drop existing storage policies
@@ -97,36 +97,36 @@ async function fixStoragePoliciesSQL() {
     ];
 
     // Print out the SQL commands for manual execution
-    console.log('\n--- Drop Storage Policies ---');
+    console.log("\n--- Drop Storage Policies ---");
     _dropPolicies.forEach((_policy) => console.log(_policy));
 
-    console.log('\n--- Create Storage Policies ---');
+    console.log("\n--- Create Storage Policies ---");
     _createPolicies.forEach((_policy) => console.log(_policy));
 
-    console.log('\n--- Drop Document Policies ---');
+    console.log("\n--- Drop Document Policies ---");
     _dropDocumentPolicies.forEach((_policy) => console.log(_policy));
 
-    console.log('\n--- Create Document Policies ---');
+    console.log("\n--- Create Document Policies ---");
     _createDocumentPolicies.forEach((_policy) => console.log(_policy));
 
     // Test current admin user metadata
     try {
       const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
+        email: "admin@test.com",
+        password: "admin123456",
       });
 
-      _logError('Admin authentication failed', _authError);
+      _logError("Admin authentication failed", _authError);
 
       if (_authData) {
-        console.log('✅ Admin authentication successful');
-        console.log('User Metadata:', _authData.user?.user_metadata);
+        console.log("✅ Admin authentication successful");
+        console.log("User Metadata:", _authData.user?.user_metadata);
       }
     } catch (_error) {
-      console.error('❌ Error testing admin user:', _error.message);
+      console.error("❌ Error testing admin user:", _error.message);
     }
   } catch (_error) {
-    console.error('❌ Unexpected error:', _error.message);
+    console.error("❌ Unexpected error:", _error.message);
   }
 }
 

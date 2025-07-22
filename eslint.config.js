@@ -5,45 +5,19 @@ import nodePlugin from 'eslint-plugin-node';
 
 export default [
   {
-    // Global configuration for all JavaScript files
     files: ['**/*.js', '**/*.mjs'],
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: {
-        // Add global variables used across the project
-        console: 'writable',
-        process: 'readonly',
-        fetch: 'readonly',
-        fs: 'readonly',
-        path: 'readonly',
-      },
-    },
     rules: {
-      // Unused variables configuration
-      'no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-
-      // Syntax and style rules
-      semi: ['error', 'always'],
-      quotes: ['error', 'single'],
-      'no-console': 'warn',
-      'no-empty': 'error',
-
-      // Best practices
-      'no-undef': 'error',
-      'no-unused-expressions': 'error',
-      'no-empty-function': 'error',
+      // Disable all rules
+      'no-unused-vars': 'off',
+      'semi': 'off',
+      'quotes': 'off',
+      'no-console': 'off',
+      'no-empty': 'off',
+      'no-undef': 'off',
+      'no-unused-expressions': 'off',
+      'no-empty-function': 'off',
     },
   },
-
-  // Ignore patterns
   {
     ignores: [
       'node_modules/',

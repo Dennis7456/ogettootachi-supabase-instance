@@ -1,9 +1,9 @@
 /* eslint-disable no-console, no-undef */
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
-const _supabaseUrl = 'http://127.0.0.1:54321';
+const _supabaseUrl = "http://127.0.0.1:54321";
 const _supabaseServiceKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
@@ -18,11 +18,11 @@ async function clearAllUsers() {
   try {
     // First, delete all profiles
     const { _error: _profilesError } = await _supabase
-      .from('profiles')
+      .from("profiles")
       .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // Avoid deleting any system reserved profiles
+      .neq("id", "00000000-0000-0000-0000-000000000000"); // Avoid deleting any system reserved profiles
 
-    _logError('Error deleting profiles', _profilesError);
+    _logError("Error deleting profiles", _profilesError);
 
     if (_profilesError) {
       return false;
@@ -31,7 +31,7 @@ async function clearAllUsers() {
     // Then, delete all users
     const { _data: _users, _error: _listError } = await _supabase.auth.admin.listUsers();
 
-    _logError('Error listing users', _listError);
+    _logError("Error listing users", _listError);
 
     if (_listError) {
       return false;
@@ -41,7 +41,7 @@ async function clearAllUsers() {
 
     for (const _user of _users.users) {
       // Skip system users or special accounts if needed
-      if (_user.email === 'service@_supabase.com') {
+      if (_user.email === "service@_supabase.com") {
         continue;
       }
 
@@ -60,7 +60,7 @@ async function clearAllUsers() {
 
     return true;
   } catch (_error) {
-    console.error('❌ Unexpected error during cleanup:', _error);
+    console.error("❌ Unexpected error during cleanup:", _error);
     return false;
   }
 }
