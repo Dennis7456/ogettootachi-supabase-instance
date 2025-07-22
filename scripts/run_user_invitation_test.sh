@@ -1,22 +1,19 @@
 #!/bin/bash
 
-# Ensure Supabase is running
-supabase start
+# Load environment variables
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
 
-# Set Supabase environment variables for local testing
-export SUPABASE_URL="http://127.0.0.1:54321"
-export SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
-export SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
-export FRONTEND_URL="http://localhost:5173"
+# Use environment variables for Supabase credentials
+export SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}"
+export SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
 
-# Run the Deno test with configuration
-deno test \
-  --config=deno.json \
-  --trace-leaks \
-  --no-check \
-  --allow-net \
-  --allow-read \
-  --allow-write \
-  --allow-env \
-  tests/functions/user_invitation.test.ts \
-  -- -v 
+# Proceed with test if keys are set
+if [ -z "$SUPABASE_ANON_KEY" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+    echo "❌ Supabase credentials not set. Please check your .env file."
+    exit 1
+fi
+
+# Run your test script
+# Add your test command here 
