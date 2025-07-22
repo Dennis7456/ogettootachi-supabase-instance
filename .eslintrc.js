@@ -9,7 +9,14 @@ export default {
     sourceType: 'module',
   },
   rules: {
-    quotes: ['error', 'single'],
+    quotes: [
+      'error',
+      'single',
+      {
+        avoidEscape: true,
+        allowTemplateLiterals: true,
+      },
+    ],
     'no-unused-vars': [
       'error',
       {
