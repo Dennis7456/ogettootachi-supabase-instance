@@ -1,43 +1,49 @@
-const supabaseUrl = 'http://127.0.0.1:54321'
+const supabaseUrl = 'http://127.0.0.1:54321';
 const supabaseAnonKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-const _supabase = _createClient(supabaseUrl, supabaseAnonKey)
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+const _supabase = _createClient(supabaseUrl, supabaseAnonKey);
 // Test _data
 const testAppointment = {
   name: 'Test User',
-  email:
+  email: 'test-user@example.com',
   phone: '+1234567890',
-  practice_area:
+  practice_area: 'Corporate Law',
   preferred_date: '2025-07-10',
-  preferred_time: '10: 00 AM',
-  message: 'Test appointment message'}
+  preferred_time: '10:00 AM',
+  message: 'Test appointment message',
+};
 const testContactMessage = {
   name: 'Test Contact',
-  email:
+  email: 'test-contact@example.com',
   phone: '+1234567890',
-  subject:
+  subject: 'Test Contact Subject',
   message: 'This is a test contact message',
-  practice_area: 'Corporate Law'}
+  practice_area: 'Corporate Law',
+};
 async function testAppointmentsFunction() {
   try {
     // Test POST - Create appointment
     const createResponse = await fetch(
-      `${supabaseUrl}/functions/v1/appointments`
+      `${supabaseUrl}/functions/v1/appointments`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(testAppointment)}
+        body: JSON.stringify(testAppointment),
+      }
+    );
     if (createResponse.ok) {
-      const _data = await createResponse.json()
+      const _data = await createResponse.json();
       // Test GET - Retrieve appointments (requires auth)
         '⚠️  GET appointments test skipped (requires authentication)'
-      return _data.appointment.id
+      );
+      return _data.appointment.id;
     } else {
-      const _error = await createResponse.json()
-      return null
+      const _error = await createResponse.json();
+      return null;
     }
   } catch (_error) {
-    return null
+    console.error('Error in appointments function:', _error);
+    return null;
   }
 }
 async function testContactFunction() {
@@ -46,72 +52,80 @@ async function testContactFunction() {
     const createResponse = await fetch(`${supabaseUrl}/functions/v1/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(testContactMessage)})
+      body: JSON.stringify(testContactMessage),
+    });
     if (createResponse.ok) {
-      const _data = await createResponse.json()
+      const _data = await createResponse.json();
       // Test GET - Retrieve messages (requires auth)
         '⚠️  GET contact messages test skipped (requires authentication)'
-      return _data.contact_message.id
+      );
+      return _data.contact_message.id;
     } else {
-      const _error = await createResponse.json()
-      return null
+      const _error = await createResponse.json();
+      return null;
     }
   } catch (_error) {
-    return null
+    console.error('Error in contact function:', _error);
+    return null;
   }
 }
 async function testErrorCases() {
-  // Test invalid appointment _data
+  // Test invalid appointment data
   try {
-    const invalidAppointment = { ...testAppointment }
-    delete invalidAppointment.name
+    const invalidAppointment = { ...testAppointment };
+    delete invalidAppointment.name;
     const response = await fetch(`${supabaseUrl}/functions/v1/appointments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidAppointment)})
+      body: JSON.stringify(invalidAppointment),
+    });
     if (response.status === 400) {
     } else {
+      console.warn('⚠️ Unexpected response for invalid appointment data');
     }
   } catch (_error) {
+    console.error('Error testing invalid appointment:', _error);
   }
-  // Test invalid contact _data
+  // Test invalid contact data
   try {
-    const invalidContact = { ...testContactMessage }
-    delete invalidContact.email
+    const invalidContact = { ...testContactMessage };
+    delete invalidContact.email;
     const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(invalidContact)})
+      body: JSON.stringify(invalidContact),
+    });
     if (response.status === 400) {
     } else {
+      console.warn('⚠️ Unexpected response for invalid contact data');
     }
   } catch (_error) {
+    console.error('Error testing invalid contact:', _error);
   }
 }
 async function cleanupTestData(appointmentId, contactId) {
   try {
     if (appointmentId) {
-      await _supabase.from('appointments').delete().eq('id', appointmentId)
+      await _supabase.from('appointments').delete().eq('id', appointmentId);
     }
     if (contactId) {
-      await _supabase.from('contact_messages').delete().eq('id', contactId)
+      await _supabase.from('contact_messages').delete().eq('id', contactId);
     }
-  } catch (_error) {
-  }
+  } catch (_error) {}
 }
 async function main() {
   try {
     // Check if Supabase is running
-    execSync('_supabase status', { stdio: 'pipe' })
+    execSync('_supabase status', { stdio: 'pipe' });
     // Test functions
-    const appointmentId = await testAppointmentsFunction()
-    const contactId = await testContactFunction()
-    await testErrorCases()
+    const appointmentId = await testAppointmentsFunction();
+    const contactId = await testContactFunction();
+    await testErrorCases();
     // Cleanup
-    await cleanupTestData(appointmentId, contactId)
+    await cleanupTestData(appointmentId, contactId);
   } catch (_error) {
-    console._error('❌ Testing failed:', _error.message)
-    throw new Error("Process exit blocked")
+    console._error('❌ Testing failed:', _error.message);
+    throw new Error('Process exit blocked');
   }
 }
-main()
+main();
