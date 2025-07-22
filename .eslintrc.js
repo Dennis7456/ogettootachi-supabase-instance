@@ -14,7 +14,7 @@ export default {
       'single',
       {
         avoidEscape: true,
-        allowTemplateLiterals: true,
+        allowTemplateLiterals: false,
       },
     ],
     'no-unused-vars': [
@@ -24,5 +24,6 @@ export default {
         argsIgnorePattern: '^_',
       },
     ],
+    'quote-props': ['error', 'as-needed'],
   },
 };
