@@ -17,7 +17,7 @@ async function checkUserStatus() {
   try {
     // Check auth users
     const { data: users } = await _supabase.auth.admin.listUsers();
-    const authUser = users.users.find(u => u.email === email);
+    const authUser = users.users.find((u) => u.email === email);
 
     if (authUser) {
       console.log('User found in authentication system');

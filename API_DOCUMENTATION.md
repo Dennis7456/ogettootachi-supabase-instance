@@ -493,7 +493,7 @@ Processes and stores legal documents with AI-generated embeddings.
 
 ```javascript
 // Create appointment
-const createAppointment = async appointmentData => {
+const createAppointment = async (appointmentData) => {
   const response = await fetch('/functions/v1/appointments', {
     method: 'POST',
     headers: {

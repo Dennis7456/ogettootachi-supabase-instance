@@ -31,12 +31,12 @@ async function checkAndCreateBuckets() {
 
     console.log(
       'Found buckets:',
-      _buckets.map(_b => _b.name)
+      _buckets.map((_b) => _b.name)
     );
 
     // Check if documents bucket exists
     const _documentsBucket = _buckets.find(
-      _bucket => _bucket.name === 'documents'
+      (_bucket) => _bucket.name === 'documents'
     );
     if (!_documentsBucket) {
       const { _data: _newBucket, _error: _createError } =
@@ -59,7 +59,7 @@ async function checkAndCreateBuckets() {
     }
 
     // Check if public bucket exists
-    const _publicBucket = _buckets.find(_bucket => _bucket.name === 'public');
+    const _publicBucket = _buckets.find((_bucket) => _bucket.name === 'public');
     if (!_publicBucket) {
       const { _data: _newPublicBucket, _error: _createPublicError } =
         await _supabase.storage.createBucket('public', {
@@ -78,7 +78,7 @@ async function checkAndCreateBuckets() {
 
     console.log(
       'Available buckets:',
-      _finalBuckets.map(_b => _b.name)
+      _finalBuckets.map((_b) => _b.name)
     );
 
     return true;
@@ -89,7 +89,7 @@ async function checkAndCreateBuckets() {
 }
 
 // Run the script
-checkAndCreateBuckets().then(_success => {
+checkAndCreateBuckets().then((_success) => {
   if (_success) {
     console.log('✅ Storage bucket check completed successfully');
   } else {

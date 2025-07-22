@@ -13,7 +13,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -109,7 +109,7 @@ async function testPdfEmbedding() {
         embedding = finalDoc.embedding;
       }
       // Analyze the embedding
-      const nonZeroValues = embedding.filter(val => val > 0);
+      const nonZeroValues = embedding.filter((val) => val > 0);
       const _maxValue = Math.max(...embedding);
       const _minValue = Math.min(...embedding);
       const _avgValue =
@@ -129,11 +129,11 @@ async function testPdfEmbedding() {
       });
       // Show distribution of values
       const valueRanges = {
-        '0.8-1.0': embedding.filter(val => val >= 0.8).length,
-        '0.6-0.8': embedding.filter(val => val >= 0.6 && val < 0.8).length,
-        '0.4-0.6': embedding.filter(val => val >= 0.4 && val < 0.6).length,
-        '0.2-0.4': embedding.filter(val => val >= 0.2 && val < 0.4).length,
-        '0.0-0.2': embedding.filter(val => val >= 0.0 && val < 0.2).length,
+        '0.8-1.0': embedding.filter((val) => val >= 0.8).length,
+        '0.6-0.8': embedding.filter((val) => val >= 0.6 && val < 0.8).length,
+        '0.4-0.6': embedding.filter((val) => val >= 0.4 && val < 0.6).length,
+        '0.2-0.4': embedding.filter((val) => val >= 0.2 && val < 0.4).length,
+        '0.0-0.2': embedding.filter((val) => val >= 0.0 && val < 0.2).length,
       };
       Object.entries(valueRanges).forEach(([range, count]) => {
         const percentage = ((count / embedding.length) * 100).toFixed(1);

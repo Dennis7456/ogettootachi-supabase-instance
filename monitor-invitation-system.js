@@ -208,14 +208,14 @@ class InvitationHealthMonitor {
       const _lines = _logContent
         .trim()
         .split('\n')
-        .filter(_line => _line);
+        .filter((_line) => _line);
 
       _lines.slice(-10).forEach((_line, _index) => {
         console.log(`Recent log ${_index + 1}:`, _line);
       });
 
       const _recentChecks = _lines.slice(-20);
-      const _healthyCount = _recentChecks.filter(_line =>
+      const _healthyCount = _recentChecks.filter((_line) =>
         _line.includes('HEALTHY')
       ).length;
 

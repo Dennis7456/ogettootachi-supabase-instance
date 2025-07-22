@@ -6,7 +6,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }

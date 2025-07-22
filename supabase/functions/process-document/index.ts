@@ -35,7 +35,7 @@ function generateEmbedding(text: string): number[] {
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ') // Remove punctuation
     .split(/\s+/)
-    .filter(word => word.length > 2) // Filter out short words
+    .filter((word) => word.length > 2) // Filter out short words
     .slice(0, 800); // Limit to 800 words
 
   // Create a 1536-dimensional embedding
@@ -162,7 +162,7 @@ function generateEmbedding(text: string): number[] {
   return embedding;
 }
 
-serve(async req => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }

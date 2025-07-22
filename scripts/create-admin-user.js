@@ -86,7 +86,7 @@ async function createAdminUser() {
 if (import.meta.main) {
   createAdminUser()
     .then(() => process.exit(0))
-    .catch(_error => {
+    .catch((_error) => {
       console.error(_error);
       throw new Error('Process exit blocked');
     });

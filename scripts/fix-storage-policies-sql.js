@@ -98,16 +98,16 @@ async function fixStoragePoliciesSQL() {
 
     // Print out the SQL commands for manual execution
     console.log('\n--- Drop Storage Policies ---');
-    _dropPolicies.forEach(_policy => console.log(_policy));
+    _dropPolicies.forEach((_policy) => console.log(_policy));
 
     console.log('\n--- Create Storage Policies ---');
-    _createPolicies.forEach(_policy => console.log(_policy));
+    _createPolicies.forEach((_policy) => console.log(_policy));
 
     console.log('\n--- Drop Document Policies ---');
-    _dropDocumentPolicies.forEach(_policy => console.log(_policy));
+    _dropDocumentPolicies.forEach((_policy) => console.log(_policy));
 
     console.log('\n--- Create Document Policies ---');
-    _createDocumentPolicies.forEach(_policy => console.log(_policy));
+    _createDocumentPolicies.forEach((_policy) => console.log(_policy));
 
     // Test current admin user metadata
     try {

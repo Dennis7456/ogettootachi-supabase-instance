@@ -43,7 +43,7 @@ function blendDocuments(docs: any[]) {
   return summary;
 }
 
-serve(async req => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -117,7 +117,7 @@ serve(async req => {
             message,
             response: response.response,
             documents_used:
-              documents?.map(d => ({ id: d.id, title: d.title })) || [],
+              documents?.map((d) => ({ id: d.id, title: d.title })) || [],
             tokens_used: response.tokens_used || 0,
           });
 
@@ -155,7 +155,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
-    .filter(word => word.length > 2)
+    .filter((word) => word.length > 2)
     .slice(0, 800);
 
   const embedding = new Array(1536).fill(0);

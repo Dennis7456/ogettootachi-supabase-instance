@@ -33,7 +33,7 @@ async function fixStoragePolicies() {
     if (_policies) {
       console.log(
         'Existing policies:',
-        _policies.map(_p => _p.policy_name) || []
+        _policies.map((_p) => _p.policy_name) || []
       );
     }
 

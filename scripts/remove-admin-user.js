@@ -5,7 +5,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -33,7 +33,7 @@ async function removeAdminUser() {
 
     // Find the admin user
     const adminUser = users.users.find(
-      user => user.email === 'admin@example.com'
+      (user) => user.email === 'admin@example.com'
     );
 
     if (!adminUser) {
@@ -72,7 +72,7 @@ async function removeAdminUser() {
     }
 
     const remainingAdmin = remainingUsers.users.find(
-      user => user.email === 'admin@example.com'
+      (user) => user.email === 'admin@example.com'
     );
 
     if (remainingAdmin) {
@@ -89,7 +89,7 @@ async function removeAdminUser() {
 }
 
 // Run the script
-removeAdminUser().then(success => {
+removeAdminUser().then((success) => {
   debugLog(
     success
       ? '✅ Admin user removal successful'

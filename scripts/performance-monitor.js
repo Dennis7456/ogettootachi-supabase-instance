@@ -199,7 +199,7 @@ class PerformanceMonitor {
       );
       results.push(result);
       if ((_i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise(_resolve =>
+        await new Promise((_resolve) =>
           setTimeout(CONFIG.delayBetweenBatches, _resolve)
         );
       }
@@ -225,7 +225,7 @@ class PerformanceMonitor {
       );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise(resolve =>
+        await new Promise((resolve) =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
         );
       }
@@ -255,7 +255,7 @@ class PerformanceMonitor {
       );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise(resolve =>
+        await new Promise((resolve) =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
         );
       }
@@ -286,7 +286,7 @@ class PerformanceMonitor {
       );
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise(resolve =>
+        await new Promise((resolve) =>
           setTimeout(resolve, CONFIG.delayBetweenBatches)
         );
       }
@@ -295,9 +295,9 @@ class PerformanceMonitor {
     this.printResults('Process Document', results);
   }
   printResults(functionName, results) {
-    const successful = results.filter(r => r.success);
-    const failed = results.filter(r => !r.success);
-    const durations = successful.map(r => r.duration);
+    const successful = results.filter((r) => r.success);
+    const failed = results.filter((r) => !r.success);
+    const durations = successful.map((r) => r.duration);
     const avgDuration =
       durations.length > 0
         ? durations.reduce((a, b) => a + b, 0) / durations.length
@@ -338,12 +338,12 @@ class PerformanceMonitor {
       Object.entries(this.results).forEach(([_functionName, results]) => {
         if (results.length > 0) {
           const successRate =
-            (results.filter(r => r.success).length / results.length) * 100;
+            (results.filter((r) => r.success).length / results.length) * 100;
           const avgDuration =
             results
-              .filter(r => r.success)
+              .filter((r) => r.success)
               .reduce((sum, r) => sum + r.duration, 0) /
-              results.filter(r => r.success).length || 0;
+              results.filter((r) => r.success).length || 0;
           console.log(
             `   ${_functionName}: ${successRate.toFixed(1)}% success, ${avgDuration.toFixed(0)}ms avg`
           );

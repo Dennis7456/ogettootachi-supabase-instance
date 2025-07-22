@@ -39,7 +39,7 @@ async function testChatbotSimple() {
     const _words = _searchQuery.toLowerCase().split(/\s+/);
     const _queryEmbedding = new Array(1536).fill(0);
 
-    _words.forEach(_word => {
+    _words.forEach((_word) => {
       const _hash = _word.split('').reduce((_a, _b) => {
         _a = (_a << 5) - _a + _b.charCodeAt(0);
         return _a & _a;
@@ -97,7 +97,7 @@ async function testChatbotSimple() {
           'where',
           'when',
           'how',
-        ].some(keyword => _lowerMessage.includes(keyword))
+        ].some((keyword) => _lowerMessage.includes(keyword))
       ) {
         _response =
           'Thank you for your inquiry. Ogetto, Otachi & Co Advocates offers comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.';
@@ -140,7 +140,7 @@ async function testChatbotSimple() {
       message: 'What legal services do you offer?',
       documents_used: _documents
         .slice(0, 1)
-        .map(_d => ({ id: _d.id, title: _d.title })),
+        .map((_d) => ({ id: _d.id, title: _d.title })),
       tokens_used: 50,
     };
 

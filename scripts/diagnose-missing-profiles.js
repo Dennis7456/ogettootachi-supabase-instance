@@ -5,7 +5,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -88,7 +88,7 @@ async function diagnoseMissingProfiles() {
     if (missingProfiles.length > 0) {
       debugLog(
         '❌ Missing profiles for users:',
-        missingProfiles.map(_user => _user.email)
+        missingProfiles.map((_user) => _user.email)
       );
     }
 

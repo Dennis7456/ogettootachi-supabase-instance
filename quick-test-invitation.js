@@ -51,7 +51,7 @@ async function quickTestInvitation() {
     console.log('Invitation URL:', _invitationUrl);
 
     // Wait and check email
-    await new Promise(_resolve => setTimeout(_resolve, 3000));
+    await new Promise((_resolve) => setTimeout(_resolve, 3000));
 
     const _mailpitResponse = await fetch(
       'http://127.0.0.1:54324/api/v1/messages'

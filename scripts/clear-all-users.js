@@ -57,10 +57,10 @@ async function clearAllUsers() {
     }
 
     console.log(
-      `Successfully Deleted: ${_deletionResults.filter(_r => _r.deleted).length}`
+      `Successfully Deleted: ${_deletionResults.filter((_r) => _r.deleted).length}`
     );
     console.log(
-      `Failed Deletions: ${_deletionResults.filter(_r => !_r.deleted).length}`
+      `Failed Deletions: ${_deletionResults.filter((_r) => !_r.deleted).length}`
     );
 
     return true;
@@ -72,7 +72,7 @@ async function clearAllUsers() {
 
 // If run directly
 if (import.meta.main) {
-  clearAllUsers().then(_success => {
+  clearAllUsers().then((_success) => {
     process.exit(_success ? 0 : 1);
   });
 }

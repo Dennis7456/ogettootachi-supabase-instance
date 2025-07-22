@@ -119,7 +119,7 @@ async function testChatbotFrontend() {
     // Cleanup: Delete test user and conversations
     // Delete conversations
     if (_conversations && _conversations.length > 0) {
-      const _conversationIds = _conversations.map(_c => _c.id);
+      const _conversationIds = _conversations.map((_c) => _c.id);
       await _supabase
         .from('chatbot_conversations')
         .delete()

@@ -153,7 +153,7 @@ async function testUploadFinal() {
     if (_allDocs) {
       console.log(
         '   - Documents with embeddings:',
-        _allDocs.filter(_doc => _doc.embedding).length
+        _allDocs.filter((_doc) => _doc.embedding).length
       );
     }
 

@@ -10,7 +10,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -386,7 +386,9 @@ class InvitationTester {
     // Clean up test user if created
     try {
       const { data: testUsers } = await _supabase.auth.admin.listUsers();
-      const testUser = testUsers.users.find(u => u.email === config.TEST_EMAIL);
+      const testUser = testUsers.users.find(
+        (u) => u.email === config.TEST_EMAIL
+      );
 
       if (testUser) {
         await _supabase.auth.admin.deleteUser(testUser.id);
@@ -404,9 +406,9 @@ class InvitationTester {
 
   printSummary() {
     const results = {
-      success: this.testResults.filter(r => r.status === 'success').length,
-      warning: this.testResults.filter(r => r.status === 'warning').length,
-      error: this.testResults.filter(r => r.status === 'error').length,
+      success: this.testResults.filter((r) => r.status === 'success').length,
+      warning: this.testResults.filter((r) => r.status === 'warning').length,
+      error: this.testResults.filter((r) => r.status === 'error').length,
     };
 
     if (results.error === 0 && results.success > 0) {
@@ -469,7 +471,7 @@ if (
 
 // Run the tests
 const tester = new InvitationTester();
-tester.runAllTests().catch(error => {
+tester.runAllTests().catch((error) => {
   debugLog('❌ Test execution failed:', error);
   process.exit(1);
 });

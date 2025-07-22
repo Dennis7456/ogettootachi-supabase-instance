@@ -21,7 +21,7 @@ async function generateEmbedding(_text) {
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
-    .filter(_word => _word.length > 2)
+    .filter((_word) => _word.length > 2)
     .slice(0, 800);
 
   const _embedding = new Array(1536).fill(0);

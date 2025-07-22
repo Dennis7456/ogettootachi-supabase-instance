@@ -53,7 +53,7 @@ async function testUIInvitationFlow() {
     }
 
     // Wait a moment for email to be processed
-    await new Promise(_resolve => setTimeout(_resolve, 2000));
+    await new Promise((_resolve) => setTimeout(_resolve, 2000));
 
     // Check Mailpit for new emails
     const _mailpitResponse = await fetch(

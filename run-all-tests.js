@@ -128,11 +128,11 @@ class MasterTestRunner {
 
   async generateSummaryReport() {
     const _totalTime = Date.now() - this.startTime;
-    const _passed = this.results.filter(r => r.status === 'PASS').length;
-    const _failed = this.results.filter(r => r.status === 'FAIL').length;
-    const _errors = this.results.filter(r => r.status === 'ERROR').length;
+    const _passed = this.results.filter((r) => r.status === 'PASS').length;
+    const _failed = this.results.filter((r) => r.status === 'FAIL').length;
+    const _errors = this.results.filter((r) => r.status === 'ERROR').length;
     const _criticalFailed = this.results.filter(
-      r => r.critical && r.status !== 'PASS'
+      (r) => r.critical && r.status !== 'PASS'
     ).length;
 
     console.log(
@@ -192,7 +192,7 @@ class MasterTestRunner {
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   const _runner = new MasterTestRunner();
-  _runner.runAllTests().catch(_error => {
+  _runner.runAllTests().catch((_error) => {
     console.error('💥 Master test runner failed:', _error.message);
     throw new Error('Process exit blocked');
   });

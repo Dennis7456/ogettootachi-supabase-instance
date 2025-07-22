@@ -6,7 +6,7 @@ function findJSFiles(dir) {
   const files = fs.readdirSync(dir);
   const jsFiles = [];
 
-  files.forEach(file => {
+  files.forEach((file) => {
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
 

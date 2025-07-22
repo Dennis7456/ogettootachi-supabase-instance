@@ -5,7 +5,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -29,11 +29,13 @@ async function setupStorageBuckets() {
 
     debugLog(
       'Found buckets:',
-      buckets.map(b => b.name)
+      buckets.map((b) => b.name)
     );
 
     // Check if documents bucket exists
-    const documentsBucket = buckets.find(bucket => bucket.name === 'documents');
+    const documentsBucket = buckets.find(
+      (bucket) => bucket.name === 'documents'
+    );
     if (!documentsBucket) {
       const { data: _newBucket, error: createError } =
         await _supabase.storage.createBucket('documents', {
@@ -54,7 +56,7 @@ async function setupStorageBuckets() {
     }
 
     // Check if public bucket exists
-    const publicBucket = buckets.find(bucket => bucket.name === 'public');
+    const publicBucket = buckets.find((bucket) => bucket.name === 'public');
     if (!publicBucket) {
       const { data: _newPublicBucket, error: createPublicError } =
         await _supabase.storage.createBucket('public', {
@@ -72,7 +74,7 @@ async function setupStorageBuckets() {
 
     // Check if blog-images bucket exists
     const blogImagesBucket = buckets.find(
-      bucket => bucket.name === 'blog-images'
+      (bucket) => bucket.name === 'blog-images'
     );
     if (!blogImagesBucket) {
       const { data: _newBlogBucket, error: createBlogError } =
@@ -107,12 +109,12 @@ async function setupStorageBuckets() {
 
     debugLog(
       '✅ All buckets:',
-      finalBuckets.map(b => b.name)
+      finalBuckets.map((b) => b.name)
     );
 
     const requiredBuckets = ['documents', 'public', 'blog-images'];
     const missingBuckets = requiredBuckets.filter(
-      name => !finalBuckets.find(b => b.name === name)
+      (name) => !finalBuckets.find((b) => b.name === name)
     );
 
     if (missingBuckets.length > 0) {

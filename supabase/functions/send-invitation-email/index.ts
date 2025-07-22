@@ -80,7 +80,7 @@ const createInvitationEmailTemplate = (
   `;
 };
 
-serve(async req => {
+serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -127,7 +127,7 @@ serve(async req => {
         // Check if user exists first
         const { data: existingUsers } =
           await supabaseAdmin.auth.admin.listUsers();
-        const existingUser = existingUsers.users.find(u => u.email === email);
+        const existingUser = existingUsers.users.find((u) => u.email === email);
 
         if (existingUser) {
           console.log(
@@ -148,7 +148,7 @@ serve(async req => {
           }
 
           // Wait a moment for deletion to process
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
         // Now create fresh user and send invitation email (works for both new and recreated users)

@@ -21,7 +21,7 @@ function fixCommas(_content) {
 function processDirectory(_dir) {
   const _files = fs.readdirSync(_dir);
 
-  _files.forEach(_file => {
+  _files.forEach((_file) => {
     const _fullPath = path.join(_dir, _file);
     const _stat = fs.statSync(_fullPath);
 

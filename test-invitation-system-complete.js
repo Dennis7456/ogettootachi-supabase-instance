@@ -391,8 +391,8 @@ class InvitationSystemTester {
   }
 
   printSummary() {
-    const _passed = this.results.filter(_r => _r.status === 'PASS').length;
-    const _failed = this.results.filter(_r => _r.status === 'FAIL').length;
+    const _passed = this.results.filter((_r) => _r.status === 'PASS').length;
+    const _failed = this.results.filter((_r) => _r.status === 'FAIL').length;
     const _totalTime = this.results.reduce((_sum, _r) => _sum + _r.duration, 0);
 
     if (_failed === 0) {

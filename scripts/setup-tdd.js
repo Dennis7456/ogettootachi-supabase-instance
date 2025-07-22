@@ -75,7 +75,7 @@ class SupabaseTDDSetup {
         encoding: 'utf8',
       });
       const _projects = JSON.parse(_projectsOutput);
-      const _existingProject = _projects.find(p => p.name === _projectName);
+      const _existingProject = _projects.find((p) => p.name === _projectName);
 
       if (_existingProject) {
         this.projectRef = _existingProject.id;
@@ -181,7 +181,7 @@ OPENAI_API_KEY=${this.openaiApiKey}
 // Run the setup
 function runSetup() {
   const _setup = new SupabaseTDDSetup();
-  _setup.run().catch(_error => {
+  _setup.run().catch((_error) => {
     console.error('Setup failed:', _error);
     process.exit(1);
   });

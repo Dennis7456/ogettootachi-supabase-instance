@@ -51,7 +51,7 @@ function runESLint(_files) {
       }
     );
 
-    _eslintProcess.on('close', _code => {
+    _eslintProcess.on('close', (_code) => {
       if (_code === 0) {
         _resolve(0);
       } else {
@@ -59,7 +59,7 @@ function runESLint(_files) {
       }
     });
 
-    _eslintProcess.on('error', _err => {
+    _eslintProcess.on('error', (_err) => {
       console.error('Failed to run ESLint:', _err);
       _reject(_err);
     });

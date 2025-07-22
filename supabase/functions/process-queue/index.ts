@@ -8,7 +8,7 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 );
 
-serve(async req => {
+serve(async (req) => {
   try {
     // Get unprocessed documents from the queue
     const { data: queueItems, error: queueError } = await supabase

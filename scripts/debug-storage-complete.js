@@ -31,10 +31,10 @@ async function debugStorageComplete() {
     if (_buckets) {
       console.log(
         '✅ Available buckets:',
-        _buckets.map(_b => _b.name)
+        _buckets.map((_b) => _b.name)
       );
 
-      const _documentsBucket = _buckets.find(_b => _b.name === 'documents');
+      const _documentsBucket = _buckets.find((_b) => _b.name === 'documents');
 
       if (_documentsBucket) {
         console.log('✅ Documents bucket exists');

@@ -9,12 +9,12 @@ function findJSFiles(
   const files = fs.readdirSync(dir);
   const jsFiles = [];
 
-  files.forEach(file => {
+  files.forEach((file) => {
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
 
     // Check if directory should be excluded
-    const shouldExclude = excludeDirs.some(excludeDir =>
+    const shouldExclude = excludeDirs.some((excludeDir) =>
       fullPath.includes(excludeDir)
     );
 

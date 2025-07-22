@@ -120,7 +120,7 @@ function createErrorResponse(
   );
 }
 
-serve(async req => {
+serve(async (req) => {
   const startTime = Date.now();
   const url = new URL(req.url);
   const method = req.method;

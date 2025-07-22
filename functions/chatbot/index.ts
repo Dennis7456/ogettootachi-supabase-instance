@@ -7,7 +7,7 @@ const corsHeaders = {
     'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async req => {
+serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -69,7 +69,7 @@ serve(async req => {
         message,
         response: response.choices[0].message.content,
         documents_used:
-          documents?.map(d => ({ id: d.id, title: d.title })) || [],
+          documents?.map((d) => ({ id: d.id, title: d.title })) || [],
         tokens_used: response.usage?.total_tokens || 0,
       });
 
@@ -119,7 +119,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
 async function generateResponse(message: string, documents: any[]) {
   const context =
     documents.length > 0
-      ? documents.map(d => d.content).join('\n\n')
+      ? documents.map((d) => d.content).join('\n\n')
       : 'No specific legal documents found for this query.';
 
   const systemPrompt = `You are a legal assistant for Ogetto, Otachi & Company Advocates, a prestigious law firm in Kenya. 

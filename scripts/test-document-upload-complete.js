@@ -32,7 +32,7 @@ async function testDocumentUploadComplete() {
     logError('Bucket listing failed', _bucketsError);
     if (_bucketsError) return;
 
-    const _documentsBucket = _buckets.find(b => b.name === 'documents');
+    const _documentsBucket = _buckets.find((b) => b.name === 'documents');
     if (!_documentsBucket) {
       console.error('❌ Documents bucket not found');
       return;

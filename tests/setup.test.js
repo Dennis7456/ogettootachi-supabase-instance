@@ -17,7 +17,7 @@ const _supabaseService = createClient(supabaseUrl, supabaseServiceKey);
 describe('Supabase Project Setup', () => {
   beforeAll(async () => {
     // Wait for Supabase to be ready
-    await new Promise(_resolve => setTimeout(_resolve, 2000));
+    await new Promise((_resolve) => setTimeout(_resolve, 2000));
   });
 
   describe('Database Connection', () => {

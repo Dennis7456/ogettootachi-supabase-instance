@@ -33,7 +33,7 @@ async function deleteUserAndTest() {
 
     // Find and delete existing user
     const { _data: _users } = await _supabase.auth.admin.listUsers();
-    const _existingUser = _users.users.find(_u => _u.email === _testEmail);
+    const _existingUser = _users.users.find((_u) => _u.email === _testEmail);
 
     if (_existingUser) {
       const { _error: _deleteError } = await _supabase.auth.admin.deleteUser(

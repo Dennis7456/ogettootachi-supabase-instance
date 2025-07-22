@@ -45,7 +45,7 @@ async function cleanupTestData(supabaseAdmin: any, supabase: any) {
       await supabaseAdmin.auth.admin.listUsers();
 
     if (userData) {
-      const user = userData.users.find(u => u.email === TEST_ADMIN_EMAIL);
+      const user = userData.users.find((u) => u.email === TEST_ADMIN_EMAIL);
       if (user) {
         // Delete user by UUID
         await supabaseAdmin.auth.admin.deleteUser(user.id);
@@ -66,7 +66,7 @@ interface CustomFetchResponse extends Response {
 }
 
 // Deno test suite for invitation functionality
-Deno.test('User Invitation Flow', async t => {
+Deno.test('User Invitation Flow', async (t) => {
   // Create Supabase admin client for cleanup
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 

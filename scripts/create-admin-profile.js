@@ -31,7 +31,7 @@ async function createAdminProfile() {
 
     // Find the admin user
     const _adminUser = _users.users.find(
-      _user => _user.email === 'admin@example.com'
+      (_user) => _user.email === 'admin@example.com'
     );
 
     if (!_adminUser) {
@@ -85,7 +85,7 @@ async function createAdminProfile() {
 }
 
 // Run the script
-createAdminProfile().then(_success => {
+createAdminProfile().then((_success) => {
   if (_success) {
     console.log('Admin profile creation process completed successfully');
   } else {

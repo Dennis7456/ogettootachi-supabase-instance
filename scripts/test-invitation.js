@@ -6,7 +6,7 @@ function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
       .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
@@ -105,7 +105,7 @@ if (import.meta.main) {
       debugLog('✅ Test completed successfully');
       process.exit(0);
     })
-    .catch(error => {
+    .catch((error) => {
       debugLog('❌ Test failed:', error);
       process.exit(1);
     });

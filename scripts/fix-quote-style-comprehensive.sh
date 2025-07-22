@@ -34,6 +34,8 @@ for file in "${FILES[@]}"; do
     -e "s/\(throw new Error\)(\"\([^\"]*\)\"/\1('\2'/g" \
     -e "s/\(JSON\.stringify\)(\"\([^\"]*\)\"/\1('\2'/g" \
     -e "s/\(path\.join\)(\"\([^\"]*\)\"/\1('\2'/g" \
+    -e "s/\(require\)(\"\([^\"]*\)\"/\1('\2'/g" \
+    -e "s/\(describe\|it\)(\"\([^\"]*\)\"/\1('\2'/g" \
     "${full_path}"
   
   echo "Processed ${file}"

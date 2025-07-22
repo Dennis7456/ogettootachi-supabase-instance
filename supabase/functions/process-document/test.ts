@@ -57,7 +57,7 @@ async function testEmbeddingGenerated(id: string) {
       return;
     }
     console.log(`Waiting for embedding... (attempt ${i + 1}/10)`);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
   }
   throw new Error('Embedding not generated in time');
 }

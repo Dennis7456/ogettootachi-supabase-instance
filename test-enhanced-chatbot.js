@@ -17,7 +17,7 @@ async function testEnhancedChatbot() {
     const _words = _searchQuery.toLowerCase().split(/\s+/);
     const _queryEmbedding = new Array(1536).fill(0);
 
-    _words.forEach(_word => {
+    _words.forEach((_word) => {
       const _hash = _word.split('').reduce((_a, _b) => {
         _a = (_a << 5) - _a + _b.charCodeAt(0);
         return _a & _a;
@@ -157,11 +157,11 @@ async function simulateEnhancedResponse(_message, _documents, _sessionId) {
     'how',
   ];
 
-  if (bookKeywords.some(keyword => _lower.includes(keyword))) {
+  if (bookKeywords.some((keyword) => _lower.includes(keyword))) {
     _intent = 'book_appointment';
-  } else if (contactKeywords.some(keyword => _lower.includes(keyword))) {
+  } else if (contactKeywords.some((keyword) => _lower.includes(keyword))) {
     _intent = 'message_staff';
-  } else if (infoKeywords.some(keyword => _lower.includes(keyword))) {
+  } else if (infoKeywords.some((keyword) => _lower.includes(keyword))) {
     _intent = 'info';
   } else if (_message.length < 10) {
     _intent = 'ambiguous';

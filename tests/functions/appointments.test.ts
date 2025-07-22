@@ -46,7 +46,7 @@ describe('Appointments Edge Function', () => {
 
   beforeAll(async () => {
     // Wait for Supabase to be ready
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Clean up any existing test users first
     try {
@@ -96,7 +96,7 @@ describe('Appointments Edge Function', () => {
     }
 
     // Wait a moment for the trigger to create the profile
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Update the profile to ensure it has admin role
     if (user) {
@@ -119,7 +119,7 @@ describe('Appointments Edge Function', () => {
         } = await supabase.auth.signInWithPassword(adminUser);
         if (signInError) {
           console.error('Sign in error:', signInError);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           attempts++;
         } else {
           session = signInSession;

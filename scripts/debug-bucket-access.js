@@ -26,7 +26,7 @@ async function debugBucketAccess() {
     if (_serviceBuckets) {
       console.log(
         '✅ Service role can see buckets:',
-        _serviceBuckets.map(_b => _b.name)
+        _serviceBuckets.map((_b) => _b.name)
       );
     }
 
@@ -55,7 +55,7 @@ async function debugBucketAccess() {
     if (_userBuckets) {
       console.log(
         '✅ Authenticated user can see buckets:',
-        _userBuckets.map(_b => _b.name)
+        _userBuckets.map((_b) => _b.name)
       );
     }
 
