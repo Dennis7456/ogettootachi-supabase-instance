@@ -26,5 +26,13 @@ export default {
     ],
     'quote-props': ['error', 'always'],
     'jsx-quotes': ['error', 'prefer-single'],
+    '@typescript-eslint/quotes': [
+      'error',
+      'single',
+      {
+        avoidEscape: false,
+        allowTemplateLiterals: false,
+      },
+    ],
   },
 };
