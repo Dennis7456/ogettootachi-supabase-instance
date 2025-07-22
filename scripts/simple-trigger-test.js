@@ -16,16 +16,15 @@ const logError = (prefix, error) => {
 async function testTrigger() {
   const _testEmail = `trigger-test-${Date.now()}@example.com`;
   try {
-    const { _data: _userData, _error: _userError } =
-      await _supabaseService.auth.admin.createUser({
-        email: _testEmail,
-        password: 'testPassword123',
-        email_confirm: true,
-        user_metadata: {
-          full_name: 'Trigger Test User',
-          role: 'user',
-        },
-      });
+    const { _data: _userData, _error: _userError } = await _supabaseService.auth.admin.createUser({
+      email: _testEmail,
+      password: 'testPassword123',
+      email_confirm: true,
+      user_metadata: {
+        full_name: 'Trigger Test User',
+        role: 'user',
+      },
+    });
 
     logError('User creation error', _userError);
     if (_userError) return;
@@ -48,24 +47,24 @@ async function testTrigger() {
       logError('Auth user check error', _authError);
 
       // Step 4: Try to manually create profile
-      const { _data: _manualProfile, _error: _manualError } =
-        await _supabaseService
-          .from('profiles')
-          .insert({
-            id: _userData.user.id,
-            full_name: 'Trigger Test User',
-            role: 'user',
-            is_active: true,
-          })
-          .select()
-          .single();
+      const { _data: _manualProfile, _error: _manualError } = await _supabaseService
+        .from('profiles')
+        .insert({
+          id: _userData.user.id,
+          full_name: 'Trigger Test User',
+          role: 'user',
+          is_active: true,
+        })
+        .select()
+        .single();
 
       logError('Manual profile creation error', _manualError);
     }
 
     // Step 5: Clean up - delete the test user
-    const { _error: _deleteError } =
-      await _supabaseService.auth.admin.deleteUser(_userData.user.id);
+    const { _error: _deleteError } = await _supabaseService.auth.admin.deleteUser(
+      _userData.user.id
+    );
 
     logError('User deletion error', _deleteError);
   } catch (_error) {

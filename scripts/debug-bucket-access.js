@@ -34,11 +34,10 @@ async function debugBucketAccess() {
     const _userSupabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
     // Sign in as admin
-    const { _data: _authData, _error: _authError } =
-      await _userSupabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _userSupabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     _logError('Authentication failed', _authError);
 
@@ -47,8 +46,7 @@ async function debugBucketAccess() {
     }
 
     // Try to list buckets as authenticated user
-    const { _data: _userBuckets, _error: _userError } =
-      await _userSupabase.storage.listBuckets();
+    const { _data: _userBuckets, _error: _userError } = await _userSupabase.storage.listBuckets();
 
     _logError('Authenticated user bucket listing failed', _userError);
 
@@ -64,10 +62,9 @@ async function debugBucketAccess() {
       type: 'text/plain',
     });
 
-    const { _data: _uploadData, _error: _uploadError } =
-      await _userSupabase.storage
-        .from('documents')
-        .upload('test-debug.txt', _testFile);
+    const { _data: _uploadData, _error: _uploadError } = await _userSupabase.storage
+      .from('documents')
+      .upload('test-debug.txt', _testFile);
 
     _logError('Upload failed', _uploadError);
 

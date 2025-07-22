@@ -116,9 +116,8 @@
 
         <p class="message">
           Hello,<br /><br />
-          We received a request to reset your password for your account at
-          Ogetto, Otachi & Company Advocates. If you didn't make this request,
-          you can safely ignore this email.
+          We received a request to reset your password for your account at Ogetto, Otachi & Company
+          Advocates. If you didn't make this request, you can safely ignore this email.
         </p>
 
         <div class="button-container">
@@ -126,28 +125,22 @@
         </div>
 
         <div class="warning">
-          <strong>Security Notice:</strong> This link will expire in 1 hour for
-          your security. If you need to reset your password after the link
-          expires, please request a new one.
+          <strong>Security Notice:</strong> This link will expire in 1 hour for your security. If
+          you need to reset your password after the link expires, please request a new one.
         </div>
 
-        <div class="expiry">
-          <strong>Link expires:</strong> {{ .TokenHash }}
-        </div>
+        <div class="expiry"><strong>Link expires:</strong> {{ .TokenHash }}</div>
 
         <p style="text-align: center; margin-top: 30px; color: #64748b">
-          If the button above doesn't work, you can copy and paste this link
-          into your browser:<br />
-          <a href="{{ .ConfirmationURL }}" class="link"
-            >{{ .ConfirmationURL }}</a
-          >
+          If the button above doesn't work, you can copy and paste this link into your browser:<br />
+          <a href="{{ .ConfirmationURL }}" class="link">{{ .ConfirmationURL }}</a>
         </p>
       </div>
 
       <div class="footer">
         <p>
-          This email was sent to {{ .Email }}. If you didn't request a password
-          reset, please contact our support team immediately.
+          This email was sent to {{ .Email }}. If you didn't request a password reset, please
+          contact our support team immediately.
         </p>
         <p style="margin-top: 15px">
           <strong>Ogetto, Otachi & Company Advocates</strong><br />

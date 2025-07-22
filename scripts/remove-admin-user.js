@@ -23,8 +23,7 @@ async function removeAdminUser() {
     const _supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // First, let's find the user
-    const { data: users, error: usersError } =
-      await _supabase.auth.admin.listUsers();
+    const { data: users, error: usersError } = await _supabase.auth.admin.listUsers();
 
     if (usersError) {
       debugLog('❌ Failed to list users:', usersError);
@@ -32,9 +31,7 @@ async function removeAdminUser() {
     }
 
     // Find the admin user
-    const adminUser = users.users.find(
-      (user) => user.email === 'admin@example.com'
-    );
+    const adminUser = users.users.find((user) => user.email === 'admin@example.com');
 
     if (!adminUser) {
       debugLog('✅ No admin user found');
@@ -53,9 +50,7 @@ async function removeAdminUser() {
     }
 
     // Remove the user from auth
-    const { error: userError } = await _supabase.auth.admin.deleteUser(
-      adminUser.id
-    );
+    const { error: userError } = await _supabase.auth.admin.deleteUser(adminUser.id);
 
     if (userError) {
       debugLog('❌ User removal failed:', userError);
@@ -63,17 +58,14 @@ async function removeAdminUser() {
     }
 
     // Verify removal
-    const { data: remainingUsers, error: verifyError } =
-      await _supabase.auth.admin.listUsers();
+    const { data: remainingUsers, error: verifyError } = await _supabase.auth.admin.listUsers();
 
     if (verifyError) {
       debugLog('❌ Failed to verify removal:', verifyError);
       return false;
     }
 
-    const remainingAdmin = remainingUsers.users.find(
-      (user) => user.email === 'admin@example.com'
-    );
+    const remainingAdmin = remainingUsers.users.find((user) => user.email === 'admin@example.com');
 
     if (remainingAdmin) {
       debugLog('❌ Admin user still exists after removal');
@@ -90,9 +82,5 @@ async function removeAdminUser() {
 
 // Run the script
 removeAdminUser().then((success) => {
-  debugLog(
-    success
-      ? '✅ Admin user removal successful'
-      : '❌ Admin user removal failed'
-  );
+  debugLog(success ? '✅ Admin user removal successful' : '❌ Admin user removal failed');
 });

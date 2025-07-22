@@ -17,9 +17,7 @@ async function testChatFunction() {
   const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error(
-      'Missing environment variables: SUPABASE_URL and SUPABASE_ANON_KEY'
-    );
+    console.error('Missing environment variables: SUPABASE_URL and SUPABASE_ANON_KEY');
     return;
   }
 

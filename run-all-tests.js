@@ -33,8 +33,7 @@ class MasterTestRunner {
       },
       {
         name: 'Real Invitation Test',
-        command:
-          'node quick-test-invitation.js test-master-runner@example.com admin "Master Test"',
+        command: 'node quick-test-invitation.js test-master-runner@example.com admin "Master Test"',
         description: 'Tests actual invitation creation and email delivery',
         critical: true,
       },
@@ -93,10 +92,7 @@ class MasterTestRunner {
         critical: _testSuite.critical,
         error: _error.message,
       });
-      console.error(
-        `❌ ${_testSuite.name} encountered an error:`,
-        _error.message
-      );
+      console.error(`❌ ${_testSuite.name} encountered an error:`, _error.message);
     }
   }
 
@@ -112,15 +108,10 @@ class MasterTestRunner {
       );
     }
     if (_testSuite.name.includes('Invitation Test')) {
-      return (
-        stdout.includes('SUCCESS!') ||
-        stdout.includes('EMAIL FOUND IN MAILPIT!')
-      );
+      return stdout.includes('SUCCESS!') || stdout.includes('EMAIL FOUND IN MAILPIT!');
     }
     if (_testSuite.name.includes('Configuration')) {
-      return (
-        stdout.includes('smtp_port = 1025') || stdout.includes('smtp_port=1025')
-      );
+      return stdout.includes('smtp_port = 1025') || stdout.includes('smtp_port=1025');
     }
     // Default: success if no errors
     return !stderr || stderr.trim() === '';
@@ -131,27 +122,16 @@ class MasterTestRunner {
     const _passed = this.results.filter((r) => r.status === 'PASS').length;
     const _failed = this.results.filter((r) => r.status === 'FAIL').length;
     const _errors = this.results.filter((r) => r.status === 'ERROR').length;
-    const _criticalFailed = this.results.filter(
-      (r) => r.critical && r.status !== 'PASS'
-    ).length;
+    const _criticalFailed = this.results.filter((r) => r.critical && r.status !== 'PASS').length;
 
-    console.log(
-      `📈 Success Rate: ${((_passed / this.results.length) * 100).toFixed(1)}%`
-    );
+    console.log(`📈 Success Rate: ${((_passed / this.results.length) * 100).toFixed(1)}%`);
 
     // Detailed results
     this.results.forEach((_result, _index) => {
-      const _icon =
-        _result.status === 'PASS'
-          ? '✅'
-          : _result.status === 'FAIL'
-            ? '❌'
-            : '💥';
+      const _icon = _result.status === 'PASS' ? '✅' : _result.status === 'FAIL' ? '❌' : '💥';
       const _critical = _result.critical ? '🚨 CRITICAL' : '';
 
-      console.log(
-        `${_index + 1}. ${_icon} ${_result.name} (${_result.duration}ms) ${_critical}`
-      );
+      console.log(`${_index + 1}. ${_icon} ${_result.name} (${_result.duration}ms) ${_critical}`);
 
       if (_result.status !== 'PASS' && _result.error) {
         console.error(`   Error details: ${_result.error}`);
@@ -162,9 +142,7 @@ class MasterTestRunner {
     if (_criticalFailed === 0 && _passed >= this.results.length * 0.8) {
       console.log('✨ SYSTEM FULLY HEALTHY');
     } else if (_criticalFailed === 0) {
-      console.warn(
-        '⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.'
-      );
+      console.warn('⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.');
     } else {
       console.error('❌ SYSTEM UNHEALTHY - Critical tests failed');
     }
@@ -177,9 +155,7 @@ class MasterTestRunner {
       console.warn('1. 🔍 Review non-critical test failures');
       console.warn('2. 🛠️ Consider minor system adjustments');
     } else {
-      console.log(
-        '3. 💾 Consider creating backup: ./backup-invitation-system.sh'
-      );
+      console.log('3. 💾 Consider creating backup: ./backup-invitation-system.sh');
     }
 
     // Exit with appropriate code

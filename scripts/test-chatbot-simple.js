@@ -50,14 +50,11 @@ async function testChatbotSimple() {
     });
 
     // Test match_documents function
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: _queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
-      }
-    );
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
+      query_embedding: _queryEmbedding,
+      match_threshold: 0.1,
+      match_count: 3,
+    });
 
     _logError('Search error', _searchError);
 
@@ -138,9 +135,7 @@ async function testChatbotSimple() {
       user_id: '00000000-0000-0000-0000-000000000000', // Valid UUID format
       session_id: `test-session-${Date.now()}`,
       message: 'What legal services do you offer?',
-      documents_used: _documents
-        .slice(0, 1)
-        .map((_d) => ({ id: _d.id, title: _d.title })),
+      documents_used: _documents.slice(0, 1).map((_d) => ({ id: _d.id, title: _d.title })),
       tokens_used: 50,
     };
 
@@ -154,10 +149,7 @@ async function testChatbotSimple() {
 
     if (_convData) {
       // Clean up
-      await _supabase
-        .from('chatbot_conversations')
-        .delete()
-        .eq('id', _convData.id);
+      await _supabase.from('chatbot_conversations').delete().eq('id', _convData.id);
     }
 
     console.log(

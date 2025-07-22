@@ -83,16 +83,14 @@ class PerformanceMonitor {
 
       if (user) {
         // Create admin profile
-        const { _error: profileError } = await _supabase
-          .from('profiles')
-          .insert([
-            {
-              id: user.id,
-              first_name: 'Performance',
-              last_name: 'Admin',
-              role: 'admin',
-            },
-          ]);
+        const { _error: profileError } = await _supabase.from('profiles').insert([
+          {
+            id: user.id,
+            first_name: 'Performance',
+            last_name: 'Admin',
+            role: 'admin',
+          },
+        ]);
         logError('Profile creation error', profileError);
         if (profileError) throw profileError;
 
@@ -117,22 +115,13 @@ class PerformanceMonitor {
   async cleanup() {
     try {
       // Clean up test _data
-      await _supabase
-        .from('appointments')
-        .delete()
-        .eq('client_email', testAppointment.email);
-      await _supabase
-        .from('contact_messages')
-        .delete()
-        .eq('email', testContactMessage.email);
+      await _supabase.from('appointments').delete().eq('client_email', testAppointment.email);
+      await _supabase.from('contact_messages').delete().eq('email', testContactMessage.email);
       await _supabase
         .from('chatbot_conversations')
         .delete()
         .eq('session_id', testChatbotMessage.session_id);
-      await _supabase
-        .from('documents')
-        .delete()
-        .eq('title', testDocument.title);
+      await _supabase.from('documents').delete().eq('title', testDocument.title);
 
       // Clean up admin user
       const {
@@ -151,9 +140,7 @@ class PerformanceMonitor {
     const startTime = Date.now();
     try {
       const _controller = new AbortController();
-      const _timeoutId = setTimeout(CONFIG.timeoutMs, () =>
-        _controller.abort()
-      );
+      const _timeoutId = setTimeout(CONFIG.timeoutMs, () => _controller.abort());
       const response = await fetch(url, {
         ...options,
         signal: _controller.signal,
@@ -185,23 +172,18 @@ class PerformanceMonitor {
   async testAppointments() {
     const results = [];
     for (let _i = 0; _i < CONFIG.totalRequests; _i++) {
-      const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/appointments`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...testAppointment,
-            name: `${testAppointment.name} ${_i + 1}`,
-            email: `perf-test-${_i + 1}@example.com`,
-          }),
-        }
-      );
+      const result = await this.makeRequest(`${supabaseUrl}/functions/v1/appointments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...testAppointment,
+          name: `${testAppointment.name} ${_i + 1}`,
+          email: `perf-test-${_i + 1}@example.com`,
+        }),
+      });
       results.push(result);
       if ((_i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise((_resolve) =>
-          setTimeout(CONFIG.delayBetweenBatches, _resolve)
-        );
+        await new Promise((_resolve) => setTimeout(CONFIG.delayBetweenBatches, _resolve));
       }
     }
     this.results.appointments = results;
@@ -211,23 +193,18 @@ class PerformanceMonitor {
   async testContact() {
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
-      const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/contact`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...testContactMessage,
-            name: `${testContactMessage.name} ${i + 1}`,
-            email: `perf-contact-${i + 1}@example.com`,
-          }),
-        }
-      );
+      const result = await this.makeRequest(`${supabaseUrl}/functions/v1/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...testContactMessage,
+          name: `${testContactMessage.name} ${i + 1}`,
+          email: `perf-contact-${i + 1}@example.com`,
+        }),
+      });
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
+        await new Promise((resolve) => setTimeout(resolve, CONFIG.delayBetweenBatches));
       }
     }
     this.results.contact = results;
@@ -239,25 +216,20 @@ class PerformanceMonitor {
     }
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
-      const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/chatbot`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${this.adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...testChatbotMessage,
-            session_id: `${testChatbotMessage.session_id}-${i + 1}`,
-          }),
-        }
-      );
+      const result = await this.makeRequest(`${supabaseUrl}/functions/v1/chatbot`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...testChatbotMessage,
+          session_id: `${testChatbotMessage.session_id}-${i + 1}`,
+        }),
+      });
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
+        await new Promise((resolve) => setTimeout(resolve, CONFIG.delayBetweenBatches));
       }
     }
     this.results.chatbot = results;
@@ -269,26 +241,21 @@ class PerformanceMonitor {
     }
     const results = [];
     for (let i = 0; i < CONFIG.totalRequests; i++) {
-      const result = await this.makeRequest(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${this.adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...testDocument,
-            title: `${testDocument.title} ${i + 1}`,
-            content: `${testDocument.content} - Test ${i + 1}`,
-          }),
-        }
-      );
+      const result = await this.makeRequest(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...testDocument,
+          title: `${testDocument.title} ${i + 1}`,
+          content: `${testDocument.content} - Test ${i + 1}`,
+        }),
+      });
       results.push(result);
       if ((i + 1) % CONFIG.concurrentRequests === 0) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, CONFIG.delayBetweenBatches)
-        );
+        await new Promise((resolve) => setTimeout(resolve, CONFIG.delayBetweenBatches));
       }
     }
     this.results.processDocument = results;
@@ -299,9 +266,7 @@ class PerformanceMonitor {
     const failed = results.filter((r) => !r.success);
     const durations = successful.map((r) => r.duration);
     const avgDuration =
-      durations.length > 0
-        ? durations.reduce((a, b) => a + b, 0) / durations.length
-        : 0;
+      durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     const _minDuration = durations.length > 0 ? Math.min(...durations) : 0;
     const _maxDuration = durations.length > 0 ? Math.max(...durations) : 0;
     const successRate = (successful.length / results.length) * 100;
@@ -313,8 +278,7 @@ class PerformanceMonitor {
     }
 
     // Check if performance meets thresholds
-    const meetsThreshold =
-      successRate >= CONFIG.successThreshold * 100 && avgDuration < 5000;
+    const meetsThreshold = successRate >= CONFIG.successThreshold * 100 && avgDuration < 5000;
 
     // Placeholder for additional logic if needed
     if (meetsThreshold) {
@@ -337,12 +301,9 @@ class PerformanceMonitor {
       // Summary
       Object.entries(this.results).forEach(([_functionName, results]) => {
         if (results.length > 0) {
-          const successRate =
-            (results.filter((r) => r.success).length / results.length) * 100;
+          const successRate = (results.filter((r) => r.success).length / results.length) * 100;
           const avgDuration =
-            results
-              .filter((r) => r.success)
-              .reduce((sum, r) => sum + r.duration, 0) /
+            results.filter((r) => r.success).reduce((sum, r) => sum + r.duration, 0) /
               results.filter((r) => r.success).length || 0;
           console.log(
             `   ${_functionName}: ${successRate.toFixed(1)}% success, ${avgDuration.toFixed(0)}ms avg`

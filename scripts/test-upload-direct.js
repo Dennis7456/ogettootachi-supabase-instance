@@ -18,22 +18,17 @@ const logError = (prefix, error) => {
 async function testUploadDirect() {
   try {
     // Step 1: Authenticate as admin
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
     logError('Authentication failed', _authError);
     if (_authError) return;
 
     // Step 2: Test direct upload (skip bucket listing)
-    const _testFile = new File(
-      ['Test document content for direct upload'],
-      'test-direct.txt',
-      {
-        type: 'text/plain',
-      }
-    );
+    const _testFile = new File(['Test document content for direct upload'], 'test-direct.txt', {
+      type: 'text/plain',
+    });
     const { _data: _uploadData, _error: _uploadError } = await _supabase.storage
       .from('documents')
       .upload(`test-direct-${Date.now()}.txt`, _testFile);
@@ -56,10 +51,12 @@ async function testUploadDirect() {
     if (_docError) return;
 
     // Step 4: Test Edge Function
-    const { _data: _functionData, _error: _functionError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _functionData, _error: _functionError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
     logError('Edge Function failed', _functionError);
 
     // Step 5: Verify the document

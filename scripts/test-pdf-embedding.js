@@ -77,10 +77,12 @@ async function testPdfEmbedding() {
       return;
     }
     // Process with improved Edge Function
-    const { data: _edgeData, error: edgeError } =
-      await _supabase.functions.invoke('process-document', {
+    const { data: _edgeData, error: edgeError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: docData },
-      });
+      }
+    );
     if (edgeError) {
       debugLog('❌ Edge Function failed:', edgeError.message);
       return;
@@ -112,8 +114,7 @@ async function testPdfEmbedding() {
       const nonZeroValues = embedding.filter((val) => val > 0);
       const _maxValue = Math.max(...embedding);
       const _minValue = Math.min(...embedding);
-      const _avgValue =
-        embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
+      const _avgValue = embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
       debugLog('   Sparsity:', nonZeroValues.length / embedding.length);
       // Show some sample values
       embedding.slice(0, 20).forEach((val, index) => {
@@ -141,10 +142,7 @@ async function testPdfEmbedding() {
       });
     }
     // Clean up
-    const { error: deleteError } = await _supabase
-      .from('documents')
-      .delete()
-      .eq('id', docData.id);
+    const { error: deleteError } = await _supabase.from('documents').delete().eq('id', docData.id);
     if (deleteError) {
       debugLog('❌ Failed to clean up:', deleteError.message);
     }

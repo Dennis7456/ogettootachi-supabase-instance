@@ -10,10 +10,7 @@ function fixCommas(_content) {
   _content = _content.replace(/(\w+)\s*(\n\s*\w+)/g, '$1,$2');
 
   // Fix _createClient calls
-  _content = _content.replace(
-    /(_createClient\(\s*\w+\.\w+)\s*(\w+\.\w+\s*\))/g,
-    '$1, $2'
-  );
+  _content = _content.replace(/(_createClient\(\s*\w+\.\w+)\s*(\w+\.\w+\s*\))/g, '$1, $2');
 
   return _content;
 }

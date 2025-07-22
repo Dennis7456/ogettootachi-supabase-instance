@@ -71,10 +71,7 @@ async function debugChatbotFrontend() {
 
     // Test 4: Check Supabase connection
     try {
-      const { _data, _error } = await _supabase
-        .from('documents')
-        .select('count')
-        .limit(1);
+      const { _data, _error } = await _supabase.from('documents').select('count').limit(1);
 
       _logError('Database connection error', _error);
 
@@ -86,12 +83,8 @@ async function debugChatbotFrontend() {
     }
 
     console.log('Debug Recommendations:');
-    console.log(
-      '   - Check if the user is properly authenticated in the frontend'
-    );
-    console.log(
-      '   - Ensure the chatbot component is using the correct Supabase client'
-    );
+    console.log('   - Check if the user is properly authenticated in the frontend');
+    console.log('   - Ensure the chatbot component is using the correct Supabase client');
   } catch (_error) {
     console.error('❌ Debug failed:', _error.message);
     console.error('Error details:', _error);

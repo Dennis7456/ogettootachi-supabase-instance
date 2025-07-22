@@ -31,10 +31,7 @@ async function fixStoragePolicies() {
     _logError('Error fetching policies', _policiesError);
 
     if (_policies) {
-      console.log(
-        'Existing policies:',
-        _policies.map((_p) => _p.policy_name) || []
-      );
+      console.log('Existing policies:', _policies.map((_p) => _p.policy_name) || []);
     }
 
     // Let's try a different approach - use the storage API to test upload

@@ -29,8 +29,7 @@ async function clearAllUsers() {
     }
 
     // Then, delete all users
-    const { _data: _users, _error: _listError } =
-      await _supabase.auth.admin.listUsers();
+    const { _data: _users, _error: _listError } = await _supabase.auth.admin.listUsers();
 
     _logError('Error listing users', _listError);
 
@@ -56,12 +55,8 @@ async function clearAllUsers() {
       }
     }
 
-    console.log(
-      `Successfully Deleted: ${_deletionResults.filter((_r) => _r.deleted).length}`
-    );
-    console.log(
-      `Failed Deletions: ${_deletionResults.filter((_r) => !_r.deleted).length}`
-    );
+    console.log(`Successfully Deleted: ${_deletionResults.filter((_r) => _r.deleted).length}`);
+    console.log(`Failed Deletions: ${_deletionResults.filter((_r) => !_r.deleted).length}`);
 
     return true;
   } catch (_error) {

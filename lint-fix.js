@@ -3,10 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 
-function findJSFiles(
-  _dir,
-  _excludeDirs = ['node_modules', '.git', 'dist', 'build']
-) {
+function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'dist', 'build']) {
   const _jsFiles = [];
 
   function traverse(_currentPath) {
@@ -36,15 +33,7 @@ function runESLint(_files) {
   return new Promise((_resolve, _reject) => {
     const _eslintProcess = spawn(
       'npx',
-      [
-        'eslint',
-        ..._files,
-        '--fix',
-        '--max-warnings',
-        '0',
-        '--ext',
-        '.js,.jsx',
-      ],
+      ['eslint', ..._files, '--fix', '--max-warnings', '0', '--ext', '.js,.jsx'],
       {
         stdio: 'inherit',
         shell: true,

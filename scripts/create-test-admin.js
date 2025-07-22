@@ -24,16 +24,15 @@ const _supabase = createClient(supabaseUrl, supabaseServiceKey);
 async function createTestAdmin() {
   try {
     // Create a test admin user
-    const { data: userData, error: userError } =
-      await _supabase.auth.admin.createUser({
-        email: 'admin@test.com',
-        password: 'admin123456',
-        email_confirm: true,
-        user_metadata: {
-          full_name: 'Test Admin',
-          role: 'admin',
-        },
-      });
+    const { data: userData, error: userError } = await _supabase.auth.admin.createUser({
+      email: 'admin@test.com',
+      password: 'admin123456',
+      email_confirm: true,
+      user_metadata: {
+        full_name: 'Test Admin',
+        role: 'admin',
+      },
+    });
 
     if (userError) {
       debugLog('❌ Error creating user:', userError.message);

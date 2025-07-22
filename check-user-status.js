@@ -9,10 +9,7 @@ const config = {
 
 async function checkUserStatus() {
   const email = process.argv[2] || 'webmastaz2019@gmail.com';
-  const _supabase = createClient(
-    config.SUPABASE_URL,
-    config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
     // Check auth users
@@ -35,9 +32,7 @@ async function checkUserStatus() {
     }
 
     // Check Mailpit emails
-    const mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const mailpitData = await mailpitResponse.json();
 
     if (mailpitData.messages) {

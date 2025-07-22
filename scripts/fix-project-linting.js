@@ -2,10 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 
-function findJSFiles(
-  dir,
-  excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']
-) {
+function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']) {
   const files = fs.readdirSync(dir);
   const jsFiles = [];
 
@@ -14,9 +11,7 @@ function findJSFiles(
     const stat = fs.statSync(fullPath);
 
     // Check if directory should be excluded
-    const shouldExclude = excludeDirs.some((excludeDir) =>
-      fullPath.includes(excludeDir)
-    );
+    const shouldExclude = excludeDirs.some((excludeDir) => fullPath.includes(excludeDir));
 
     if (stat.isDirectory() && !shouldExclude) {
       jsFiles.push(...findJSFiles(fullPath, excludeDirs));
@@ -51,10 +46,7 @@ function fixSyntaxErrors(filePath) {
     content = content.replace(/console\._error/g, 'console.error');
 
     // Remove empty arrow functions
-    content = content.replace(
-      /\(\s*_\w*\s*,\s*_\w*\)\s*=>\s*{\s*}/g,
-      '() => {}'
-    );
+    content = content.replace(/\(\s*_\w*\s*,\s*_\w*\)\s*=>\s*{\s*}/g, '() => {}');
 
     fs.writeFileSync(filePath, content, 'utf8');
     console.log(`Fixed syntax errors in ${filePath}`);

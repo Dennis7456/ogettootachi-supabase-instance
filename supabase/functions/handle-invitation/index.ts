@@ -13,8 +13,7 @@ declare const Deno: {
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -68,19 +67,11 @@ const findAdminUser = async (supabaseAdmin: any) => {
 
 // Improved invitation handling
 const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
-  const {
-    email,
-    role,
-    department = '',
-    full_name,
-    custom_message = '',
-  } = invitationData;
+  const { email, role, department = '', full_name, custom_message = '' } = invitationData;
 
   // Validate required fields
   if (!email || !role || !full_name) {
-    throw new Error(
-      'Missing required fields: email, role, and full_name are mandatory'
-    );
+    throw new Error('Missing required fields: email, role, and full_name are mandatory');
   }
 
   // Validate email format
@@ -147,22 +138,19 @@ const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
   // Call the send-invitation-email function
   try {
     const config = getConfig();
-    const emailResponse = await fetch(
-      `${config.SUPABASE_URL}/functions/v1/send-invitation-email`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-        body: JSON.stringify({
-          email,
-          role,
-          invitation_token,
-          custom_message,
-        }),
-      }
-    );
+    const emailResponse = await fetch(`${config.SUPABASE_URL}/functions/v1/send-invitation-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        email,
+        role,
+        invitation_token,
+        custom_message,
+      }),
+    });
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
@@ -217,17 +205,13 @@ serve(async (req) => {
 
   try {
     // Create Supabase admin client
-    const supabaseAdmin = createClient(
-      config.SUPABASE_URL,
-      config.SUPABASE_SERVICE_ROLE_KEY,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false,
-        },
-      }
-    );
+    const supabaseAdmin = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
 
     // Process invitation
     const result = await handleInvitation(supabaseAdmin, invitationData);
@@ -238,9 +222,6 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Invitation processing error:', error);
-    return createErrorResponse(
-      error.message || 'Failed to process invitation',
-      500
-    );
+    return createErrorResponse(error.message || 'Failed to process invitation', 500);
   }
 });

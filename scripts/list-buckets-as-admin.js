@@ -22,11 +22,10 @@ const _supabase = createClient(supabaseUrl, supabaseAnonKey);
 async function listBucketsAsAdmin() {
   try {
     // Sign in as admin
-    const { data: _authData, error: authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { data: _authData, error: authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     if (authError) {
       debugLog('❌ Auth error:', authError.message);
@@ -34,8 +33,7 @@ async function listBucketsAsAdmin() {
     }
 
     // List buckets
-    const { data: buckets, error: bucketsError } =
-      await _supabase.storage.listBuckets();
+    const { data: buckets, error: bucketsError } = await _supabase.storage.listBuckets();
 
     if (bucketsError) {
       debugLog('❌ Error listing buckets:', bucketsError.message);

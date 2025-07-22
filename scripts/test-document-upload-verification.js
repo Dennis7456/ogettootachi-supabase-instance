@@ -25,9 +25,7 @@ async function testDocumentUploadVerification() {
     if (_listError) return;
 
     // Log existing documents count
-    console.log(
-      `✅ Documents table accessible. Found ${_existingDocs.length} existing documents.`
-    );
+    console.log(`✅ Documents table accessible. Found ${_existingDocs.length} existing documents.`);
 
     // Step 2: Create a test document
     const _testDocument = {
@@ -54,10 +52,12 @@ async function testDocumentUploadVerification() {
     logError('Failed to verify document', _verifyError);
 
     // Step 4: Test Edge Function processing
-    const { _data: _edgeData, _error: _edgeError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _edgeData, _error: _edgeError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
     logError('Edge Function failed', _edgeError);
 
     // Step 5: Check if embedding was added

@@ -1,12 +1,7 @@
 /// <reference path="../types.d.ts" />
 /// <reference types="@supabase/supabase-js" />
 
-import {
-  assertEquals,
-  assertExists,
-  assertStringIncludes,
-  assert,
-} from '../local_assert.ts';
+import { assertEquals, assertExists, assertStringIncludes, assert } from '../local_assert.ts';
 import { createClient } from '@supabase/supabase-js';
 
 // Mock environment setup
@@ -35,14 +30,10 @@ async function cleanupTestData(supabaseAdmin: any, supabase: any) {
     supabase.auth.stopAutoRefresh();
 
     // Delete invitation record
-    await supabaseAdmin
-      .from('user_invitations')
-      .delete()
-      .eq('email', TEST_INVITE_EMAIL);
+    await supabaseAdmin.from('user_invitations').delete().eq('email', TEST_INVITE_EMAIL);
 
     // Fetch user by email to get the correct UUID
-    const { data: userData, error: userError } =
-      await supabaseAdmin.auth.admin.listUsers();
+    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers();
 
     if (userData) {
       const user = userData.users.find((u) => u.email === TEST_ADMIN_EMAIL);
@@ -83,35 +74,28 @@ Deno.test('User Invitation Flow', async (t) => {
 
   try {
     // Create a new admin user for testing
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
-      {
-        email: TEST_ADMIN_EMAIL,
-        password: TEST_ADMIN_PASSWORD,
-        options: {
-          data: {
-            role: 'admin',
-          },
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: TEST_ADMIN_EMAIL,
+      password: TEST_ADMIN_PASSWORD,
+      options: {
+        data: {
+          role: 'admin',
         },
-      }
-    );
+      },
+    });
 
     if (signUpError) {
-      throw new Error(
-        `Failed to create test admin user: ${signUpError.message}`
-      );
+      throw new Error(`Failed to create test admin user: ${signUpError.message}`);
     }
 
     // Sign in to get token
-    const { data: loginData, error: loginError } =
-      await supabase.auth.signInWithPassword({
-        email: TEST_ADMIN_EMAIL,
-        password: TEST_ADMIN_PASSWORD,
-      });
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email: TEST_ADMIN_EMAIL,
+      password: TEST_ADMIN_PASSWORD,
+    });
 
     if (loginError) {
-      throw new Error(
-        `Failed to log in test admin user: ${loginError.message}`
-      );
+      throw new Error(`Failed to log in test admin user: ${loginError.message}`);
     }
 
     const adminToken = loginData.session?.access_token || '';
@@ -121,28 +105,22 @@ Deno.test('User Invitation Flow', async (t) => {
       let timeoutId: number | undefined;
       const timeoutPromise = new Promise(
         (_, reject) =>
-          (timeoutId = setTimeout(
-            () => reject(new Error('Invitation request timed out')),
-            10000
-          ))
+          (timeoutId = setTimeout(() => reject(new Error('Invitation request timed out')), 10000))
       );
 
-      const fetchPromise = fetch(
-        'http://localhost:54321/functions/v1/handle-invitation',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            email: TEST_INVITE_EMAIL,
-            role: TEST_INVITE_ROLE,
-            full_name: TEST_FULL_NAME,
-          }),
-          signal,
-        }
-      ) as Promise<CustomFetchResponse>;
+      const fetchPromise = fetch('http://localhost:54321/functions/v1/handle-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          email: TEST_INVITE_EMAIL,
+          role: TEST_INVITE_ROLE,
+          full_name: TEST_FULL_NAME,
+        }),
+        signal,
+      }) as Promise<CustomFetchResponse>;
 
       try {
         const response = (await Promise.race([
@@ -156,11 +134,7 @@ Deno.test('User Invitation Flow', async (t) => {
         // Check response
         const responseData = await response.json();
 
-        assertEquals(
-          response.status,
-          200,
-          `Invitation failed: ${JSON.stringify(responseData)}`
-        );
+        assertEquals(response.status, 200, `Invitation failed: ${JSON.stringify(responseData)}`);
         assertExists(responseData.success, 'Invitation should be successful');
         assertStringIncludes(
           responseData.message || '',
@@ -175,31 +149,24 @@ Deno.test('User Invitation Flow', async (t) => {
     });
 
     await t.step('Prevent duplicate invitation', async () => {
-      const response = (await fetch(
-        'http://localhost:54321/functions/v1/handle-invitation',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            email: TEST_INVITE_EMAIL,
-            role: TEST_INVITE_ROLE,
-            full_name: TEST_FULL_NAME,
-          }),
-          signal,
-        }
-      )) as CustomFetchResponse;
+      const response = (await fetch('http://localhost:54321/functions/v1/handle-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          email: TEST_INVITE_EMAIL,
+          role: TEST_INVITE_ROLE,
+          full_name: TEST_FULL_NAME,
+        }),
+        signal,
+      })) as CustomFetchResponse;
 
       // Check response
       const responseData = await response.json();
 
-      assertEquals(
-        response.status,
-        409,
-        'Should return conflict status for duplicate invitation'
-      );
+      assertEquals(response.status, 409, 'Should return conflict status for duplicate invitation');
       assertStringIncludes(
         responseData.error || '',
         'already exists',
@@ -208,32 +175,25 @@ Deno.test('User Invitation Flow', async (t) => {
     });
 
     await t.step('Force resend invitation', async () => {
-      const response = (await fetch(
-        'http://localhost:54321/functions/v1/handle-invitation',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            email: TEST_INVITE_EMAIL,
-            role: TEST_INVITE_ROLE,
-            full_name: TEST_FULL_NAME,
-            force_resend: true,
-          }),
-          signal,
-        }
-      )) as CustomFetchResponse;
+      const response = (await fetch('http://localhost:54321/functions/v1/handle-invitation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          email: TEST_INVITE_EMAIL,
+          role: TEST_INVITE_ROLE,
+          full_name: TEST_FULL_NAME,
+          force_resend: true,
+        }),
+        signal,
+      })) as CustomFetchResponse;
 
       // Check response
       const responseData = await response.json();
 
-      assertEquals(
-        response.status,
-        200,
-        `Force resend failed: ${JSON.stringify(responseData)}`
-      );
+      assertEquals(response.status, 200, `Force resend failed: ${JSON.stringify(responseData)}`);
       assertExists(responseData.success, 'Force resend should be successful');
       assertStringIncludes(
         responseData.message || '',
@@ -252,25 +212,10 @@ Deno.test('User Invitation Flow', async (t) => {
 
       assertEquals(error, null, 'Error fetching invitation record');
       assertExists(invitations, 'Invitation record should exist');
-      assertEquals(
-        invitations.email,
-        TEST_INVITE_EMAIL,
-        'Incorrect email in invitation record'
-      );
-      assertEquals(
-        invitations.role,
-        TEST_INVITE_ROLE,
-        'Incorrect role in invitation record'
-      );
-      assertEquals(
-        invitations.status,
-        'sent',
-        "Invitation status should be 'sent'"
-      );
-      assertExists(
-        invitations.invitation_token,
-        'Invitation token should be generated'
-      );
+      assertEquals(invitations.email, TEST_INVITE_EMAIL, 'Incorrect email in invitation record');
+      assertEquals(invitations.role, TEST_INVITE_ROLE, 'Incorrect role in invitation record');
+      assertEquals(invitations.status, 'sent', "Invitation status should be 'sent'");
+      assertExists(invitations.invitation_token, 'Invitation token should be generated');
       assertExists(invitations.expires_at, 'Expiration date should be set');
     });
 
@@ -285,13 +230,11 @@ Deno.test('User Invitation Flow', async (t) => {
       // Validate invitation parameters
       const expirationDate = new Date(invitations.expires_at);
       const currentDate = new Date();
-      const expirationDuration =
-        expirationDate.getTime() - currentDate.getTime();
+      const expirationDuration = expirationDate.getTime() - currentDate.getTime();
 
       // Check if expiration is around 72 hours (with some buffer)
       assert(
-        expirationDuration > 71 * 60 * 60 * 1000 &&
-          expirationDuration < 73 * 60 * 60 * 1000,
+        expirationDuration > 71 * 60 * 60 * 1000 && expirationDuration < 73 * 60 * 60 * 1000,
         'Invitation should expire in approximately 72 hours'
       );
     });

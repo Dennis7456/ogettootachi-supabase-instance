@@ -137,10 +137,7 @@ describe('Appointments Edge Function', () => {
   afterAll(async () => {
     // Clean up test data
     if (testAppointmentId) {
-      await supabaseService
-        .from('appointments')
-        .delete()
-        .eq('id', testAppointmentId);
+      await supabaseService.from('appointments').delete().eq('id', testAppointmentId);
     }
 
     // Clean up admin user
@@ -164,10 +161,7 @@ describe('Appointments Edge Function', () => {
 
   beforeEach(async () => {
     // Clean up appointments before each test
-    await supabaseService
-      .from('appointments')
-      .delete()
-      .eq('client_email', testAppointment.email);
+    await supabaseService.from('appointments').delete().eq('client_email', testAppointment.email);
   });
 
   describe('POST /functions/v1/appointments', () => {
@@ -312,37 +306,29 @@ describe('Appointments Edge Function', () => {
     });
 
     it('should filter appointments by status', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments?status=confirmed`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments?status=confirmed`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
 
       expect(data.success).toBe(true);
-      expect(
-        data.appointments.every((apt: any) => apt.status === 'confirmed')
-      ).toBe(true);
+      expect(data.appointments.every((apt: any) => apt.status === 'confirmed')).toBe(true);
     });
 
     it('should support pagination', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments?limit=2&offset=0`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments?limit=2&offset=0`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -366,17 +352,14 @@ describe('Appointments Edge Function', () => {
     });
 
     it('should update appointment status', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments/${appointmentId}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status: 'confirmed' }),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments/${appointmentId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'confirmed' }),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -386,17 +369,14 @@ describe('Appointments Edge Function', () => {
     });
 
     it('should reject invalid status', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments/${appointmentId}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ status: 'invalid_status' }),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments/${appointmentId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'invalid_status' }),
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -406,20 +386,17 @@ describe('Appointments Edge Function', () => {
     });
 
     it('should update notes', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments/${appointmentId}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            status: 'confirmed',
-            notes: 'Client confirmed appointment',
-          }),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments/${appointmentId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'confirmed',
+          notes: 'Client confirmed appointment',
+        }),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -443,16 +420,13 @@ describe('Appointments Edge Function', () => {
     });
 
     it('should delete appointment', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/appointments/${appointmentId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/appointments/${appointmentId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();

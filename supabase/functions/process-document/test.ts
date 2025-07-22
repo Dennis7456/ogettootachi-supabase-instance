@@ -8,31 +8,23 @@ const supabase = createClient(
 async function testAdminInsert() {
   const { data, error } = await supabase
     .from('documents')
-    .insert([
-      { title: 'TDD Test', content: 'Test content for embedding generation' },
-    ])
+    .insert([{ title: 'TDD Test', content: 'Test content for embedding generation' }])
     .select();
   if (error) throw error;
-  console.assert(
-    data[0].embedding == null,
-    'Embedding should be null on insert'
-  );
+  console.assert(data[0].embedding == null, 'Embedding should be null on insert');
   console.log('Document inserted:', data[0].id);
   return data[0].id;
 }
 
 async function testQueueProcessing() {
   // Trigger the queue processing
-  const response = await fetch(
-    `${Deno.env.get('SUPABASE_URL')}/functions/v1/process-queue`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-      },
-    }
-  );
+  const response = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/process-queue`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`Queue processing failed: ${response.statusText}`);
@@ -44,16 +36,9 @@ async function testQueueProcessing() {
 
 async function testEmbeddingGenerated(id: string) {
   for (let i = 0; i < 10; i++) {
-    const { data } = await supabase
-      .from('documents')
-      .select('embedding')
-      .eq('id', id);
+    const { data } = await supabase.from('documents').select('embedding').eq('id', id);
     if (data && data[0].embedding) {
-      console.log(
-        '✅ Embedding generated:',
-        data[0].embedding.slice(0, 5),
-        '...'
-      );
+      console.log('✅ Embedding generated:', data[0].embedding.slice(0, 5), '...');
       return;
     }
     console.log(`Waiting for embedding... (attempt ${i + 1}/10)`);
@@ -70,9 +55,7 @@ async function testEmbeddingGenerated(id: string) {
     await testQueueProcessing();
     await testEmbeddingGenerated(id);
 
-    console.log(
-      '✅ TDD passed: Admin insert triggers embedding generation via queue'
-    );
+    console.log('✅ TDD passed: Admin insert triggers embedding generation via queue');
   } catch (error) {
     console.error('❌ TDD failed:', error);
     process.exit(1);

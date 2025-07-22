@@ -12,14 +12,8 @@ const _config = {
 
 class InvitationSystemTester {
   constructor() {
-    this._supabase = createClient(
-      _config.SUPABASE_URL,
-      _config.SUPABASE_ANON_KEY
-    );
-    this.supabaseAdmin = createClient(
-      _config.SUPABASE_URL,
-      _config.SUPABASE_SERVICE_ROLE_KEY
-    );
+    this._supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
+    this.supabaseAdmin = createClient(_config.SUPABASE_URL, _config.SUPABASE_SERVICE_ROLE_KEY);
     this.results = [];
     this.testEmails = [];
   }
@@ -138,16 +132,13 @@ class InvitationSystemTester {
 
   async testEdgeFunctions() {
     // Test handle-invitation function
-    const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: `test-health-check-${Date.now()}@example.com`,
-          role: 'staff',
-          full_name: 'Test User',
-        },
-      }
-    );
+    const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: `test-health-check-${Date.now()}@example.com`,
+        role: 'staff',
+        full_name: 'Test User',
+      },
+    });
     if (_error) {
       throw new Error('Edge function invocation failed');
     }
@@ -163,18 +154,13 @@ class InvitationSystemTester {
     await fetch('http://127.0.0.1:54324/api/v1/messages', { method: 'DELETE' });
     // Send test invitation
     const testEmail = `mailpit-test-${Date.now()}@example.com`;
-    const { _data } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: { email: testEmail, role: 'staff', full_name: 'Mailpit Test' },
-      }
-    );
+    const { _data } = await this._supabase.functions.invoke('handle-invitation', {
+      body: { email: testEmail, role: 'staff', full_name: 'Mailpit Test' },
+    });
     // Wait for email
     await setTimeout(3000);
     // Check Mailpit
-    const mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total === 0) {
       throw new Error('Email not delivered to Mailpit');
@@ -185,12 +171,9 @@ class InvitationSystemTester {
 
   async testNewUserInvitation() {
     const testEmail = `new-user-${Date.now()}@example.com`;
-    const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: { email: testEmail, role: 'staff', full_name: 'New User Test' },
-      }
-    );
+    const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
+      body: { email: testEmail, role: 'staff', full_name: 'New User Test' },
+    });
     if (_error) {
       throw new Error('New user invitation function failed');
     }
@@ -218,16 +201,13 @@ class InvitationSystemTester {
       email_confirm: true,
     });
     // Send invitation to existing user
-    const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: testEmail,
-          role: 'admin',
-          full_name: 'Existing User Test',
-        },
-      }
-    );
+    const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: testEmail,
+        role: 'admin',
+        full_name: 'Existing User Test',
+      },
+    });
     if (_error) {
       throw new Error('Existing user invitation function failed');
     }
@@ -240,12 +220,9 @@ class InvitationSystemTester {
 
   async testAdminInvitation() {
     const testEmail = `admin-test-${Date.now()}@example.com`;
-    const { _data } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: { email: testEmail, role: 'admin', full_name: 'Admin Test' },
-      }
-    );
+    const { _data } = await this._supabase.functions.invoke('handle-invitation', {
+      body: { email: testEmail, role: 'admin', full_name: 'Admin Test' },
+    });
     const { _data: invitation } = await this.supabaseAdmin
       .from('user_invitations')
       .select('*')
@@ -260,12 +237,9 @@ class InvitationSystemTester {
 
   async testStaffInvitation() {
     const testEmail = `staff-test-${Date.now()}@example.com`;
-    const { _data } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: { email: testEmail, role: 'staff', full_name: 'Staff Test' },
-      }
-    );
+    const { _data } = await this._supabase.functions.invoke('handle-invitation', {
+      body: { email: testEmail, role: 'staff', full_name: 'Staff Test' },
+    });
     const { _data: invitation } = await this.supabaseAdmin
       .from('user_invitations')
       .select('*')
@@ -279,21 +253,16 @@ class InvitationSystemTester {
   }
 
   async testInvalidEmail() {
-    const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: 'invalid-email@example.com',
-          role: 'staff',
-          full_name: 'Invalid Test',
-        },
-      }
-    );
+    const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: 'invalid-email@example.com',
+        role: 'staff',
+        full_name: 'Invalid Test',
+      },
+    });
     // Should either fail or handle gracefully
     if (_data && _data.success) {
-      console.warn(
-        '   Note: System accepted invalid email - consider adding validation'
-      );
+      console.warn('   Note: System accepted invalid email - consider adding validation');
     }
     return 'Invalid email handling tested';
   }
@@ -332,9 +301,7 @@ class InvitationSystemTester {
 
   async testEmailContent() {
     // Check latest email in Mailpit
-    const mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total === 0) {
       throw new Error('No emails found for content validation');
@@ -353,16 +320,13 @@ class InvitationSystemTester {
     const tokens = new Set();
     for (let i = 0; i < 5; i++) {
       const testEmail = `token-test-${i}-${Date.now()}@example.com`;
-      const { _data } = await this._supabase.functions.invoke(
-        'handle-invitation',
-        {
-          body: {
-            email: testEmail,
-            role: 'staff',
-            full_name: `Token Test ${i}`,
-          },
-        }
-      );
+      const { _data } = await this._supabase.functions.invoke('handle-invitation', {
+        body: {
+          email: testEmail,
+          role: 'staff',
+          full_name: `Token Test ${i}`,
+        },
+      });
       if (tokens.has(_data.invitation_token)) {
         throw new Error('Duplicate token generated');
       }
@@ -396,9 +360,7 @@ class InvitationSystemTester {
     const _totalTime = this.results.reduce((_sum, _r) => _sum + _r.duration, 0);
 
     if (_failed === 0) {
-      console.log(
-        '🎉 ALL TESTS PASSED! Your invitation system is working perfectly.'
-      );
+      console.log('🎉 ALL TESTS PASSED! Your invitation system is working perfectly.');
     } else {
       console.log(`❌ ${_failed} tests failed. Please review the results.`);
     }

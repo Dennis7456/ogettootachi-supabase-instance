@@ -20,9 +20,7 @@ const _logError = (prefix, _error) => {
 const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
 async function fixRLSComplete() {
-  console.log(
-    'The issue is that we need to completely reset and recreate all RLS policies.'
-  );
+  console.log('The issue is that we need to completely reset and recreate all RLS policies.');
 
   // Note: The following SQL commands should be run manually through Supabase SQL Editor
   const _sqlCommands = [
@@ -159,17 +157,14 @@ async function fixRLSComplete() {
     console.log(`SQL Command ${_index + 1}:`, _cmd);
   });
 
-  console.log(
-    '3. After running all steps, test with: node scripts/test-upload-direct.js'
-  );
+  console.log('3. After running all steps, test with: node scripts/test-upload-direct.js');
 
   // Test current admin user
   try {
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     _logError('Admin authentication failed', _authError);
 
@@ -181,9 +176,7 @@ async function fixRLSComplete() {
 
       if (session) {
         const _tokenParts = session.access_token.split('.');
-        const _payload = JSON.parse(
-          Buffer.from(_tokenParts[1], 'base64').toString()
-        );
+        const _payload = JSON.parse(Buffer.from(_tokenParts[1], 'base64').toString());
         console.log('JWT Payload:', _payload);
       }
     }

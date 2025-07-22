@@ -12,8 +12,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 interface DocumentRecord {
@@ -179,13 +178,10 @@ serve(async (req) => {
       console.log('Request body received:', JSON.stringify(body, null, 2));
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError);
-      return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Handle different input formats
@@ -233,15 +229,12 @@ serve(async (req) => {
     // Check if already processed
     if (record.embedding) {
       console.log('Document already has embedding, skipping processing');
-      return new Response(
-        JSON.stringify({ success: true, msg: 'Already embedded' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ success: true, msg: 'Already embedded' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log(
-      `Processing document: ${record.id} (${record.content.length} chars)`
-    );
+    console.log(`Processing document: ${record.id} (${record.content.length} chars)`);
 
     // Generate embedding with timeout protection
     const embedding = generateEmbedding(record.content);
@@ -249,10 +242,7 @@ serve(async (req) => {
 
     // Update database
     console.log('Updating database...');
-    const { error } = await supabase
-      .from('documents')
-      .update({ embedding })
-      .eq('id', record.id);
+    const { error } = await supabase.from('documents').update({ embedding }).eq('id', record.id);
 
     if (error) {
       console.error('Database update error:', error);

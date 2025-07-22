@@ -194,14 +194,11 @@ async function addEmbeddingToDocument() {
     const _testQuery = 'practice areas';
     const _queryEmbedding = await generateEmbedding(_testQuery);
 
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: _queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
-      }
-    );
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
+      query_embedding: _queryEmbedding,
+      match_threshold: 0.1,
+      match_count: 3,
+    });
 
     logError('Search error', _searchError);
 

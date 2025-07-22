@@ -12,12 +12,7 @@ declare module 'resend' {
   export class Resend {
     constructor(apiKey: string);
     emails: {
-      send(options: {
-        from: string;
-        to: string;
-        subject: string;
-        html: string;
-      }): Promise<{
+      send(options: { from: string; to: string; subject: string; html: string }): Promise<{
         data: { id: string };
         error: any;
       }>;
@@ -27,9 +22,5 @@ declare module 'resend' {
 
 // Supabase client types
 declare module '@supabase/supabase-js' {
-  export function createClient(
-    supabaseUrl: string,
-    supabaseKey: string,
-    options?: any
-  ): any;
+  export function createClient(supabaseUrl: string, supabaseKey: string, options?: any): any;
 }

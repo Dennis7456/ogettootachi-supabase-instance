@@ -2,8 +2,7 @@
 
 export function assertEquals(actual: any, expected: any, msg?: string): void {
   if (!Object.is(actual, expected)) {
-    const message =
-      msg || `Values are not equal. Expected: ${expected}, Actual: ${actual}`;
+    const message = msg || `Values are not equal. Expected: ${expected}, Actual: ${actual}`;
     throw new Error(message);
   }
 }
@@ -15,15 +14,10 @@ export function assertExists(value: any, msg?: string): void {
   }
 }
 
-export function assertStringIncludes(
-  actual: string,
-  expected: string,
-  msg?: string
-): void {
+export function assertStringIncludes(actual: string, expected: string, msg?: string): void {
   if (!actual.includes(expected)) {
     const message =
-      msg ||
-      `String does not include expected substring. Expected: ${expected}, Actual: ${actual}`;
+      msg || `String does not include expected substring. Expected: ${expected}, Actual: ${actual}`;
     throw new Error(message);
   }
 }

@@ -16,9 +16,7 @@ const _logError = (prefix, _error) => {
 };
 
 async function testSupabaseAuthEmail() {
-  console.log(
-    '🧪 Testing Supabase Auth email with corrected SMTP configuration...\n'
-  );
+  console.log('🧪 Testing Supabase Auth email with corrected SMTP configuration...\n');
 
   // Clear Mailpit first
   try {
@@ -27,10 +25,7 @@ async function testSupabaseAuthEmail() {
     console.warn('Failed to clear Mailpit messages');
   }
 
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_SERVICE_ROLE_KEY);
 
   const _testEmail = 'webmastaz2019@gmail.com';
 
@@ -51,9 +46,7 @@ async function testSupabaseAuthEmail() {
     await new Promise((_resolve) => setTimeout(_resolve, 3000));
 
     // Check Mailpit
-    const _mailpitResponse1 = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _mailpitResponse1 = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _mailpitData1 = await _mailpitResponse1.json();
 
     if (_mailpitData1.total > 0) {
@@ -61,9 +54,7 @@ async function testSupabaseAuthEmail() {
         console.log(`Mailpit Message ${_index + 1}:`, _msg);
       });
     } else {
-      console.log(
-        '\n🔄 Method 2: Using Auth Admin generateLink for password reset...'
-      );
+      console.log('\n🔄 Method 2: Using Auth Admin generateLink for password reset...');
 
       // First create a user
       const { _data: _createUserData, _error: _createUserError } =
@@ -78,34 +69,25 @@ async function testSupabaseAuthEmail() {
 
       _logError('Create user error', _createUserError);
 
-      if (
-        !_createUserError ||
-        _createUserError.message.includes('already exists')
-      ) {
+      if (!_createUserError || _createUserError.message.includes('already exists')) {
         // Generate password reset link
-        const { _data: _resetData, _error: _resetError } =
-          await _supabase.auth.admin.generateLink({
-            type: 'recovery',
-            email: _testEmail,
-            options: {
-              redirectTo: 'http://localhost:5173/password-setup',
-            },
-          });
+        const { _data: _resetData, _error: _resetError } = await _supabase.auth.admin.generateLink({
+          type: 'recovery',
+          email: _testEmail,
+          options: {
+            redirectTo: 'http://localhost:5173/password-setup',
+          },
+        });
 
         _logError('Reset link error', _resetError);
 
         if (_resetData) {
-          console.log(
-            '✅ Reset link generated:',
-            _resetData.properties.action_link
-          );
+          console.log('✅ Reset link generated:', _resetData.properties.action_link);
 
           // Wait and check again
           await new Promise((_resolve) => setTimeout(_resolve, 3000));
 
-          const _mailpitResponse2 = await fetch(
-            'http://127.0.0.1:54324/api/v1/messages'
-          );
+          const _mailpitResponse2 = await fetch('http://127.0.0.1:54324/api/v1/messages');
           const _mailpitData2 = await _mailpitResponse2.json();
 
           if (_mailpitData2.total > 0) {
@@ -113,9 +95,7 @@ async function testSupabaseAuthEmail() {
               console.log(`Mailpit Message ${_index + 1}:`, _msg);
             });
           } else {
-            console.log(
-              '\n🔍 This suggests Supabase Auth SMTP is still not configured correctly'
-            );
+            console.log('\n🔍 This suggests Supabase Auth SMTP is still not configured correctly');
           }
         }
       }

@@ -4,11 +4,11 @@
   "description": "Invitation system for Ogetto, Otachi & Co Advocates",
   "type": "module",
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "test": "./test-all.sh",
     "test:complete": "node test-invitation-system-complete.js",
     "test:health": "node monitor-invitation-system.js",
@@ -42,7 +42,7 @@
     "eslint-plugin-security": "^1.7.1",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5"
+    "prettier": "^3.0.0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.52.0"

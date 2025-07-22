@@ -111,11 +111,10 @@ async function fixStoragePoliciesSQL() {
 
     // Test current admin user metadata
     try {
-      const { _data: _authData, _error: _authError } =
-        await _supabase.auth.signInWithPassword({
-          email: 'admin@test.com',
-          password: 'admin123456',
-        });
+      const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+        email: 'admin@test.com',
+        password: 'admin123456',
+      });
 
       _logError('Admin authentication failed', _authError);
 

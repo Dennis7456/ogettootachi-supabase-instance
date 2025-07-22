@@ -18,17 +18,15 @@ const logError = (prefix, error) => {
 async function testDocumentUploadComplete() {
   try {
     // Test 1: Authentication
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
     logError('Authentication failed', _authError);
     if (_authError) return;
 
     // Test 2: Storage Bucket Access
-    const { _data: _buckets, _error: _bucketsError } =
-      await _supabase.storage.listBuckets();
+    const { _data: _buckets, _error: _bucketsError } = await _supabase.storage.listBuckets();
     logError('Bucket listing failed', _bucketsError);
     if (_bucketsError) return;
 
@@ -68,10 +66,12 @@ async function testDocumentUploadComplete() {
     if (_docError) return;
 
     // Test 5: Edge Function
-    const { _data: _functionData, _error: _functionError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _functionData, _error: _functionError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
     logError('Edge Function failed', _functionError);
 
     // Test 6: Full Upload Flow
@@ -87,10 +87,9 @@ async function testDocumentUploadComplete() {
     });
 
     // Upload file
-    const { _data: _fullUploadData, _error: _fullUploadError } =
-      await _supabase.storage
-        .from('documents')
-        .upload(`comprehensive-test-${Date.now()}.txt`, _fullTestFile);
+    const { _data: _fullUploadData, _error: _fullUploadError } = await _supabase.storage
+      .from('documents')
+      .upload(`comprehensive-test-${Date.now()}.txt`, _fullTestFile);
     logError('Full upload failed', _fullUploadError);
     if (_fullUploadError) return;
 

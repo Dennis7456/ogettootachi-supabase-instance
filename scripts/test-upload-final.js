@@ -19,11 +19,10 @@ const _logError = (prefix, _error) => {
 async function testUploadFinal() {
   try {
     // Test 1: Authentication
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     _logError('Authentication failed', _authError);
 
@@ -32,13 +31,9 @@ async function testUploadFinal() {
     }
 
     // Test 2: Direct File Upload (skip bucket listing)
-    const _testFile = new File(
-      ['Test document content for final verification'],
-      'test-final.txt',
-      {
-        type: 'text/plain',
-      }
-    );
+    const _testFile = new File(['Test document content for final verification'], 'test-final.txt', {
+      type: 'text/plain',
+    });
 
     const { _data: _uploadData, _error: _uploadError } = await _supabase.storage
       .from('documents')
@@ -70,10 +65,12 @@ async function testUploadFinal() {
     }
 
     // Test 4: Edge Function
-    const { _data: _functionData, _error: _functionError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _functionData, _error: _functionError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
 
     _logError('Edge Function failed', _functionError);
 
@@ -94,10 +91,9 @@ async function testUploadFinal() {
     });
 
     // Upload file
-    const { _data: _realisticUploadData, _error: _realisticUploadError } =
-      await _supabase.storage
-        .from('documents')
-        .upload(`realistic-test-${Date.now()}.txt`, _realisticFile);
+    const { _data: _realisticUploadData, _error: _realisticUploadError } = await _supabase.storage
+      .from('documents')
+      .upload(`realistic-test-${Date.now()}.txt`, _realisticFile);
 
     _logError('Realistic upload failed', _realisticUploadError);
 
@@ -106,18 +102,17 @@ async function testUploadFinal() {
     }
 
     // Insert into database
-    const { _data: _realisticDocData, _error: _realisticDocError } =
-      await _supabase
-        .from('documents')
-        .insert({
-          title: 'Realistic Test Document',
-          content: _realisticContent,
-          category: 'test',
-          file_path: _realisticUploadData.path,
-          file_type: 'text/plain',
-        })
-        .select()
-        .single();
+    const { _data: _realisticDocData, _error: _realisticDocError } = await _supabase
+      .from('documents')
+      .insert({
+        title: 'Realistic Test Document',
+        content: _realisticContent,
+        category: 'test',
+        file_path: _realisticUploadData.path,
+        file_type: 'text/plain',
+      })
+      .select()
+      .single();
 
     _logError('Realistic database insert failed', _realisticDocError);
 
@@ -160,9 +155,7 @@ async function testUploadFinal() {
     // Cleanup
     try {
       await _supabase.storage.from('documents').remove([_uploadData.path]);
-      await _supabase.storage
-        .from('documents')
-        .remove([_realisticUploadData.path]);
+      await _supabase.storage.from('documents').remove([_realisticUploadData.path]);
     } catch (_cleanupError) {
       console.warn('Cleanup error:', _cleanupError);
     }

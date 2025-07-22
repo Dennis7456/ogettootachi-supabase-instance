@@ -14,17 +14,14 @@ const _serviceRoleKey =
 
 async function createInvitation() {
   try {
-    const _response = await fetch(
-      'http://127.0.0.1:54321/functions/v1/handle-invitation',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${_serviceRoleKey}`,
-        },
-        body: JSON.stringify(_invitationData),
-      }
-    );
+    const _response = await fetch('http://127.0.0.1:54321/functions/v1/handle-invitation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${_serviceRoleKey}`,
+      },
+      body: JSON.stringify(_invitationData),
+    });
 
     const _data = await _response.text();
 

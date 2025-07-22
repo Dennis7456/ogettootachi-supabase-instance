@@ -32,55 +32,67 @@ async function testEdgeFunctionDebug() {
     if (_docError) return;
 
     // Test 1: Standard format (what our tests use)
-    const { _data: _standardData, _error: _standardError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _standardData, _error: _standardError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
     logError('Standard format failed', _standardError);
 
     // Test 2: Direct format
-    const { _data: _directData, _error: _directError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _directData, _error: _directError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: {
           id: _docData.id,
           content: _docData.content,
         },
-      });
+      }
+    );
     logError('Direct format failed', _directError);
 
     // Test 3: Document format (alternative)
-    const { _data: _documentData, _error: _documentError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _documentData, _error: _documentError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { document: _docData },
-      });
+      }
+    );
     logError('Document format failed', _documentError);
 
     // Test 4: Empty body
-    const { _data: _emptyData, _error: _emptyError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _emptyData, _error: _emptyError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: {},
-      });
+      }
+    );
     logError('Empty body failed', _emptyError);
 
     // Test 5: Invalid JSON
     try {
-      const { _data: _invalidData, _error: _invalidError } =
-        await _supabase.functions.invoke('process-document', {
+      const { _data: _invalidData, _error: _invalidError } = await _supabase.functions.invoke(
+        'process-document',
+        {
           body: 'invalid json',
-        });
+        }
+      );
       logError('Invalid JSON failed', _invalidError);
     } catch (_error) {
       console.error('❌ Invalid JSON threw exception:', _error.message);
     }
 
     // Test 6: Missing fields
-    const { _data: _missingData, _error: _missingError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _missingData, _error: _missingError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: {
           id: _docData.id,
           // missing content
         },
-      });
+      }
+    );
     logError('Missing fields failed', _missingError);
 
     // Prepare debug component call
@@ -98,10 +110,12 @@ async function testEdgeFunctionDebug() {
     };
 
     // Test 7: Debug component simulation
-    const { _data: _debugData, _error: _debugError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _debugData, _error: _debugError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: _debugComponentCall,
-      });
+      }
+    );
     logError('Debug component simulation failed', _debugError);
 
     // Cleanup

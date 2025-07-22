@@ -20,8 +20,7 @@ async function createAdminProfile() {
     const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
     // First, let's find the user
-    const { _data: _users, _error: _usersError } =
-      await _supabase.auth.admin.listUsers();
+    const { _data: _users, _error: _usersError } = await _supabase.auth.admin.listUsers();
 
     _logError('Failed to list users', _usersError);
 
@@ -30,9 +29,7 @@ async function createAdminProfile() {
     }
 
     // Find the admin user
-    const _adminUser = _users.users.find(
-      (_user) => _user.email === 'admin@example.com'
-    );
+    const _adminUser = _users.users.find((_user) => _user.email === 'admin@example.com');
 
     if (!_adminUser) {
       console.error('❌ Admin user not found');

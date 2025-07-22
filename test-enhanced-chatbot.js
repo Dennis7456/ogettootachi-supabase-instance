@@ -27,14 +27,11 @@ async function testEnhancedChatbot() {
       _queryEmbedding[_position] = 1;
     });
 
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: _queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
-      }
-    );
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
+      query_embedding: _queryEmbedding,
+      match_threshold: 0.1,
+      match_count: 3,
+    });
 
     if (_searchError) {
       console.error('❌ Search error:', _searchError.message);
@@ -124,21 +121,8 @@ async function simulateEnhancedResponse(_message, _documents, _sessionId) {
   // Simple intent detection
   let _intent = 'info';
 
-  const bookKeywords = [
-    'book',
-    'appointment',
-    'schedule',
-    'consultation',
-    'meet',
-  ];
-  const contactKeywords = [
-    'contact',
-    'message',
-    'reach',
-    'email',
-    'phone',
-    'send',
-  ];
+  const bookKeywords = ['book', 'appointment', 'schedule', 'consultation', 'meet'];
+  const contactKeywords = ['contact', 'message', 'reach', 'email', 'phone', 'send'];
   const infoKeywords = [
     'service',
     'practice',

@@ -3,10 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync as _execSync } from 'child_process';
 
-function findJSFiles(
-  _dir,
-  _excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']
-) {
+function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']) {
   const _files = fs.readdirSync(_dir);
   const _jsFiles = [];
 
@@ -15,9 +12,7 @@ function findJSFiles(
     const _stat = fs.statSync(_fullPath);
 
     // Check if directory should be excluded
-    const _shouldExclude = _excludeDirs.some((_excludeDir) =>
-      _fullPath.includes(_excludeDir)
-    );
+    const _shouldExclude = _excludeDirs.some((_excludeDir) => _fullPath.includes(_excludeDir));
 
     if (_stat.isDirectory() && !_shouldExclude) {
       _jsFiles.push(...findJSFiles(_fullPath, _excludeDirs));
@@ -41,37 +36,35 @@ function fixSyntaxErrors(_filePath) {
     // Import necessary modules for global functions
     const _importsToAdd = new Set();
     if (_content.includes('_createClient')) {
-      _importsToAdd.add(
-        'import { createClient } from \'@supabase/supabase-js\';'
-      );
+      _importsToAdd.add("import { createClient } from '@supabase/supabase-js';");
     }
     if (_content.includes('setTimeout')) {
-      _importsToAdd.add('import { setTimeout } from \'timers/promises\';');
+      _importsToAdd.add("import { setTimeout } from 'timers/promises';");
     }
     if (_content.includes('__dirname')) {
-      _importsToAdd.add('import { fileURLToPath } from \'url\';');
-      _importsToAdd.add('import path from \'path\';');
+      _importsToAdd.add("import { fileURLToPath } from 'url';");
+      _importsToAdd.add("import path from 'path';");
     }
     if (_content.includes('config') || _content.includes('resolve')) {
-      _importsToAdd.add('import { promisify } from \'util\';');
+      _importsToAdd.add("import { promisify } from 'util';");
     }
     if (_content.includes('global')) {
-      _importsToAdd.add('import { globalThis } from \'node:global\';');
+      _importsToAdd.add("import { globalThis } from 'node:global';");
     }
     if (_content.includes('Blob')) {
-      _importsToAdd.add('import { Blob } from \'node:buffer\';');
+      _importsToAdd.add("import { Blob } from 'node:buffer';");
     }
     if (_content.includes('spawn') || _content.includes('exec')) {
-      _importsToAdd.add('import { spawn, exec } from \'child_process\';');
+      _importsToAdd.add("import { spawn, exec } from 'child_process';");
     }
     if (_content.includes('nodemailer')) {
-      _importsToAdd.add('import nodemailer from \'nodemailer\';');
+      _importsToAdd.add("import nodemailer from 'nodemailer';");
     }
     if (_content.includes('_Deno')) {
-      _importsToAdd.add('import { Deno } from \'@deno/shim\';');
+      _importsToAdd.add("import { Deno } from '@deno/shim';");
     }
     if (_content.includes('File')) {
-      _importsToAdd.add('import { File } from \'node:buffer\';');
+      _importsToAdd.add("import { File } from 'node:buffer';");
     }
 
     // Add imports at the top of the file
@@ -254,9 +247,7 @@ function main() {
     'view-invitations.js',
   ];
 
-  const _fullPathTargetFiles = _targetFiles.map((_file) =>
-    path.join(_startDir, _file)
-  );
+  const _fullPathTargetFiles = _targetFiles.map((_file) => path.join(_startDir, _file));
 
   _fullPathTargetFiles.forEach((_filePath) => {
     if (fs.existsSync(_filePath)) {

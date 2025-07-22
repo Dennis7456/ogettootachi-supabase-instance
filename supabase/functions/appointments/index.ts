@@ -4,8 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Rate limiting configuration
@@ -176,9 +175,7 @@ serve(async (req) => {
           'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
           'X-RateLimit-Remaining': rateLimit.remaining.toString(),
           'X-RateLimit-Reset': new Date(rateLimit.resetTime).toISOString(),
-          'Retry-After': Math.ceil(
-            (rateLimit.resetTime - Date.now()) / 1000
-          ).toString(),
+          'Retry-After': Math.ceil((rateLimit.resetTime - Date.now()) / 1000).toString(),
         },
       }
     );
@@ -214,9 +211,7 @@ serve(async (req) => {
         .single();
 
       if (!profile || !['admin', 'staff'].includes(profile.role)) {
-        throw new Error(
-          'Insufficient permissions - admin or staff access required'
-        );
+        throw new Error('Insufficient permissions - admin or staff access required');
       }
 
       // Get appointments with optional filtering
@@ -316,24 +311,11 @@ serve(async (req) => {
   // Handle POST requests (create appointment)
   if (req.method === 'POST') {
     try {
-      const {
-        name,
-        email,
-        phone,
-        practice_area,
-        preferred_date,
-        preferred_time,
-        message,
-      } = await req.json();
+      const { name, email, phone, practice_area, preferred_date, preferred_time, message } =
+        await req.json();
 
       // Validate required fields
-      if (
-        !name ||
-        !email ||
-        !practice_area ||
-        !preferred_date ||
-        !preferred_time
-      ) {
+      if (!name || !email || !practice_area || !preferred_date || !preferred_time) {
         throw new Error(
           'Missing required fields: name, email, practice_area, preferred_date, preferred_time'
         );
@@ -409,8 +391,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          message:
-            'Appointment submitted successfully. We will contact you to confirm.',
+          message: 'Appointment submitted successfully. We will contact you to confirm.',
           appointment: data,
           timestamp: new Date().toISOString(),
         }),
@@ -432,9 +413,7 @@ serve(async (req) => {
         statusCode = 400;
       } else if (error.message.includes('Invalid email format')) {
         statusCode = 400;
-      } else if (
-        error.message.includes('Appointment date cannot be in the past')
-      ) {
+      } else if (error.message.includes('Appointment date cannot be in the past')) {
         statusCode = 400;
       } else if (error.message.includes('Invalid time format')) {
         statusCode = 400;
@@ -482,21 +461,14 @@ serve(async (req) => {
         .single();
 
       if (!profile || !['admin', 'staff'].includes(profile.role)) {
-        throw new Error(
-          'Insufficient permissions - admin or staff access required'
-        );
+        throw new Error('Insufficient permissions - admin or staff access required');
       }
 
       const { status, notes } = await req.json();
 
       // Validate status if provided
-      if (
-        status &&
-        !['pending', 'confirmed', 'completed', 'cancelled'].includes(status)
-      ) {
-        throw new Error(
-          'Invalid status. Must be one of: pending, confirmed, completed, cancelled'
-        );
+      if (status && !['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
+        throw new Error('Invalid status. Must be one of: pending, confirmed, completed, cancelled');
       }
 
       // Update appointment
@@ -618,10 +590,7 @@ serve(async (req) => {
       }
 
       // Delete appointment
-      const { error } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', appointmentId);
+      const { error } = await supabase.from('appointments').delete().eq('id', appointmentId);
 
       if (error) {
         console.error('Database error:', error);

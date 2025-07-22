@@ -412,9 +412,7 @@ async function configureEmailTemplates() {
     // Note: In a real Supabase setup, you would configure these templates
     // through the Supabase Dashboard or API. For local development
     // we'll create the configuration files and provide instructions.
-    console.log(
-      '1. Go to Supabase Dashboard > Authentication > Email Templates'
-    );
+    console.log('1. Go to Supabase Dashboard > Authentication > Email Templates');
 
     // Save templates to files for easy access
     const _templatesDir = path.join(process.cwd(), 'email-templates');

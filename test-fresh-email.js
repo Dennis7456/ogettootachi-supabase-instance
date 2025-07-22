@@ -16,10 +16,7 @@ async function testFreshEmail() {
     console.warn('Error clearing Mailpit messages:', _clearError);
   }
 
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_SERVICE_ROLE_KEY);
 
   const _freshEmail = `test-${Date.now()}@freshtest.com`;
 
@@ -43,9 +40,7 @@ async function testFreshEmail() {
     await setTimeout(5000);
 
     // Check Mailpit
-    const _mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _mailpitData = await _mailpitResponse.json();
 
     if (_mailpitData.total > 0) {
@@ -53,9 +48,7 @@ async function testFreshEmail() {
         console.log(`Email message ${_index + 1}:`, _msg);
       });
 
-      console.log(
-        '\n🎯 SUCCESS! Supabase Auth is now sending emails to Mailpit!'
-      );
+      console.log('\n🎯 SUCCESS! Supabase Auth is now sending emails to Mailpit!');
     } else {
       // Check Mailpit stats to see what happened
       const _mailpitInfo = await fetch('http://127.0.0.1:54324/api/v1/info');

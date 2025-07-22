@@ -66,9 +66,7 @@ serve(async (req) => {
 
           console.log(`Processed document: ${item.document_id}`);
         } else {
-          console.error(
-            `Failed to process document ${item.document_id}: ${response.statusText}`
-          );
+          console.error(`Failed to process document ${item.document_id}: ${response.statusText}`);
         }
       } catch (error) {
         console.error(`Error processing document ${item.document_id}:`, error);

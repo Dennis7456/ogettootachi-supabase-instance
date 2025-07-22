@@ -39,10 +39,12 @@ async function createPersistentDocument() {
     }
 
     // Process with Edge Function
-    const { _data: _edgeData, _error: _edgeError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _edgeData, _error: _edgeError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
 
     _logError('Edge Function failed', _edgeError);
 

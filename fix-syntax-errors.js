@@ -25,9 +25,7 @@ function fixSyntaxErrors(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
 
     // Remove extra parentheses
-    const cleanedContent = content
-      .replace(/\)\s*\)/g, ')')
-      .replace(/\(\s*\(/g, '(');
+    const cleanedContent = content.replace(/\)\s*\)/g, ')').replace(/\(\s*\(/g, '(');
 
     fs.writeFileSync(filePath, cleanedContent);
     console.log(`Fixed syntax errors in ${filePath}`);

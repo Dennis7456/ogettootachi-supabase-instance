@@ -16,34 +16,42 @@ const logError = (prefix, error) => {
 async function debugTrigger() {
   try {
     // Check if trigger exists
-    const { _data: _triggers, _error: _triggerError } =
-      await _supabaseService.rpc('check_trigger_exists', {
+    const { _data: _triggers, _error: _triggerError } = await _supabaseService.rpc(
+      'check_trigger_exists',
+      {
         trigger_name: 'on_auth_user_created',
-      });
+      }
+    );
     logError('Trigger check error', _triggerError);
 
     // Check if function exists
-    const { _data: _functions, _error: _functionError } =
-      await _supabaseService.rpc('check_function_exists', {
+    const { _data: _functions, _error: _functionError } = await _supabaseService.rpc(
+      'check_function_exists',
+      {
         function_name: 'handle_new_user',
-      });
+      }
+    );
     logError('Function check error', _functionError);
 
     // Test the function directly
     const _testUserId = '00000000-0000-0000-0000-000000000000';
-    const { _data: _functionTest, _error: _functionTestError } =
-      await _supabaseService.rpc('test_handle_new_user', {
+    const { _data: _functionTest, _error: _functionTestError } = await _supabaseService.rpc(
+      'test_handle_new_user',
+      {
         user_id: _testUserId,
         full_name: 'Test User',
         role: 'user',
-      });
+      }
+    );
     logError('Function test error', _functionTestError);
 
     // Check RLS policies on profiles table
-    const { _data: _policies, _error: _policiesError } =
-      await _supabaseService.rpc('check_rls_policies', {
+    const { _data: _policies, _error: _policiesError } = await _supabaseService.rpc(
+      'check_rls_policies',
+      {
         table_name: 'profiles',
-      });
+      }
+    );
     logError('RLS policy check error', _policiesError);
   } catch (_error) {
     console.error('❌ Debug failed:', _error);

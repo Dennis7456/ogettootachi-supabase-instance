@@ -21,35 +21,31 @@ async function testChatbotFrontend() {
     const _testPassword = 'testpassword123';
 
     // Create user
-    const { _data: _signUpData, _error: _signUpError } =
-      await _supabase.auth.signUp({
-        email: _testEmail,
-        password: _testPassword,
-        options: {
-          _data: {
-            first_name: 'Test',
-            last_name: 'User',
-            role: 'user',
-          },
+    const { _data: _signUpData, _error: _signUpError } = await _supabase.auth.signUp({
+      email: _testEmail,
+      password: _testPassword,
+      options: {
+        _data: {
+          first_name: 'Test',
+          last_name: 'User',
+          role: 'user',
         },
-      });
+      },
+    });
 
     logError('Sign up error', _signUpError);
     if (_signUpError) return;
 
     // Sign in
-    const { _data: _signInData, _error: _signInError } =
-      await _supabase.auth.signInWithPassword({
-        email: _testEmail,
-        password: _testPassword,
-      });
+    const { _data: _signInData, _error: _signInError } = await _supabase.auth.signInWithPassword({
+      email: _testEmail,
+      password: _testPassword,
+    });
 
     logError('Sign in error', _signInError);
     if (_signInError) return;
 
-    console.log(
-      `   Access token: ${_signInData.session.access_token.substring(0, 20)}...`
-    );
+    console.log(`   Access token: ${_signInData.session.access_token.substring(0, 20)}...`);
 
     // Step 2: Test chatbot with authentication
     const _testMessages = [
@@ -71,10 +67,7 @@ async function testChatbotFrontend() {
 
         logError(`Chatbot error for message ${_i + 1}`, _error);
       } catch (_error) {
-        console.error(
-          `❌ Function call error for message ${_i + 1}:`,
-          _error.message
-        );
+        console.error(`❌ Function call error for message ${_i + 1}:`, _error.message);
       }
     }
 
@@ -120,10 +113,7 @@ async function testChatbotFrontend() {
     // Delete conversations
     if (_conversations && _conversations.length > 0) {
       const _conversationIds = _conversations.map((_c) => _c.id);
-      await _supabase
-        .from('chatbot_conversations')
-        .delete()
-        .in('id', _conversationIds);
+      await _supabase.from('chatbot_conversations').delete().in('id', _conversationIds);
     }
 
     // Sign out

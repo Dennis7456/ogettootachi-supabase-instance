@@ -23,13 +23,12 @@ async function testChatbotWithUser() {
     // Step 1: Create a test user
     const _testEmail = `test-chatbot-${Date.now()}@example.com`;
     const _testPassword = 'testpassword123';
-    const { _data: _userData, _error: _userError } =
-      await _supabase.auth.admin.createUser({
-        email: _testEmail,
-        password: _testPassword,
-        email_confirm: true,
-        user_metadata: { role: 'user' },
-      });
+    const { _data: _userData, _error: _userError } = await _supabase.auth.admin.createUser({
+      email: _testEmail,
+      password: _testPassword,
+      email_confirm: true,
+      user_metadata: { role: 'user' },
+    });
 
     _logError('User creation error', _userError);
 
@@ -66,14 +65,11 @@ async function testChatbotWithUser() {
       _queryEmbedding[_position] = 1;
     });
 
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: _queryEmbedding,
-        match_threshold: 0.1,
-        match_count: 3,
-      }
-    );
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
+      query_embedding: _queryEmbedding,
+      match_threshold: 0.1,
+      match_count: 3,
+    });
 
     _logError('Search error', _searchError);
 
@@ -90,9 +86,7 @@ async function testChatbotWithUser() {
       message: 'What legal services do you offer?',
       response:
         'We offer comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.',
-      documents_used: _documents
-        .slice(0, 1)
-        .map((_d) => ({ id: _d.id, title: _d.title })),
+      documents_used: _documents.slice(0, 1).map((_d) => ({ id: _d.id, title: _d.title })),
       tokens_used: 50,
     };
 
@@ -132,19 +126,13 @@ async function testChatbotWithUser() {
       const _lowerMessage = _message.toLowerCase();
       let _response = '';
 
-      if (
-        _lowerMessage.includes('service') ||
-        _lowerMessage.includes('offer')
-      ) {
+      if (_lowerMessage.includes('service') || _lowerMessage.includes('offer')) {
         _response =
           'We offer comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.';
       } else if (_lowerMessage.includes('contact')) {
         _response =
           'You can contact us through our website or by calling our office directly. We provide timely responses to all inquiries.';
-      } else if (
-        _lowerMessage.includes('fee') ||
-        _lowerMessage.includes('cost')
-      ) {
+      } else if (_lowerMessage.includes('fee') || _lowerMessage.includes('cost')) {
         _response =
           'We offer competitive and transparent fee structures tailored to each case. We provide initial consultations to discuss fee arrangements.';
       } else if (_lowerMessage.includes('experience')) {
@@ -160,9 +148,7 @@ async function testChatbotWithUser() {
         session_id: `test-session-${Date.now()}`,
         message: _message,
         response: _response,
-        documents_used: _documents
-          .slice(0, 1)
-          .map((_d) => ({ id: _d.id, title: _d.title })),
+        documents_used: _documents.slice(0, 1).map((_d) => ({ id: _d.id, title: _d.title })),
         tokens_used: _response.split(' ').length,
       };
 
@@ -183,9 +169,7 @@ async function testChatbotWithUser() {
     _logError('History retrieval error', _historyError);
 
     if (_userConversations) {
-      console.log(
-        `✅ Retrieved ${_userConversations.length} conversations for user:`
-      );
+      console.log(`✅ Retrieved ${_userConversations.length} conversations for user:`);
       _userConversations.forEach((_conv, _index) => {
         console.log(
           `   ${_index + 1}. "${_conv.message.substring(0, 40)}..." (${_conv.created_at})`
@@ -194,10 +178,7 @@ async function testChatbotWithUser() {
     }
 
     // Cleanup: Delete test user and conversations
-    await _supabase
-      .from('chatbot_conversations')
-      .delete()
-      .eq('user_id', _userData.user.id);
+    await _supabase.from('chatbot_conversations').delete().eq('user_id', _userData.user.id);
 
     await _supabase.auth.admin.deleteUser(_userData.user.id);
 

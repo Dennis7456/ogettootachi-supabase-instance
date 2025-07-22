@@ -153,10 +153,9 @@ VITE_SUPABASE_URL=https://your-staging-project.supabase.co
 ### **Content**:
 
 ```html
-Professional email with: ✅ Law firm logo and branding ✅ Personal invitation
-message ✅ Role information (Staff/Admin) ✅ Secure "Accept Invitation" button
-✅ Expiry information (72 hours) ✅ Company contact information ✅
-Mobile-responsive design
+Professional email with: ✅ Law firm logo and branding ✅ Personal invitation message ✅ Role
+information (Staff/Admin) ✅ Secure "Accept Invitation" button ✅ Expiry information (72 hours) ✅
+Company contact information ✅ Mobile-responsive design
 ```
 
 ### **Email Flow**:

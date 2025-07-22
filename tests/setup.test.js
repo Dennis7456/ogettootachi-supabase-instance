@@ -22,10 +22,7 @@ describe('Supabase Project Setup', () => {
 
   describe('Database Connection', () => {
     it('should connect to Supabase successfully', async () => {
-      const { _data, _error } = await _supabase
-        .from('profiles')
-        .select('count')
-        .limit(1);
+      const { _data, _error } = await _supabase.from('profiles').select('count').limit(1);
       expect(_error).toBeNull();
     });
 
@@ -38,19 +35,13 @@ describe('Supabase Project Setup', () => {
 
   describe('Database Schema', () => {
     it('should have profiles table', async () => {
-      const { _data, _error } = await _supabaseService
-        .from('profiles')
-        .select('*')
-        .limit(1);
+      const { _data, _error } = await _supabaseService.from('profiles').select('*').limit(1);
       expect(_error).toBeNull();
       expect(_data).toBeDefined();
     });
 
     it('should have documents table', async () => {
-      const { _data, _error } = await _supabaseService
-        .from('documents')
-        .select('*')
-        .limit(1);
+      const { _data, _error } = await _supabaseService.from('documents').select('*').limit(1);
       expect(_error).toBeNull();
       expect(_data).toBeDefined();
     });
@@ -91,13 +82,11 @@ describe('Supabase Project Setup', () => {
       const _testVector = new Array(1536).fill(0);
       _testVector[0] = 1;
 
-      const { _data, _error } = await _supabaseService
-        .from('documents')
-        .insert({
-          title: 'Test Vector Document',
-          content: 'This is a test document for vector embeddings.',
-          embedding: _testVector,
-        });
+      const { _data, _error } = await _supabaseService.from('documents').insert({
+        title: 'Test Vector Document',
+        content: 'This is a test document for vector embeddings.',
+        embedding: _testVector,
+      });
 
       expect(_error).toBeNull();
     });
@@ -105,14 +94,12 @@ describe('Supabase Project Setup', () => {
 
   describe('Chatbot Conversations', () => {
     it('should allow inserting conversation records', async () => {
-      const { _data, _error } = await _supabaseService
-        .from('chatbot_conversations')
-        .insert({
-          user_id: null,
-          session_id: 'test-session',
-          message: 'Test message',
-          response: 'Test response',
-        });
+      const { _data, _error } = await _supabaseService.from('chatbot_conversations').insert({
+        user_id: null,
+        session_id: 'test-session',
+        message: 'Test message',
+        response: 'Test response',
+      });
 
       expect(_error).toBeNull();
     });

@@ -30,14 +30,13 @@ async function createAdminUser() {
     const _password = crypto.randomBytes(16).toString('hex');
 
     // Sign up the user using service role
-    const { _data: _authData, _error: _signupError } =
-      await _supabase.auth.signUp({
-        email: _email,
-        password: _password,
-        options: {
-          data: { role: 'admin' },
-        },
-      });
+    const { _data: _authData, _error: _signupError } = await _supabase.auth.signUp({
+      email: _email,
+      password: _password,
+      options: {
+        data: { role: 'admin' },
+      },
+    });
 
     _logError('Signup error', _signupError);
 
@@ -46,22 +45,20 @@ async function createAdminUser() {
     }
 
     // Create or update profile for the admin user
-    const { _data: _profileData, _error: _profileError } = await _supabase
-      .from('profiles')
-      .upsert(
-        {
-          id: _authData.user.id,
-          email: _email,
-          role: 'admin',
-          full_name: 'Admin User',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: 'id',
-        }
-      );
+    const { _data: _profileData, _error: _profileError } = await _supabase.from('profiles').upsert(
+      {
+        id: _authData.user.id,
+        email: _email,
+        role: 'admin',
+        full_name: 'Admin User',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'id',
+      }
+    );
 
     _logError('Profile error', _profileError);
 

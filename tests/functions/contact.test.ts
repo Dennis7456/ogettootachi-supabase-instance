@@ -143,10 +143,7 @@ describe('Contact Edge Function', () => {
 
   beforeEach(async () => {
     // Clean up contact messages before each test
-    await supabaseService
-      .from('contact_messages')
-      .delete()
-      .eq('email', testContactMessage.email);
+    await supabaseService.from('contact_messages').delete().eq('email', testContactMessage.email);
   });
 
   describe('POST /functions/v1/contact', () => {
@@ -278,58 +275,45 @@ describe('Contact Edge Function', () => {
     });
 
     it('should filter messages by status', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/contact?status=new`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/contact?status=new`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
 
       expect(data.success).toBe(true);
-      expect(data.messages.every((msg: any) => msg.status === 'new')).toBe(
-        true
-      );
+      expect(data.messages.every((msg: any) => msg.status === 'new')).toBe(true);
     });
 
     it('should filter messages by priority', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/contact?priority=high`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/contact?priority=high`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
 
       expect(data.success).toBe(true);
-      expect(data.messages.every((msg: any) => msg.priority === 'high')).toBe(
-        true
-      );
+      expect(data.messages.every((msg: any) => msg.priority === 'high')).toBe(true);
     });
 
     it('should support pagination', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/contact?limit=2&offset=0`,
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/contact?limit=2&offset=0`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();

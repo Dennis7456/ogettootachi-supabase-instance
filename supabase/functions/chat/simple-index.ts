@@ -25,8 +25,7 @@ interface ChatResponse {
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -93,10 +92,7 @@ async function searchDocuments(
 }
 
 // Build prompt from retrieved chunks
-function buildPrompt(
-  query: string,
-  chunks: Array<{ id: string; content: string }>
-): string {
+function buildPrompt(query: string, chunks: Array<{ id: string; content: string }>): string {
   if (chunks.length === 0) {
     return `Question: ${query}\n\nAnswer: I don't have enough information to answer this question. Please contact our legal team for assistance.`;
   }
@@ -128,12 +124,7 @@ async function handleChatRequest(req: Request): Promise<Response> {
       );
     }
 
-    if (
-      !body.topK ||
-      typeof body.topK !== 'number' ||
-      body.topK < 1 ||
-      body.topK > 20
-    ) {
+    if (!body.topK || typeof body.topK !== 'number' || body.topK < 1 || body.topK > 20) {
       console.warn('Invalid request: invalid topK', body.topK);
       return new Response(
         JSON.stringify({
@@ -205,13 +196,10 @@ serve(async (req: Request) => {
   // Only allow POST requests
   if (req.method !== 'POST') {
     console.warn('Invalid HTTP method:', req.method);
-    return new Response(
-      JSON.stringify({ success: false, error: 'Method not allowed' }),
-      {
-        status: 405,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ success: false, error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   return handleChatRequest(req);

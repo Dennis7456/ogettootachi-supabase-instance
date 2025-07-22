@@ -11,10 +11,7 @@ const config = {
 };
 
 const _supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
-const _supabaseAdmin = createClient(
-  config.SUPABASE_URL,
-  config.SUPABASE_SERVICE_ROLE_KEY
-);
+const _supabaseAdmin = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
 
 // Utility function for logging errors
 const logError = (prefix, error) => {
@@ -26,22 +23,19 @@ const logError = (prefix, error) => {
 async function debugInvitation() {
   // Test 1: Check if Edge Function is accessible
   try {
-    const _response = await fetch(
-      `${config.SUPABASE_URL}/functions/v1/handle-invitation`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          action: 'invite',
-          email: 'debug-test@example.com',
-          role: 'staff',
-          full_name: 'Debug Test User',
-        }),
-      }
-    );
+    const _response = await fetch(`${config.SUPABASE_URL}/functions/v1/handle-invitation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        action: 'invite',
+        email: 'debug-test@example.com',
+        role: 'staff',
+        full_name: 'Debug Test User',
+      }),
+    });
     const _responseText = await _response.text();
     if (_response.ok) {
       try {
@@ -76,21 +70,18 @@ async function debugInvitation() {
 
   // Test 3: Check if send-invitation-email function exists
   try {
-    const _response = await fetch(
-      `${config.SUPABASE_URL}/functions/v1/send-invitation-email`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          role: 'staff',
-          invitation_token: 'test-token-123',
-        }),
-      }
-    );
+    const _response = await fetch(`${config.SUPABASE_URL}/functions/v1/send-invitation-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        email: 'test@example.com',
+        role: 'staff',
+        invitation_token: 'test-token-123',
+      }),
+    });
     const _responseText = await _response.text();
 
     if (_response.status === 404) {
@@ -122,14 +113,11 @@ async function debugInvitation() {
 
   // Test 5: Check if functions are deployed
   try {
-    const _functionsResponse = await fetch(
-      `${config.SUPABASE_URL}/functions/v1/`,
-      {
-        headers: {
-          Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-      }
-    );
+    const _functionsResponse = await fetch(`${config.SUPABASE_URL}/functions/v1/`, {
+      headers: {
+        Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+    });
 
     if (_functionsResponse.ok) {
       console.log('✅ Functions endpoint is accessible');
@@ -142,12 +130,8 @@ async function debugInvitation() {
 
   // Recommendations
   console.log('Troubleshooting Recommendations:');
-  console.log(
-    '1. Check if send-invitation-email function exists and is called'
-  );
-  console.log(
-    '2. If database shows invitations but email service shows no messages:'
-  );
+  console.log('1. Check if send-invitation-email function exists and is called');
+  console.log('2. If database shows invitations but email service shows no messages:');
 }
 
 debugInvitation().catch(console.error);

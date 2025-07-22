@@ -3,7 +3,7 @@ export default {
     es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended'],
+  extends: ['eslint:recommended', 'prettier'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
@@ -13,8 +13,8 @@ export default {
       'error',
       'single',
       {
-        avoidEscape: false,
-        allowTemplateLiterals: false,
+        avoidEscape: true,
+        allowTemplateLiterals: true,
       },
     ],
     'no-unused-vars': [
@@ -22,16 +22,6 @@ export default {
       {
         varsIgnorePattern: '^_',
         argsIgnorePattern: '^_',
-      },
-    ],
-    'quote-props': ['error', 'always'],
-    'jsx-quotes': ['error', 'prefer-single'],
-    '@typescript-eslint/quotes': [
-      'error',
-      'single',
-      {
-        avoidEscape: false,
-        allowTemplateLiterals: false,
       },
     ],
   },

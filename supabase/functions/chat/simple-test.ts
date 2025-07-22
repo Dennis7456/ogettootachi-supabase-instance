@@ -1,6 +1,5 @@
 // Simple test to check if the function is accessible
-const functionUrl =
-  'https://riuqslalytzybvgsebki.supabase.co/functions/v1/chat';
+const functionUrl = 'https://riuqslalytzybvgsebki.supabase.co/functions/v1/chat';
 const anonKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXFzbGFseXR6eWJ2Z3NlYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MzA0MDAsImV4cCI6MjA2NjMwNjQwMH0.SLbk4MgmS-DMpgCrHZOme9zolF_17SqvCFoKdgJtZWI';
 
@@ -21,10 +20,7 @@ async function testFunction() {
     });
 
     console.log('Response status:', response.status);
-    console.log(
-      'Response headers:',
-      Object.fromEntries(response.headers.entries())
-    );
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
     const text = await response.text();
     console.log('Response body:', text);

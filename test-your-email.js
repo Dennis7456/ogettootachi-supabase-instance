@@ -17,10 +17,7 @@ const _logError = (prefix, _error) => {
 };
 
 async function testYourSpecificEmail() {
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_ANON_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
 
   // Your exact email and _data
   const _formData = {
@@ -35,16 +32,13 @@ async function testYourSpecificEmail() {
 
   try {
     // Send the invitation exactly like your UI does
-    const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: _formData.email,
-          role: _formData.role,
-          full_name: _formData.full_name,
-        },
-      }
-    );
+    const { _data, _error } = await _supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: _formData.email,
+        role: _formData.role,
+        full_name: _formData.full_name,
+      },
+    });
 
     _logError('Invitation invoke error', _error);
     if (_error) return;
@@ -53,16 +47,11 @@ async function testYourSpecificEmail() {
     await setTimeout(3000);
 
     // Check Mailpit AFTER sending
-    const _afterResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _afterResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _afterData = await _afterResponse.json();
 
     if (_afterData.total > _beforeData.total) {
-      const _newMessages = _afterData.messages.slice(
-        0,
-        _afterData.total - _beforeData.total
-      );
+      const _newMessages = _afterData.messages.slice(0, _afterData.total - _beforeData.total);
 
       _newMessages.forEach((_msg, _index) => {
         console.log(`New message ${_index + 1}:`, _msg);

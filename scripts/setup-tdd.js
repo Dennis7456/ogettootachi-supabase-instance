@@ -34,9 +34,7 @@ class SupabaseTDDSetup {
       await this.runTests();
 
       // Instruction for frontend configuration
-      console.log(
-        '1. Update your frontend .env.local with the new Supabase credentials'
-      );
+      console.log('1. Update your frontend .env.local with the new Supabase credentials');
     } catch (_error) {
       console.error('\n❌ Setup failed:', _error.message);
       throw new Error('Process exit blocked');
@@ -48,9 +46,7 @@ class SupabaseTDDSetup {
     try {
       execSync('supabase --version', { stdio: 'pipe' });
     } catch (_error) {
-      throw new Error(
-        'Supabase CLI not found. Install with: npm install -g supabase'
-      );
+      throw new Error('Supabase CLI not found. Install with: npm install -g supabase');
     }
 
     // Check if logged in to Supabase
@@ -103,10 +99,7 @@ class SupabaseTDDSetup {
 VITE_SUPABASE_ANON_KEY=${this.supabaseAnonKey}
 OPENAI_API_KEY=${this.openaiApiKey}
 `;
-    writeFileSync(
-      join(process.cwd(), 'ogetto-otachi-frontend', '.env.local'),
-      _envContent
-    );
+    writeFileSync(join(process.cwd(), 'ogetto-otachi-frontend', '.env.local'), _envContent);
 
     // Set environment variables for current process
     process.env.VITE_SUPABASE_URL = this.supabaseUrl;
@@ -168,12 +161,8 @@ OPENAI_API_KEY=${this.openaiApiKey}
         },
       });
     } catch (_error) {
-      console.warn(
-        '⚠️  Some tests failed. This might be expected for initial setup.'
-      );
-      console.warn(
-        'You can run tests manually later with: npm test supabase/tests/setup.test.js'
-      );
+      console.warn('⚠️  Some tests failed. This might be expected for initial setup.');
+      console.warn('You can run tests manually later with: npm test supabase/tests/setup.test.js');
     }
   }
 }

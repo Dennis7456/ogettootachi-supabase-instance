@@ -23,8 +23,7 @@ const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 async function debugStorageComplete() {
   try {
     // 1. Check if documents bucket exists
-    const { _data: _buckets, _error: _bucketsError } =
-      await _supabase.storage.listBuckets();
+    const { _data: _buckets, _error: _bucketsError } = await _supabase.storage.listBuckets();
 
     _logError('Error listing buckets', _bucketsError);
 
@@ -44,11 +43,10 @@ async function debugStorageComplete() {
     }
 
     // 2. Sign in as admin user
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     _logError('Auth error', _authError);
 
@@ -63,9 +61,7 @@ async function debugStorageComplete() {
 
     if (session) {
       const _tokenParts = session.access_token.split('.');
-      const _payload = JSON.parse(
-        Buffer.from(_tokenParts[1], 'base64').toString()
-      );
+      const _payload = JSON.parse(Buffer.from(_tokenParts[1], 'base64').toString());
       console.log('JWT Payload:', _payload);
     }
 
@@ -100,16 +96,12 @@ async function debugStorageComplete() {
 
     if (_serviceUploadData) {
       // Clean up
-      await _serviceSupabase.storage
-        .from('documents')
-        .remove(['test-service.txt']);
+      await _serviceSupabase.storage.from('documents').remove(['test-service.txt']);
       console.log('✅ Service role upload and cleanup successful');
     }
 
     // 6. Check current storage policies
-    console.log(
-      'Please run this SQL in Supabase SQL Editor to see current policies:'
-    );
+    console.log('Please run this SQL in Supabase SQL Editor to see current policies:');
     console.log(`
 SELECT 
   schemaname,
@@ -126,30 +118,23 @@ WHERE schemaname = 'storage' AND tablename = 'objects'
 
     // 7. Test Edge Function
     try {
-      const _response = await fetch(
-        'http://127.0.0.1:54321/functions/v1/process-document',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${_supabaseServiceKey}`,
-          },
-          body: JSON.stringify({
-            document_id: 'test-doc',
-            content: 'test content',
-          }),
-        }
-      );
+      const _response = await fetch('http://127.0.0.1:54321/functions/v1/process-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${_supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          document_id: 'test-doc',
+          content: 'test content',
+        }),
+      });
 
       if (_response.ok) {
         const _result = await _response.json();
         console.log('✅ Edge Function response:', _result);
       } else {
-        console.error(
-          '❌ Edge Function error:',
-          _response.status,
-          _response.statusText
-        );
+        console.error('❌ Edge Function error:', _response.status, _response.statusText);
         const _errorText = await _response.text();
         console.error('Error details:', _errorText);
       }

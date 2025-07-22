@@ -24,26 +24,24 @@ async function testEdgeFunction() {
 
     // First, let's sign in as an admin user
     // Try to sign in with a test admin account
-    const { data: _signInData, error: signInError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@example.com',
-        password: 'password123',
-      });
+    const { data: _signInData, error: signInError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@example.com',
+      password: 'password123',
+    });
 
     if (signInError) {
       // Try to sign up as admin
-      const { data: _signUpData, error: signUpError } =
-        await _supabase.auth.signUp({
-          email: 'admin@example.com',
-          password: 'password123',
-          options: {
-            data: {
-              first_name: 'Admin',
-              last_name: 'User',
-              role: 'admin',
-            },
+      const { data: _signUpData, error: signUpError } = await _supabase.auth.signUp({
+        email: 'admin@example.com',
+        password: 'password123',
+        options: {
+          data: {
+            first_name: 'Admin',
+            last_name: 'User',
+            role: 'admin',
           },
-        });
+        },
+      });
 
       if (signUpError) {
         debugLog('❌ Sign up failed:', signUpError);
@@ -86,10 +84,12 @@ async function testEdgeFunction() {
       file_path: 'test-file.txt',
     };
 
-    const { data: _edgeData, error: edgeError } =
-      await _supabase.functions.invoke('process-document', {
+    const { data: _edgeData, error: edgeError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: testData,
-      });
+      }
+    );
 
     if (edgeError) {
       debugLog('❌ Edge Function failed:', edgeError);

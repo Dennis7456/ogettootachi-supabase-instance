@@ -27,17 +27,16 @@ async function testRegistration() {
     const testEmail = `test-${Date.now()}@example.com`;
     const testPassword = 'TestPassword123!';
     // Step 1: Sign Up
-    const { data: signUpData, error: signUpError } =
-      await _supabaseAnon.auth.signUp({
-        email: testEmail,
-        password: testPassword,
-        options: {
-          data: {
-            full_name: 'Test User',
-            role: 'user',
-          },
+    const { data: signUpData, error: signUpError } = await _supabaseAnon.auth.signUp({
+      email: testEmail,
+      password: testPassword,
+      options: {
+        data: {
+          full_name: 'Test User',
+          role: 'user',
         },
-      });
+      },
+    });
     if (signUpError) {
       debugLog('❌ Sign Up Error:', signUpError);
       return false;

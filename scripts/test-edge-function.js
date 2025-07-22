@@ -41,19 +41,18 @@ async function testEdgeFunction() {
     }
 
     // Step 2: Test Edge Function with the document
-    const { _data: _functionData, _error: _functionError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _functionData, _error: _functionError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: { record: _docData },
-      });
+      }
+    );
 
     _logError('Edge Function failed', _functionError);
 
     if (_functionError) {
       // Check if it's a deployment issue
-      if (
-        _functionError.message.includes('not found') ||
-        _functionError.message.includes('404')
-      ) {
+      if (_functionError.message.includes('not found') || _functionError.message.includes('404')) {
         console.warn('⚠️ Edge Function might not be deployed');
       }
       return;
@@ -91,10 +90,7 @@ async function testEdgeFunction() {
       _logError('Long document Edge Function failed', _longFunctionError);
 
       if (!_longFunctionError) {
-        console.log(
-          '✅ Long document Edge Function succeeded:',
-          _longFunctionData
-        );
+        console.log('✅ Long document Edge Function succeeded:', _longFunctionData);
       }
     }
 

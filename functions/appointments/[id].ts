@@ -4,8 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
@@ -64,9 +63,7 @@ serve(async (req) => {
       // Validate status
       const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
       if (!validStatuses.includes(status)) {
-        throw new Error(
-          'Invalid status. Must be one of: pending, confirmed, completed, cancelled'
-        );
+        throw new Error('Invalid status. Must be one of: pending, confirmed, completed, cancelled');
       }
 
       const updateData: any = { status };
@@ -128,10 +125,7 @@ serve(async (req) => {
 
     // Handle DELETE requests (delete appointment)
     if (req.method === 'DELETE') {
-      const { error } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', appointmentId);
+      const { error } = await supabase.from('appointments').delete().eq('id', appointmentId);
 
       if (error) {
         console.error('Database error:', error);

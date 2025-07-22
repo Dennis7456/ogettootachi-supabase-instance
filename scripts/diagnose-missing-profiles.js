@@ -46,8 +46,7 @@ const _supabaseService = createClient(supabaseUrl, supabaseServiceKey);
 async function diagnoseMissingProfiles() {
   try {
     // Get all users from auth.users
-    const { data: users, error: usersError } =
-      await _supabaseService.auth.admin.listUsers();
+    const { data: users, error: usersError } = await _supabaseService.auth.admin.listUsers();
 
     if (usersError) {
       debugLog('❌ Failed to list users:', usersError);

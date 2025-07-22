@@ -33,10 +33,7 @@ async function testServiceRole() {
     const _supabaseService = createClient(_supabaseUrl, _supabaseServiceKey);
 
     // Test if service role can read documents
-    const { _data, _error } = await _supabaseService
-      .from('documents')
-      .select('*')
-      .limit(1);
+    const { _data, _error } = await _supabaseService.from('documents').select('*').limit(1);
 
     _logError('Service role read failed', _error);
 
@@ -57,10 +54,7 @@ async function testServiceRole() {
 
     if (_insertData) {
       // Clean up test document
-      await _supabaseService
-        .from('documents')
-        .delete()
-        .eq('id', _insertData.id);
+      await _supabaseService.from('documents').delete().eq('id', _insertData.id);
     }
 
     return true;
@@ -76,9 +70,7 @@ try {
   const _secrets = execSync('supabase secrets list', { encoding: 'utf8' });
   console.log('Supabase Secrets:', _secrets);
 } catch (_error) {
-  console.error(
-    "❌ Could not list secrets. Make sure you're in the supabase directory."
-  );
+  console.error("❌ Could not list secrets. Make sure you're in the supabase directory.");
 }
 
 // Run the service role test
@@ -86,16 +78,12 @@ async function runTests() {
   const _success = await testServiceRole();
 
   if (_success) {
-    console.log(
-      '✅ Edge Function should work with proper environment variables'
-    );
+    console.log('✅ Edge Function should work with proper environment variables');
   } else {
     console.error('❌ Edge Function environment test failed');
   }
 
-  console.log(
-    '2. Deploy the Edge Function: supabase functions deploy process-document'
-  );
+  console.log('2. Deploy the Edge Function: supabase functions deploy process-document');
 }
 
 runTests();

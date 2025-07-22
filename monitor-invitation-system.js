@@ -21,14 +21,8 @@ const _logError = (prefix, _error) => {
 
 class InvitationHealthMonitor {
   constructor() {
-    this._supabase = createClient(
-      _config.SUPABASE_URL,
-      _config.SUPABASE_ANON_KEY
-    );
-    this.supabaseAdmin = createClient(
-      _config.SUPABASE_URL,
-      _config.SUPABASE_SERVICE_ROLE_KEY
-    );
+    this._supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
+    this.supabaseAdmin = createClient(_config.SUPABASE_URL, _config.SUPABASE_SERVICE_ROLE_KEY);
     this.logFile = 'invitation-system-health.log';
   }
 
@@ -89,10 +83,7 @@ class InvitationHealthMonitor {
     const { _data: _recentInvitations } = await this.supabaseAdmin
       .from('user_invitations')
       .select('*')
-      .gte(
-        'created_at',
-        new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-      )
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       .order('created_at', { ascending: false });
 
     return `Database accessible, ${_recentInvitations?.length || 0} invitations in last 24h`;
@@ -100,16 +91,13 @@ class InvitationHealthMonitor {
 
   async checkEdgeFunctions() {
     const _testEmail = `health-monitor-${Date.now()}@example.com`;
-    const { _data, _error } = await this._supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: _testEmail,
-          role: 'staff',
-          full_name: 'Health Monitor Test',
-        },
-      }
-    );
+    const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: _testEmail,
+        role: 'staff',
+        full_name: 'Health Monitor Test',
+      },
+    });
 
     _logError('Edge function invocation error', _error);
 
@@ -118,10 +106,7 @@ class InvitationHealthMonitor {
     }
 
     // Clean up test invitation
-    await this.supabaseAdmin
-      .from('user_invitations')
-      .delete()
-      .eq('email', _testEmail);
+    await this.supabaseAdmin.from('user_invitations').delete().eq('email', _testEmail);
 
     return 'Edge functions responding correctly';
   }
@@ -196,9 +181,7 @@ class InvitationHealthMonitor {
     }
 
     if (!_allHealthy) {
-      console.log(
-        '💡 Run the full test suite: node test-invitation-system-complete.js'
-      );
+      console.log('💡 Run the full test suite: node test-invitation-system-complete.js');
     }
   }
 
@@ -215,13 +198,9 @@ class InvitationHealthMonitor {
       });
 
       const _recentChecks = _lines.slice(-20);
-      const _healthyCount = _recentChecks.filter((_line) =>
-        _line.includes('HEALTHY')
-      ).length;
+      const _healthyCount = _recentChecks.filter((_line) => _line.includes('HEALTHY')).length;
 
-      const _uptime = (
-        (_healthyCount / _recentChecks.length) * 100 || 0
-      ).toFixed(1);
+      const _uptime = ((_healthyCount / _recentChecks.length) * 100 || 0).toFixed(1);
       console.log(`System Uptime: ${_uptime}%`);
     } catch (_error) {
       console.error('Error reading health history:', _error);

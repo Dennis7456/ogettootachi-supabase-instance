@@ -15,8 +15,7 @@ declare const Deno: {
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // Configuration helper
@@ -104,18 +103,14 @@ serve(async (req) => {
 
     // Check if we're in local development mode
     if (!config.RESEND_API_KEY || config.RESEND_API_KEY === 'test_api_key') {
-      console.log(
-        '🏠 Local development mode - using Supabase Auth for email delivery'
-      );
+      console.log('🏠 Local development mode - using Supabase Auth for email delivery');
 
       // Create the email content
       const invitationUrl = `${config.FRONTEND_URL}/password-setup?token=${invitation_token}&type=invite`;
 
       console.log('📧 Sending invitation email via Supabase Auth...');
       console.log('To:', email);
-      console.log(
-        "Subject: You're Invited to Join Ogetto, Otachi & Co Advocates"
-      );
+      console.log("Subject: You're Invited to Join Ogetto, Otachi & Co Advocates");
       console.log('Invitation URL:', invitationUrl);
 
       try {
@@ -125,23 +120,16 @@ serve(async (req) => {
         );
 
         // Check if user exists first
-        const { data: existingUsers } =
-          await supabaseAdmin.auth.admin.listUsers();
+        const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
         const existingUser = existingUsers.users.find((u) => u.email === email);
 
         if (existingUser) {
-          console.log(
-            '👤 User exists, deleting and recreating to send fresh invitation...'
-          );
+          console.log('👤 User exists, deleting and recreating to send fresh invitation...');
 
           // Delete existing user so we can send a proper invitation email
-          const { error: deleteError } =
-            await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
+          const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
           if (deleteError) {
-            console.log(
-              '⚠️ Could not delete existing user:',
-              deleteError.message
-            );
+            console.log('⚠️ Could not delete existing user:', deleteError.message);
             // Continue anyway - try to send invitation
           } else {
             console.log('🗑️ Existing user deleted successfully');
@@ -153,9 +141,7 @@ serve(async (req) => {
 
         // Now create fresh user and send invitation email (works for both new and recreated users)
         {
-          console.log(
-            '👤 New user, sending invitation email via Supabase Auth...'
-          );
+          console.log('👤 New user, sending invitation email via Supabase Auth...');
 
           // For new users, use inviteUserByEmail which we know works
           const { data: inviteData, error: inviteError } =
@@ -178,8 +164,7 @@ serve(async (req) => {
 
           return new Response(
             JSON.stringify({
-              message:
-                'Invitation email sent successfully (new user invitation)',
+              message: 'Invitation email sent successfully (new user invitation)',
               emailId: 'invite-' + Date.now(),
               to: email,
               subject: "You're Invited to Join Ogetto, Otachi & Co Advocates",
@@ -197,22 +182,13 @@ serve(async (req) => {
         console.log('⚠️ Supabase Auth email failed:', authError.message);
 
         // Fallback: Just log the email content but still return success
-        const emailHtml = createInvitationEmailTemplate(
-          email,
-          role,
-          invitationUrl,
-          custom_message
-        );
+        const emailHtml = createInvitationEmailTemplate(email, role, invitationUrl, custom_message);
 
         console.log('📧 EMAIL CONTENT (Fallback):');
         console.log('=================================');
-        console.log(
-          `From: Ogetto, Otachi & Company <noreply@ogettootachi.com>`
-        );
+        console.log(`From: Ogetto, Otachi & Company <noreply@ogettootachi.com>`);
         console.log(`To: ${email}`);
-        console.log(
-          `Subject: You're Invited to Join Ogetto, Otachi & Co Advocates`
-        );
+        console.log(`Subject: You're Invited to Join Ogetto, Otachi & Co Advocates`);
         console.log(`Date: ${new Date().toISOString()}`);
         console.log('');
         console.log('HTML Content:');
@@ -248,12 +224,7 @@ serve(async (req) => {
       from: 'Ogetto, Otachi & Co <noreply@ogettootachi.com>',
       to: email,
       subject: "You're Invited to Join Ogetto, Otachi & Co Advocates",
-      html: createInvitationEmailTemplate(
-        email,
-        role,
-        invitationUrl,
-        custom_message
-      ),
+      html: createInvitationEmailTemplate(email, role, invitationUrl, custom_message),
     });
 
     if (error) {

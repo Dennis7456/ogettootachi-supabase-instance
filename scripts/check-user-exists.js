@@ -4,8 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-const _supabaseUrl =
-  process.env.SUPABASE_URL || 'https://riuqslalytzybvgsebki._supabase.co';
+const _supabaseUrl = process.env.SUPABASE_URL || 'https://riuqslalytzybvgsebki._supabase.co';
 const _supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!_supabaseServiceKey) {
@@ -27,8 +26,7 @@ async function checkUserExists() {
 
   try {
     // Check auth.users table
-    const { _data: _authUser, _error: _authError } =
-      await _supabase.auth.admin.listUsers();
+    const { _data: _authUser, _error: _authError } = await _supabase.auth.admin.listUsers();
 
     _logError('Error fetching auth users', _authError);
 

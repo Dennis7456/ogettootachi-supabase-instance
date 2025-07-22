@@ -80,15 +80,17 @@ For consultations and legal services, please contact our office. We are committe
     }
 
     // Step 3: Process with Edge Function
-    const { _data: _processData, _error: _processError } =
-      await _supabase.functions.invoke('process-document', {
+    const { _data: _processData, _error: _processError } = await _supabase.functions.invoke(
+      'process-document',
+      {
         body: {
           document_id: _newDoc.id,
           title: _newDoc.title,
           category: _newDoc.category,
           content: _newDoc.content,
         },
-      });
+      }
+    );
 
     _logError('Edge Function processing error', _processError);
 
@@ -101,9 +103,7 @@ For consultations and legal services, please contact our office. We are committe
 
     _logError('Verification error', _verifyError);
 
-    console.log(
-      '📋 The chatbot will now use real firm information instead of test content.'
-    );
+    console.log('📋 The chatbot will now use real firm information instead of test content.');
   } catch (_error) {
     console.error('❌ Failed to create firm profile:', _error.message);
     console.error('Error details:', _error);

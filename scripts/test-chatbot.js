@@ -41,13 +41,15 @@ async function testChatbot() {
     const _testMessage = 'What legal services does your firm offer?';
 
     // Since we're using service role, we'll test the function directly
-    const { _data: _chatResponse, _error: _chatError } =
-      await _supabase.functions.invoke('chatbot', {
+    const { _data: _chatResponse, _error: _chatError } = await _supabase.functions.invoke(
+      'chatbot',
+      {
         body: {
           message: _testMessage,
           session_id: `test-session-${Date.now()}`,
         },
-      });
+      }
+    );
 
     _logError('Chatbot error', _chatError);
 
@@ -87,14 +89,11 @@ async function testChatbot() {
     });
 
     // Test the match_documents function
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: _queryEmbedding,
-        match_threshold: 0.1, // Lower threshold for testing
-        match_count: 3,
-      }
-    );
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
+      query_embedding: _queryEmbedding,
+      match_threshold: 0.1, // Lower threshold for testing
+      match_count: 3,
+    });
 
     _logError('Search error', _searchError);
 
@@ -111,9 +110,7 @@ async function testChatbot() {
       message: _testMessage,
       response:
         'We offer comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.',
-      documents_used: _documents
-        .slice(0, 1)
-        .map((_d) => ({ id: _d.id, title: _d.title })),
+      documents_used: _documents.slice(0, 1).map((_d) => ({ id: _d.id, title: _d.title })),
       tokens_used: 50,
     };
 
@@ -127,15 +124,10 @@ async function testChatbot() {
 
     if (_convData) {
       // Clean up test conversation
-      await _supabase
-        .from('chatbot_conversations')
-        .delete()
-        .eq('id', _convData.id);
+      await _supabase.from('chatbot_conversations').delete().eq('id', _convData.id);
     }
 
-    console.log(
-      '   - Chatbot response generation needs Ollama or alternative LLM'
-    );
+    console.log('   - Chatbot response generation needs Ollama or alternative LLM');
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
     console.error('Error details:', _error);

@@ -16,10 +16,7 @@ const _logError = (prefix, _error) => {
 };
 
 async function viewInvitations() {
-  const _supabaseAdmin = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabaseAdmin = createClient(_config.SUPABASE_URL, _config.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
     // Get recent invitations

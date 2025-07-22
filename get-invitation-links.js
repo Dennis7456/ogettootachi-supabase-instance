@@ -8,10 +8,7 @@ const config = {
 };
 
 async function getInvitationLinks() {
-  const _supabase = createClient(
-    config.SUPABASE_URL,
-    config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
     const { data: invitations } = await _supabase

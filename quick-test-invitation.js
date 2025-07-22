@@ -27,19 +27,13 @@ async function quickTestInvitation() {
     console.error('Failed to clear Mailpit:', _e);
   }
 
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_ANON_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
 
   try {
     // Send invitation
-    const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: { email: _email, role: _role, full_name: _fullName },
-      }
-    );
+    const { _data, _error } = await _supabase.functions.invoke('handle-invitation', {
+      body: { email: _email, role: _role, full_name: _fullName },
+    });
 
     _logError('Invitation error', _error);
 
@@ -53,9 +47,7 @@ async function quickTestInvitation() {
     // Wait and check email
     await new Promise((_resolve) => setTimeout(_resolve, 3000));
 
-    const _mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _mailpitData = await _mailpitResponse.json();
 
     if (_mailpitData.total > 0) {
@@ -71,8 +63,6 @@ async function quickTestInvitation() {
   }
 }
 
-console.log(
-  'Example: node quick-test-invitation.js test@example.com admin "John Doe"\n'
-);
+console.log('Example: node quick-test-invitation.js test@example.com admin "John Doe"\n');
 
 quickTestInvitation().catch(console.error);

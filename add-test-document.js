@@ -9,10 +9,7 @@ const config = {
 
 async function addTestDocument() {
   try {
-    const _supabase = createClient(
-      config.SUPABASE_URL,
-      config.SUPABASE_SERVICE_ROLE_KEY
-    );
+    const _supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
 
     const testDocument = {
       title: 'Dashboard Test Document',
@@ -20,10 +17,7 @@ async function addTestDocument() {
       category: 'test',
     };
 
-    const { data, error } = await _supabase
-      .from('documents')
-      .insert(testDocument)
-      .select();
+    const { data, error } = await _supabase.from('documents').insert(testDocument).select();
 
     if (error) {
       console.error('Error adding test document:', error);

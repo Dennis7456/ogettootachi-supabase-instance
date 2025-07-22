@@ -77,9 +77,7 @@ if (import.meta.main) {
   const role = process.argv[4];
 
   if (!userId) {
-    debugLog(
-      'Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]'
-    );
+    debugLog('Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]');
     Deno.exit(1);
   }
 

@@ -7,22 +7,19 @@ const _config = {
 
 async function testEmailFunctionDirectly() {
   try {
-    const _response = await fetch(
-      `${_config.SUPABASE_URL}/functions/v1/send-invitation-email`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${_config.SUPABASE_SERVICE_ROLE_KEY}`,
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          role: 'staff',
-          invitation_token: 'sample-token',
-          custom_message: 'Welcome to the team!',
-        }),
-      }
-    );
+    const _response = await fetch(`${_config.SUPABASE_URL}/functions/v1/send-invitation-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${_config.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        email: 'test@example.com',
+        role: 'staff',
+        invitation_token: 'sample-token',
+        custom_message: 'Welcome to the team!',
+      }),
+    });
 
     const _responseText = await _response.text();
 
@@ -34,18 +31,13 @@ async function testEmailFunctionDirectly() {
     // Parse the response
     try {
       const _responseData = JSON.parse(_responseText);
-      console.log(
-        '📧 Parsed Response:',
-        JSON.stringify(_responseData, null, 2)
-      );
+      console.log('📧 Parsed Response:', JSON.stringify(_responseData, null, 2));
     } catch (_parseError) {
       console.error('Error parsing response:', _parseError);
     }
 
     // Check if any email appeared in Mailpit
-    const _mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _mailpitData = await _mailpitResponse.json();
 
     if (_mailpitData.total > 0) {

@@ -4,8 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 // In-memory conversation state (ephemeral, for demo; use Redis or DB for production)
@@ -15,10 +14,8 @@ function detectIntent(message: string, state: any = null) {
   const lower = message.toLowerCase();
   if (state?.flow === 'message_staff') return 'message_staff';
   if (state?.flow === 'book_appointment') return 'book_appointment';
-  if (/\b(book|appointment|schedule|consultation|meet)\b/.test(lower))
-    return 'book_appointment';
-  if (/\b(contact|message|reach|email|phone|send)\b/.test(lower))
-    return 'message_staff';
+  if (/\b(book|appointment|schedule|consultation|meet)\b/.test(lower)) return 'book_appointment';
+  if (/\b(contact|message|reach|email|phone|send)\b/.test(lower)) return 'message_staff';
   if (
     /\b(service|practice|offer|area|policy|team|case|experience|unique|about|who|what|where|when|how)\b/.test(
       lower
@@ -33,9 +30,7 @@ function blendDocuments(docs: any[]) {
   // Synthesize a summary, cite titles/years if available
   let summary = docs
     .map((doc, i) => {
-      let cite = doc.title
-        ? ` (see: ${doc.title}${doc.category ? ', ' + doc.category : ''})`
-        : '';
+      let cite = doc.title ? ` (see: ${doc.title}${doc.category ? ', ' + doc.category : ''})` : '';
       let content = doc.content.replace(/\s+/g, ' ').slice(0, 350);
       return `- ${content}${cite}`;
     })
@@ -74,10 +69,7 @@ serve(async (req) => {
           user = authUser;
         }
       } catch (error) {
-        console.log(
-          'Auth check failed, continuing as public user:',
-          error.message
-        );
+        console.log('Auth check failed, continuing as public user:', error.message);
       }
     }
 
@@ -85,14 +77,11 @@ serve(async (req) => {
     const messageEmbedding = await generateEmbedding(message);
 
     // Search for relevant documents
-    const { data: documents, error: searchError } = await supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: messageEmbedding,
-        match_threshold: 0.1, // Lower threshold for better matches
-        match_count: 3,
-      }
-    );
+    const { data: documents, error: searchError } = await supabase.rpc('match_documents', {
+      query_embedding: messageEmbedding,
+      match_threshold: 0.1, // Lower threshold for better matches
+      match_count: 3,
+    });
 
     if (searchError) {
       console.error('Search error:', searchError);
@@ -100,26 +89,19 @@ serve(async (req) => {
     }
 
     // Generate response using rule-based system
-    const response = await generateResponse(
-      message,
-      documents || [],
-      session_id
-    );
+    const response = await generateResponse(message, documents || [], session_id);
 
     // Store conversation only if user is authenticated
     if (user) {
       try {
-        const { error: insertError } = await supabase
-          .from('chatbot_conversations')
-          .insert({
-            user_id: user.id,
-            session_id,
-            message,
-            response: response.response,
-            documents_used:
-              documents?.map((d) => ({ id: d.id, title: d.title })) || [],
-            tokens_used: response.tokens_used || 0,
-          });
+        const { error: insertError } = await supabase.from('chatbot_conversations').insert({
+          user_id: user.id,
+          session_id,
+          message,
+          response: response.response,
+          documents_used: documents?.map((d) => ({ id: d.id, title: d.title })) || [],
+          tokens_used: response.tokens_used || 0,
+        });
 
         if (insertError) {
           console.error('Insert error:', insertError);
@@ -282,11 +264,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
   return embedding;
 }
 
-async function generateResponse(
-  message: string,
-  documents: any[],
-  session_id?: string
-) {
+async function generateResponse(message: string, documents: any[], session_id?: string) {
   // Track or initialize conversation state
   let state = session_id ? conversationStates.get(session_id) : null;
   const intent = detectIntent(message, state);
@@ -445,8 +423,7 @@ Would you like to discuss your specific international legal matter or schedule a
       ? `Here's what I found from our internal resources:\n${docSummary}\n\nIf you'd like more details or a summary by email, just let me know!`
       : `I couldn't find a direct answer in our internal documents, but I'm here to help. Could you clarify your question or ask about a specific service, policy, or team member?`;
     // Proactive suggestion
-    answer +=
-      '\n\nWould you like to schedule a consultation or send a message to our staff?';
+    answer += '\n\nWould you like to schedule a consultation or send a message to our staff?';
     return { response: answer, tokens_used: answer.split(' ').length };
   }
 
@@ -532,10 +509,7 @@ For example: "I need help with a contract dispute. My email is john@example.com"
     }
 
     if (state.step === 2) {
-      if (
-        message.toLowerCase().includes('yes') ||
-        message.toLowerCase().includes('send')
-      ) {
+      if (message.toLowerCase().includes('yes') || message.toLowerCase().includes('send')) {
         // Send message via API (mock for now)
         try {
           // TODO: Integrate with actual messaging API
@@ -612,17 +586,12 @@ I'll check availability and confirm your appointment.`;
       let contactInfo = '';
 
       // Extract service type
-      if (lower.includes('corporate') || lower.includes('business'))
-        serviceType = 'Corporate Law';
+      if (lower.includes('corporate') || lower.includes('business')) serviceType = 'Corporate Law';
       else if (lower.includes('litigation') || lower.includes('dispute'))
         serviceType = 'Litigation';
       else if (lower.includes('employment') || lower.includes('labor'))
         serviceType = 'Employment Law';
-      else if (
-        lower.includes('intellectual') ||
-        lower.includes('ip') ||
-        lower.includes('patent')
-      )
+      else if (lower.includes('intellectual') || lower.includes('ip') || lower.includes('patent'))
         serviceType = 'Intellectual Property';
       else if (lower.includes('real estate') || lower.includes('property'))
         serviceType = 'Real Estate';
@@ -633,9 +602,7 @@ I'll check availability and confirm your appointment.`;
       else serviceType = 'General Consultation';
 
       // Extract date/time (simple parsing)
-      const dateMatch = message.match(
-        /(\d{1,2}\/\d{1,2}|\d{1,2}-\d{1,2}|\d{1,2}\.\d{1,2})/
-      );
+      const dateMatch = message.match(/(\d{1,2}\/\d{1,2}|\d{1,2}-\d{1,2}|\d{1,2}\.\d{1,2})/);
       const timeMatch = message.match(/(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)/);
 
       if (dateMatch) dateTime = dateMatch[1];
@@ -681,10 +648,7 @@ For example: "I need help with a contract. Monday 2 PM. My email is john@example
     }
 
     if (state.step === 2) {
-      if (
-        message.toLowerCase().includes('yes') ||
-        message.toLowerCase().includes('confirm')
-      ) {
+      if (message.toLowerCase().includes('yes') || message.toLowerCase().includes('confirm')) {
         // Check availability and book (mock for now)
         try {
           // TODO: Integrate with actual scheduling API

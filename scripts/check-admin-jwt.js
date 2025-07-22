@@ -21,11 +21,10 @@ const logError = (prefix, error) => {
 async function checkAdminJWT() {
   try {
     // Sign in as admin user
-    const { _data: _authData, _error: _authError } =
-      await _supabase.auth.signInWithPassword({
-        email: 'admin@test.com',
-        password: 'admin123456',
-      });
+    const { _data: _authData, _error: _authError } = await _supabase.auth.signInWithPassword({
+      email: 'admin@test.com',
+      password: 'admin123456',
+    });
 
     logError('Auth error', _authError);
     if (_authError) return;
@@ -40,9 +39,7 @@ async function checkAdminJWT() {
       const _tokenParts = session.access_token.split('.');
 
       if (_tokenParts.length === 3) {
-        const _payload = JSON.parse(
-          Buffer.from(_tokenParts[1], 'base64').toString()
-        );
+        const _payload = JSON.parse(Buffer.from(_tokenParts[1], 'base64').toString());
 
         console.log('JWT Payload:', _payload);
       }

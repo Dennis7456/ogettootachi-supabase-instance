@@ -86,9 +86,7 @@ async function fixStoragePoliciesFinal() {
     console.log(
       'The issue is that the admin role is in user_metadata, not in the main JWT role field.'
     );
-    console.log(
-      "The key change is using: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"
-    );
+    console.log("The key change is using: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'");
     console.log('✅ Storage policies updated successfully');
   } catch (_error) {
     console.error('❌ Unexpected error:', _error.message);

@@ -24,10 +24,7 @@ async function sendRealInvitation() {
     console.warn('Error clearing Mailpit messages:', _clearError);
   }
 
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_ANON_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
 
   const _invitationData = {
     email: 'webmastaz2019@gmail.com',
@@ -37,12 +34,9 @@ async function sendRealInvitation() {
 
   try {
     // Send the invitation
-    const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: _invitationData,
-      }
-    );
+    const { _data, _error } = await _supabase.functions.invoke('handle-invitation', {
+      body: _invitationData,
+    });
 
     _logError('Invitation error', _error);
 
@@ -59,9 +53,7 @@ async function sendRealInvitation() {
       await setTimeout(5000);
 
       // Check Mailpit
-      const _mailpitResponse = await fetch(
-        'http://127.0.0.1:54324/api/v1/messages'
-      );
+      const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
       const _mailpitData = await _mailpitResponse.json();
 
       if (_mailpitData.total > 0) {

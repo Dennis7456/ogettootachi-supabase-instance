@@ -23,12 +23,10 @@ async function testLogin() {
   const testPassword = 'testpassword123'; // This will fail, but we'll see the specific error
 
   try {
-    const { data: _loginData, error } = await _supabase.auth.signInWithPassword(
-      {
-        email: testEmail,
-        password: testPassword,
-      }
-    );
+    const { data: _loginData, error } = await _supabase.auth.signInWithPassword({
+      email: testEmail,
+      password: testPassword,
+    });
 
     if (error) {
       // Check specific error types

@@ -16,14 +16,9 @@ const logError = (prefix, error) => {
 };
 
 async function deleteUserAndTest() {
-  console.log(
-    '🗑️ Deleting existing user and testing complete invitation flow...\n'
-  );
+  console.log('🗑️ Deleting existing user and testing complete invitation flow...\n');
 
-  const _supabase = createClient(
-    config.SUPABASE_URL,
-    config.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const _supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
 
   const _testEmail = 'webmastaz2019@gmail.com';
 
@@ -36,9 +31,7 @@ async function deleteUserAndTest() {
     const _existingUser = _users.users.find((_u) => _u.email === _testEmail);
 
     if (_existingUser) {
-      const { _error: _deleteError } = await _supabase.auth.admin.deleteUser(
-        _existingUser.id
-      );
+      const { _error: _deleteError } = await _supabase.auth.admin.deleteUser(_existingUser.id);
 
       logError('Error deleting user', _deleteError);
     }
@@ -56,16 +49,13 @@ async function deleteUserAndTest() {
 
     // Now test the complete invitation flow
     // Use our handle-invitation function
-    const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: _testEmail,
-          role: 'admin',
-          full_name: 'Dennis Kiplangat',
-        },
-      }
-    );
+    const { _data, _error } = await _supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: _testEmail,
+        role: 'admin',
+        full_name: 'Dennis Kiplangat',
+      },
+    });
 
     logError('Error invoking handle-invitation', _error);
     if (_error) return;
@@ -77,9 +67,7 @@ async function deleteUserAndTest() {
       await setTimeout(5000);
 
       // Check Mailpit
-      const _mailpitResponse = await fetch(
-        'http://127.0.0.1:54324/api/v1/messages'
-      );
+      const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
       const _mailpitData = await _mailpitResponse.json();
 
       if (_mailpitData.total > 0) {
@@ -87,13 +75,9 @@ async function deleteUserAndTest() {
           console.log(`Message ${_index + 1}:`, _msg);
         });
 
-        console.log(
-          '\n🎯 PERFECT! Your invitation system is now fully working!'
-        );
+        console.log('\n🎯 PERFECT! Your invitation system is now fully working!');
       } else {
-        console.log(
-          '💡 You can still use the direct link to test the invitation'
-        );
+        console.log('💡 You can still use the direct link to test the invitation');
         console.log('Invitation URL:', _invitationUrl);
       }
     }

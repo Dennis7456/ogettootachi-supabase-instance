@@ -17,9 +17,7 @@ const _logError = (prefix, _error) => {
 
 if (!_supabaseServiceKey) {
   console.error('SUPABASE_SERVICE_ROLE_KEY is required');
-  console.error(
-    'Please set your production service role key in your .env file'
-  );
+  console.error('Please set your production service role key in your .env file');
   throw new Error('Process exit blocked');
 }
 
@@ -90,9 +88,7 @@ async function fixProductionProfile() {
     _logError('Error creating profile', _insertError);
 
     if (_newProfile) {
-      console.log(
-        '✅ Profile fix completed! The user should now be able to log in.'
-      );
+      console.log('✅ Profile fix completed! The user should now be able to log in.');
       console.log('New Profile:', _newProfile);
     }
   } catch (_error) {
@@ -101,12 +97,8 @@ async function fixProductionProfile() {
 }
 
 // Instructions for running this script
-console.log(
-  'This script will create a missing profile for the user experiencing the 406 error.'
-);
-console.log(
-  '1. Make sure you have the production SUPABASE_SERVICE_ROLE_KEY in your .env file'
-);
+console.log('This script will create a missing profile for the user experiencing the 406 error.');
+console.log('1. Make sure you have the production SUPABASE_SERVICE_ROLE_KEY in your .env file');
 console.log(
   'Make sure you have the correct service role key and understand what this script does.'
 );

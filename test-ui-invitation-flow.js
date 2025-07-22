@@ -16,10 +16,7 @@ const _logError = (prefix, _error) => {
 };
 
 async function testUIInvitationFlow() {
-  const _supabase = createClient(
-    _config.SUPABASE_URL,
-    _config.SUPABASE_ANON_KEY
-  );
+  const _supabase = createClient(_config.SUPABASE_URL, _config.SUPABASE_ANON_KEY);
 
   // This mimics exactly what UserManagement.jsx does
   const _formData = {
@@ -30,16 +27,13 @@ async function testUIInvitationFlow() {
 
   try {
     // This is exactly what UserManagement.jsx calls
-    const { _data, _error } = await _supabase.functions.invoke(
-      'handle-invitation',
-      {
-        body: {
-          email: _formData.email,
-          role: _formData.role,
-          full_name: _formData.full_name || '',
-        },
-      }
-    );
+    const { _data, _error } = await _supabase.functions.invoke('handle-invitation', {
+      body: {
+        email: _formData.email,
+        role: _formData.role,
+        full_name: _formData.full_name || '',
+      },
+    });
 
     _logError('Invitation function error', _error);
 
@@ -56,9 +50,7 @@ async function testUIInvitationFlow() {
     await new Promise((_resolve) => setTimeout(_resolve, 2000));
 
     // Check Mailpit for new emails
-    const _mailpitResponse = await fetch(
-      'http://127.0.0.1:54324/api/v1/messages'
-    );
+    const _mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _mailpitData = await _mailpitResponse.json();
 
     if (_mailpitData.messages && _mailpitData.messages.length > 0) {

@@ -19,8 +19,7 @@ const adminUser = {
 
 const testDocument = {
   title: 'Test Legal Document',
-  content:
-    'This is a test legal document content for processing and embedding generation.',
+  content: 'This is a test legal document content for processing and embedding generation.',
   category: 'corporate',
   file_path: '/uploads/test-document.pdf',
 };
@@ -146,25 +145,19 @@ describe('Process Document Edge Function', () => {
 
   beforeEach(async () => {
     // Clean up documents before each test
-    await supabaseService
-      .from('documents')
-      .delete()
-      .eq('title', testDocument.title);
+    await supabaseService.from('documents').delete().eq('title', testDocument.title);
   });
 
   describe('POST /functions/v1/process-document', () => {
     it('should process a document and generate embedding', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testDocument),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -183,14 +176,11 @@ describe('Process Document Edge Function', () => {
     });
 
     it('should reject request without authorization', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(testDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testDocument),
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -228,17 +218,14 @@ describe('Process Document Edge Function', () => {
         if (signInError) throw signInError;
 
         if (session) {
-          const response = await fetch(
-            `${supabaseUrl}/functions/v1/process-document`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(testDocument),
-            }
-          );
+          const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(testDocument),
+          });
 
           expect(response.status).toBe(400);
           const data = await response.json();
@@ -256,17 +243,14 @@ describe('Process Document Edge Function', () => {
       const invalidDocument = { ...testDocument };
       invalidDocument.content = '';
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(invalidDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invalidDocument),
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -278,17 +262,14 @@ describe('Process Document Edge Function', () => {
       const invalidDocument = { ...testDocument };
       invalidDocument.title = '';
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(invalidDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invalidDocument),
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -303,17 +284,14 @@ describe('Process Document Edge Function', () => {
         // No category or file_path
       };
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(minimalDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(minimalDocument),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -324,13 +302,7 @@ describe('Process Document Edge Function', () => {
     });
 
     it('should handle different document categories', async () => {
-      const categories = [
-        'corporate',
-        'family',
-        'criminal',
-        'employment',
-        'real_estate',
-      ];
+      const categories = ['corporate', 'family', 'criminal', 'employment', 'real_estate'];
 
       for (const category of categories) {
         const categoryDocument = {
@@ -339,17 +311,14 @@ describe('Process Document Edge Function', () => {
           category,
         };
 
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/process-document`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${adminToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(categoryDocument),
-          }
-        );
+        const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(categoryDocument),
+        });
 
         expect(response.status).toBe(200);
         const data = await response.json();
@@ -367,17 +336,14 @@ describe('Process Document Edge Function', () => {
         content: longContent,
       };
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(longDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(longDocument),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -388,25 +354,21 @@ describe('Process Document Edge Function', () => {
     });
 
     it('should handle special characters in content', async () => {
-      const specialContent =
-        'Document with special chars: éñüß@#$%^&*()_+-=[]{}|;:,.<>?';
+      const specialContent = 'Document with special chars: éñüß@#$%^&*()_+-=[]{}|;:,.<>?';
       const specialDocument = {
         ...testDocument,
         title: 'Special Characters Test',
         content: specialContent,
       };
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(specialDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(specialDocument),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -416,17 +378,14 @@ describe('Process Document Edge Function', () => {
     });
 
     it('should store document in database with embedding', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testDocument),
+      });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -450,20 +409,17 @@ describe('Process Document Edge Function', () => {
     it('should handle OpenAI API errors gracefully', async () => {
       // This test would require mocking the OpenAI API
       // For now, we'll test the structure
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...testDocument,
-            title: 'API Error Test Document',
-          }),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...testDocument,
+          title: 'API Error Test Document',
+        }),
+      });
 
       // Should either succeed or fail gracefully
       expect([200, 400, 500]).toContain(response.status);
@@ -473,17 +429,14 @@ describe('Process Document Edge Function', () => {
       // Test with invalid token to simulate database issues
       const invalidToken = 'invalid-token';
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${invalidToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${invalidToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testDocument),
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -491,17 +444,14 @@ describe('Process Document Edge Function', () => {
     });
 
     it('should handle malformed JSON', async () => {
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: 'invalid json',
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: 'invalid json',
+      });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -513,17 +463,14 @@ describe('Process Document Edge Function', () => {
     it('should process document within reasonable time', async () => {
       const startTime = Date.now();
 
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/process-document`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(testDocument),
-        }
-      );
+      const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testDocument),
+      });
 
       const endTime = Date.now();
       const responseTime = endTime - startTime;
@@ -569,14 +516,12 @@ describe('Process Document Edge Function', () => {
       const similarDocuments = [
         {
           title: 'Similar Document 1',
-          content:
-            'This is a legal document about corporate law and business regulations.',
+          content: 'This is a legal document about corporate law and business regulations.',
           category: 'corporate',
         },
         {
           title: 'Similar Document 2',
-          content:
-            'This is a legal document about corporate law and business regulations.',
+          content: 'This is a legal document about corporate law and business regulations.',
           category: 'corporate',
         },
       ];
@@ -584,17 +529,14 @@ describe('Process Document Edge Function', () => {
       const embeddings: any[] = [];
 
       for (const doc of similarDocuments) {
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/process-document`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${adminToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(doc),
-          }
-        );
+        const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(doc),
+        });
 
         expect(response.status).toBe(200);
         const data = await response.json();
@@ -610,14 +552,12 @@ describe('Process Document Edge Function', () => {
       const differentDocuments = [
         {
           title: 'Corporate Law Document',
-          content:
-            'This document discusses corporate law, mergers, and acquisitions.',
+          content: 'This document discusses corporate law, mergers, and acquisitions.',
           category: 'corporate',
         },
         {
           title: 'Family Law Document',
-          content:
-            'This document discusses family law, divorce, and child custody.',
+          content: 'This document discusses family law, divorce, and child custody.',
           category: 'family',
         },
       ];
@@ -625,17 +565,14 @@ describe('Process Document Edge Function', () => {
       const embeddings: any[] = [];
 
       for (const doc of differentDocuments) {
-        const response = await fetch(
-          `${supabaseUrl}/functions/v1/process-document`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${adminToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(doc),
-          }
-        );
+        const response = await fetch(`${supabaseUrl}/functions/v1/process-document`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(doc),
+        });
 
         expect(response.status).toBe(200);
         const data = await response.json();

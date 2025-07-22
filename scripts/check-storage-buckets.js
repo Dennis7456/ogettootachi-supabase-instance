@@ -20,8 +20,7 @@ async function checkAndCreateBuckets() {
     const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
     // List existing buckets
-    const { _data: _buckets, _error: _bucketsError } =
-      await _supabase.storage.listBuckets();
+    const { _data: _buckets, _error: _bucketsError } = await _supabase.storage.listBuckets();
 
     _logError('Failed to list buckets', _bucketsError);
 
@@ -35,12 +34,11 @@ async function checkAndCreateBuckets() {
     );
 
     // Check if documents bucket exists
-    const _documentsBucket = _buckets.find(
-      (_bucket) => _bucket.name === 'documents'
-    );
+    const _documentsBucket = _buckets.find((_bucket) => _bucket.name === 'documents');
     if (!_documentsBucket) {
-      const { _data: _newBucket, _error: _createError } =
-        await _supabase.storage.createBucket('documents', {
+      const { _data: _newBucket, _error: _createError } = await _supabase.storage.createBucket(
+        'documents',
+        {
           public: false,
           allowedMimeTypes: [
             'application/pdf',
@@ -49,7 +47,8 @@ async function checkAndCreateBuckets() {
             'text/plain',
           ],
           fileSizeLimit: 10485760, // 10MB
-        });
+        }
+      );
 
       _logError('Failed to create documents bucket', _createError);
 

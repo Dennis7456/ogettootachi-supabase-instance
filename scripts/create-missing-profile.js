@@ -4,8 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-const _supabaseUrl =
-  process.env.SUPABASE_URL || 'https://riuqslalytzybvgsebki._supabase.co';
+const _supabaseUrl = process.env.SUPABASE_URL || 'https://riuqslalytzybvgsebki._supabase.co';
 const _supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!_supabaseServiceKey) {
@@ -27,8 +26,7 @@ async function createMissingProfile() {
 
   try {
     // First, get the user from auth.users
-    const { _data: _user, _error: _userError } =
-      await _supabase.auth.admin.getUserById(_userId);
+    const { _data: _user, _error: _userError } = await _supabase.auth.admin.getUserById(_userId);
 
     _logError('Error fetching user', _userError);
 

@@ -3,8 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
@@ -99,14 +98,11 @@ serve(async (req) => {
   // Handle POST requests (create contact message)
   if (req.method === 'POST') {
     try {
-      const { name, email, phone, subject, message, practice_area } =
-        await req.json();
+      const { name, email, phone, subject, message, practice_area } = await req.json();
 
       // Validate required fields
       if (!name || !email || !subject || !message) {
-        throw new Error(
-          'Missing required fields: name, email, subject, message'
-        );
+        throw new Error('Missing required fields: name, email, subject, message');
       }
 
       // Validate email format
@@ -144,8 +140,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          message:
-            'Your message has been sent successfully. We will get back to you shortly.',
+          message: 'Your message has been sent successfully. We will get back to you shortly.',
           contact_message: data,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

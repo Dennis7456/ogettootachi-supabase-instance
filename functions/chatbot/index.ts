@@ -3,8 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
@@ -43,14 +42,11 @@ serve(async (req) => {
     const messageEmbedding = await generateEmbedding(message);
 
     // Search for relevant documents
-    const { data: documents, error: searchError } = await supabase.rpc(
-      'match_documents',
-      {
-        query_embedding: messageEmbedding,
-        match_threshold: 0.7,
-        match_count: 5,
-      }
-    );
+    const { data: documents, error: searchError } = await supabase.rpc('match_documents', {
+      query_embedding: messageEmbedding,
+      match_threshold: 0.7,
+      match_count: 5,
+    });
 
     if (searchError) {
       console.error('Search error:', searchError);
@@ -61,17 +57,14 @@ serve(async (req) => {
     const response = await generateResponse(message, documents || []);
 
     // Store conversation
-    const { error: insertError } = await supabase
-      .from('chatbot_conversations')
-      .insert({
-        user_id: user.id,
-        session_id,
-        message,
-        response: response.choices[0].message.content,
-        documents_used:
-          documents?.map((d) => ({ id: d.id, title: d.title })) || [],
-        tokens_used: response.usage?.total_tokens || 0,
-      });
+    const { error: insertError } = await supabase.from('chatbot_conversations').insert({
+      user_id: user.id,
+      session_id,
+      message,
+      response: response.choices[0].message.content,
+      documents_used: documents?.map((d) => ({ id: d.id, title: d.title })) || [],
+      tokens_used: response.usage?.total_tokens || 0,
+    });
 
     if (insertError) {
       console.error('Insert error:', insertError);

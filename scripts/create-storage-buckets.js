@@ -25,10 +25,12 @@ async function createStorageBuckets() {
     _logError('Error creating documents bucket', _documentsError);
 
     // Create public bucket
-    const { _data: _publicBucket, _error: _publicError } =
-      await _supabase.storage.createBucket('public', {
+    const { _data: _publicBucket, _error: _publicError } = await _supabase.storage.createBucket(
+      'public',
+      {
         public: true,
-      });
+      }
+    );
 
     _logError('Error creating public bucket', _publicError);
 

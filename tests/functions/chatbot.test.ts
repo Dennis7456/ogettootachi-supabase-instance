@@ -1,12 +1,4 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach,
-  vi,
-} from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 
 // Test configuration - use the local Supabase instance
@@ -157,10 +149,7 @@ describe('Chatbot Edge Function', () => {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      await supabaseService
-        .from('chatbot_conversations')
-        .delete()
-        .eq('user_id', user.id);
+      await supabaseService.from('chatbot_conversations').delete().eq('user_id', user.id);
     }
   });
 
