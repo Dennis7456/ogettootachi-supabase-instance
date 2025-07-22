@@ -66,7 +66,7 @@ async function checkConnection() {
     }
 
     console.log(
-      '\n⚠️  If you\'re looking at a remote dashboard (https://supabase.com/...)'
+      "\n⚠️  If you're looking at a remote dashboard (https://supabase.com/...)"
     );
   } catch (_error) {
     console.error('❌ Check failed:', _error.message);
