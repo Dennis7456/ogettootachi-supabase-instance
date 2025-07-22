@@ -19,3 +19,8 @@ logs
 Thumbs.db
 backups/
 invitation-system-backup-*/
+
+# Backups and dumps
+backups/
+invitation-system-backup-*/
+*.dump

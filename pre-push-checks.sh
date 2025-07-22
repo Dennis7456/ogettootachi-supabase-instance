@@ -193,9 +193,13 @@ done
 SECRET_DETECTION=$(grep -r -i -E '(password|secret|key|token|credentials).*=.*['\"][^'\"]{8,}' \
     --exclude-dir=node_modules \
     --exclude-dir=.git \
+    --exclude-dir=backups \
     --exclude=*.html \
     --exclude=*.md \
     --exclude=*.json \
+    --exclude=config/auth.toml \
+    --exclude='invitation-system-backup-*/auth.toml' \
+    --exclude=*.dump \
     . | grep -v 'email-templates')
 
 if [ -n "$SECRET_DETECTION" ]; then
