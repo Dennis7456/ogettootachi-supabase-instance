@@ -27,6 +27,13 @@ for file in "${FILES[@]}"; do
     -e "s/\(placeholder\|alt\|label\) *= *\"\([^\"]*\)\"/\1 = '\2'/g" \
     -e "s/\(href\|src\) *= *\"\([^\"]*\)\"/\1 = '\2'/g" \
     -e "s/import \([^']*\) from \"\([^\"]*\)\"/import \1 from '\2'/g" \
+    -e "s/\(export default\) *\"\([^\"]*\)\"/\1 '\2'/g" \
+    -e "s/\(module\.exports\) *= *\"\([^\"]*\)\"/\1 = '\2'/g" \
+    -e "s/\(process\.env\.[A-Z_]*\) *= *\"\([^\"]*\)\"/\1 = '\2'/g" \
+    -e "s/\(warn\|error\)(\"\([^\"]*\)\"/\1('\2'/g" \
+    -e "s/\(throw new Error\)(\"\([^\"]*\)\"/\1('\2'/g" \
+    -e "s/\(JSON\.stringify\)(\"\([^\"]*\)\"/\1('\2'/g" \
+    -e "s/\(path\.join\)(\"\([^\"]*\)\"/\1('\2'/g" \
     "${full_path}"
   
   echo "Processed ${file}"
