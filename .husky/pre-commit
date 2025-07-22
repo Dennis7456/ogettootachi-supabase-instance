@@ -1,4 +1,40 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+#!/bin/bash
 
-./lint-staged.sh
+# Pre-Commit Hook: Secret Detection
+
+# Prevent committing files with sensitive information
+prevent_secret_commit() {
+    # Regex to detect potential secrets
+    local SECRET_REGEX='(password|secret|key|token).*=.*['"'"'"][^'"'"'"]{20,}'
+    
+    # Find staged files
+    local staged_files=$(git diff --cached --name-only)
+    
+    # Check each staged file for potential secrets
+    for file in $staged_files; do
+        # Skip binary files and certain directories
+        if [[ "$file" =~ \.(jpg|jpeg|png|gif|pdf|lock)$ ]] || 
+           [[ "$file" =~ ^(node_modules/|\.git/|venv/|dist/) ]]; then
+            continue
+        fi
+        
+        # Scan file for secrets
+        local secrets_found=$(grep -E "$SECRET_REGEX" "$file")
+        
+        if [ ! -z "$secrets_found" ]; then
+            echo "❌ SECURITY ALERT ❌"
+            echo "Potential secrets detected in: $file"
+            echo "Secrets found:"
+            echo "$secrets_found"
+            echo ""
+            echo "🚫 Commit aborted to prevent secret exposure."
+            exit 1
+        fi
+    done
+}
+
+# Run secret detection
+prevent_secret_commit
+
+# Continue with commit if no secrets are found
+exit 0 

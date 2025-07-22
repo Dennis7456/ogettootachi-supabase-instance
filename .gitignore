@@ -1,24 +1,88 @@
 # Environment Variables
 .env
+.env.local
+.env.development
+.env.production
 *.env
-!.env.example
 
-# Dependency directories
+# Dependency Directories
 node_modules/
+venv/
+dist/
+build/
 
-# Logs
-logs
-*.log
-
-# Secrets and sensitive files
+# Secrets and Sensitive Files
 *.pem
 *.key
+*.cert
+secrets.json
 
-# OS generated files
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and Editor Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System Files
 .DS_Store
 Thumbs.db
-backups/
-invitation-system-backup-*/
+
+# Backup Files
+*.bak
+*.backup
+
+# Temporary Files
+*.tmp
+*.temp
+
+# Compiled Files
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Backup and Archive Files
+*.zip
+*.tar
+*.gz
+
+# Miscellaneous
+.cache/
+.npm/
+.eslintcache
+.stylelintcache
+
+# Project-Specific Ignores
+supabase/functions/*/node_modules/
+supabase/functions/*/dist/
+
+# Security and Audit Logs
+security-audit.log
+secret-scan-results.txt 
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Sensitive Configuration
+**/secrets/
+**/config/secrets.json
+
+# Backup and Temporary Files
+*.bak
+*.backup
+*.tmp
 
 # Backups and dumps
 backups/

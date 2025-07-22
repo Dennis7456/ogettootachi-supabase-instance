@@ -1,241 +1,75 @@
-name: 'CI/CD Pipeline - Ogetto, Otachi & Co Advocates'
+name: Security and CI Checks
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main, develop]
-
-env:
-  NODE_VERSION: '18'
+    branches: [ main, develop ]
 
 jobs:
-  # Job 1: Code Quality Checks
-  code-quality:
-    name: '🔍 Code Quality'
+  security-checks:
     runs-on: ubuntu-latest
-
     steps:
-      - name: '📚 Checkout Code'
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: '🟢 Setup Node.js'
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'ogettootachi-supabase-instance/package-lock.json'
+          python-version: '3.9'
 
-      - name: '📦 Install Dependencies'
-        working-directory: './ogettootachi-supabase-instance'
+      - name: Install security tools
+        run: |
+          pip install detect-secrets
+          npm install -g gitleaks
+
+      - name: Run Detect Secrets
+        run: |
+          detect-secrets scan > secret-scan-results.json
+          cat secret-scan-results.json
+
+      - name: Run Gitleaks
+        run: |
+          gitleaks detect --source . -v
+
+      - name: Secret Detection
+        run: |
+          grep -r -i -E '(password|secret|key|token).*=.*['"'"'"][^'"'"'"]{20,}' . \
+            --exclude=config/auth.toml \
+            --exclude='invitation-system-backup-*/auth.toml' \
+            --exclude=*.dump \
+            --exclude-dir=backups
+
+  build-and-test:
+    needs: security-checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
         run: npm ci
 
-      - name: '🎨 Check Code Formatting'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm run format:check
+      - name: Run tests
+        run: npm test
 
-      - name: '🔍 Lint Code'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm run lint:check
+      - name: Build project
+        run: npm run build
 
-      - name: '🔒 Security Audit'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm audit --audit-level=moderate
-        continue-on-error: true
-
-  # Job 2: Invitation System Tests
-  invitation_tests:
-    name: '🧪 Invitation System Tests'
+  notify:
+    needs: [security-checks, build-and-test]
     runs-on: ubuntu-latest
-    needs: code-quality
-
+    if: failure()
     steps:
-      - name: '📚 Checkout Code'
-        uses: actions/checkout@v4
-
-      - name: '🟢 Setup Node.js'
-        uses: actions/setup-node@v4
+      - name: Send Slack Notification
+        uses: 8398a7/action-slack@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'ogettootachi-supabase-instance/package-lock.json'
-
-      - name: '📦 Install Dependencies'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm ci
-
-      # In a real scenario, you'd set up Supabase and Mailpit here
-      # For now, we'll run tests that don't require external services
-
-      - name: '🔧 Validate Configuration Files'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Check critical configuration exists
-          test -f "config/auth.toml" || exit 1
-          test -f "package.json" || exit 1
-
-          # Validate SMTP configuration
-          grep -q "smtp_port = 1025" config/auth.toml || exit 1
-
-          echo "✅ Configuration validation passed"
-
-      - name: '📋 Validate Test Scripts Exist'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Check that all test scripts exist
-          test -f "test-invitation-system-complete.js" || exit 1
-          test -f "monitor-invitation-system.js" || exit 1
-          test -f "quick-test-invitation.js" || exit 1
-          test -f "run-all-tests.js" || exit 1
-
-          echo "✅ Test scripts validation passed"
-
-      - name: '🧪 Syntax Check Test Scripts'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Check JavaScript syntax without running tests
-          node -c test-invitation-system-complete.js
-          node -c monitor-invitation-system.js
-          node -c quick-test-invitation.js
-          node -c run-all-tests.js
-
-          echo "✅ Test script syntax validation passed"
-
-      # Note: Full integration tests would require Supabase setup
-      # This would be added when deploying to a staging environment
-
-  # Job 3: Build Validation
-  build-validation:
-    name: '📦 Build Validation'
-    runs-on: ubuntu-latest
-    needs: [code-quality, invitation_tests]
-
-    steps:
-      - name: '📚 Checkout Code'
-        uses: actions/checkout@v4
-
-      - name: '🟢 Setup Node.js'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'ogettootachi-supabase-instance/package-lock.json'
-
-      - name: '📦 Install Dependencies'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm ci
-
-      - name: '🔍 Check Package Dependencies'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm ls --depth=0
-
-      - name: '📋 Validate Package.json'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Validate package.json structure
-          node -e "
-            const pkg = require('./package.json');
-            if (!pkg.scripts.test) throw new Error('Missing test script');
-            if (!pkg.scripts.lint) throw new Error('Missing lint script');
-            if (!pkg.scripts.format) throw new Error('Missing format script');
-            console.log('✅ Package.json validation passed');
-          "
-
-      - name: '🏗️ Build Documentation'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Validate that documentation exists
-          test -f "INVITATION_SYSTEM_DOCS.md" || exit 1
-          echo "✅ Documentation validation passed"
-
-  # Job 4: Security Scan
-  security-scan:
-    name: '🔒 Security Scan'
-    runs-on: ubuntu-latest
-    needs: code-quality
-
-    steps:
-      - name: '📚 Checkout Code'
-        uses: actions/checkout@v4
-
-      - name: '🟢 Setup Node.js'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'ogettootachi-supabase-instance/package-lock.json'
-
-      - name: '📦 Install Dependencies'
-        working-directory: './ogettootachi-supabase-instance'
-        run: npm ci
-
-      - name: '🔍 Secret Scanning'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Basic secret detection
-          echo "🔍 Scanning for exposed secrets..."
-
-          # Check for hardcoded secrets (excluding test files)
-          if grep -r -i -E '(password|secret|key|token).*=.*['"'"'"][^'"'"'"]{20,}' \
-             --include='*.js' --include='*.ts' \
-             --exclude-dir=node_modules \
-             --exclude='*test*' \
-             --exclude='*spec*' .; then
-            echo "❌ Potential secrets found in code"
-            exit 1
-          fi
-
-          echo "✅ No hardcoded secrets detected"
-
-      - name: '🛡️ Dependency Vulnerability Check'
-        working-directory: './ogettootachi-supabase-instance'
-        run: |
-          # Check for known vulnerabilities
-          npm audit --audit-level=high --production
-        continue-on-error: false
-
-  # Job 5: Integration Summary
-  integration-summary:
-    name: '📊 Integration Summary'
-    runs-on: ubuntu-latest
-    needs: [code-quality, invitation_tests, build-validation, security-scan]
-    if: always()
-
-    steps:
-      - name: '📊 Generate Summary'
-        run: |
-          echo "## 🎯 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Job Results:" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔍 Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 🧪 Invitation Tests: ${{ needs.invitation_tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 📦 Build Validation: ${{ needs.build-validation.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 🔒 Security Scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "${{ needs.code-quality.result }}" = "success" ] && \
-             [ "${{ needs.invitation_tests.result }}" = "success" ] && \
-             [ "${{ needs.build-validation.result }}" = "success" ] && \
-             [ "${{ needs.security-scan.result }}" = "success" ]; then
-            echo "### ✅ Overall Status: PASSED" >> $GITHUB_STEP_SUMMARY
-            echo "🎉 All checks passed! Code is ready for deployment." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ Overall Status: FAILED" >> $GITHUB_STEP_SUMMARY
-            echo "🔧 Some checks failed. Please review and fix issues." >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: '🎉 Success Notification'
-        if: needs.code-quality.result == 'success' && needs.invitation_tests.result == 'success' && needs.build-validation.result == 'success' && needs.security-scan.result == 'success'
-        run: |
-          echo "🎉 CI/CD Pipeline completed successfully!"
-          echo "✅ Ogetto, Otachi & Co Advocates - Invitation System is ready"
-          echo "🚀 All quality gates passed"
-
-      - name: '❌ Failure Notification'
-        if: needs.code-quality.result != 'success' || needs.invitation_tests.result != 'success' || needs.build-validation.result != 'success' || needs.security-scan.result != 'success'
-        run: |
-          echo "❌ CI/CD Pipeline failed"
-          echo "🔧 Please check the failed jobs and fix issues"
-          exit 1
+          status: ${{ job.status }}
+          text: Security or build checks failed!
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 

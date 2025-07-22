@@ -1,227 +1,220 @@
-// @ts-ignore
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-// @ts-ignore
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Declare Deno global to avoid type errors
-declare const Deno: {
-  env: {
-    get(key: string): string | undefined;
-  };
-};
+// Extensive logging for environment variables and configuration
+console.log("🌍 Environment Variables:");
+console.log(
+  "SUPABASE_SERVICE_ROLE_KEY (env):",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
+);
+console.log("SUPABASE_URL (env):", Deno.env.get("SUPABASE_URL"));
+console.log("FRONTEND_URL (env):", Deno.env.get("FRONTEND_URL"));
+
+// Hardcoded configuration with fallback to environment variables
+const SUPABASE_SERVICE_ROLE_KEY =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "http://127.0.0.1:54321";
+const FRONTEND_URL = Deno.env.get("FRONTEND_URL") || "http://localhost:5173";
+
+// Extensive logging for hardcoded configuration
+console.log("🔐 Hardcoded Configuration:");
+console.log(
+  "SUPABASE_SERVICE_ROLE_KEY (hardcoded):",
+  SUPABASE_SERVICE_ROLE_KEY,
+);
+console.log(
+  "SUPABASE_SERVICE_ROLE_KEY Length:",
+  SUPABASE_SERVICE_ROLE_KEY.length,
+);
+console.log(
+  "SUPABASE_SERVICE_ROLE_KEY First 10 Chars:",
+  SUPABASE_SERVICE_ROLE_KEY.slice(0, 10),
+);
 
 // CORS headers
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
-// Improved configuration management
-const getConfig = () => ({
-  SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
-  SUPABASE_URL: Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321',
-  FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173',
-});
+// Explicit token validation function with extensive logging
+function validateServiceRoleToken(providedToken: string): boolean {
+  console.log("🔐 Token Validation Details:");
+  console.log("Provided Token:", providedToken);
+  console.log("Provided Token Length:", providedToken.length);
+  console.log("Provided Token First 10 Chars:", providedToken.slice(0, 10));
 
-// Validate service role key with improved security
-const validateServiceRoleKey = (providedToken: string): boolean => {
-  const config = getConfig();
-  if (!config.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('❌ Service Role Key not configured');
-    return true; // Return true for testing
-  }
-  return true; // Always return true for testing
-};
+  console.log("Expected Token:", SUPABASE_SERVICE_ROLE_KEY);
+  console.log("Expected Token Length:", SUPABASE_SERVICE_ROLE_KEY.length);
+  console.log(
+    "Expected Token First 10 Chars:",
+    SUPABASE_SERVICE_ROLE_KEY.slice(0, 10),
+  );
 
-// Improved error response helper
-const createErrorResponse = (message: string, status: number = 400) => {
-  return new Response(JSON.stringify({ error: message }), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-};
+  // Trim whitespace and compare exact tokens
+  const trimmedProvided = providedToken.trim();
+  const trimmedExpected = SUPABASE_SERVICE_ROLE_KEY.trim();
 
-// Validate email format
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+  console.log("Trimmed Provided Token:", trimmedProvided);
+  console.log("Trimmed Expected Token:", trimmedExpected);
 
-// Find admin user dynamically
-const findAdminUser = async (supabaseAdmin: any) => {
-  const { data: adminUsers, error } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('role', 'admin')
-    .limit(1);
+  const isValid = trimmedProvided === trimmedExpected;
+  console.log("Token Validation Result:", isValid);
 
-  if (error || !adminUsers || adminUsers.length === 0) {
-    console.error('No admin user found', error);
-    return null;
+  return isValid;
+}
+
+serve(async (req) => {
+  console.log("🔍 Invitation Function Called");
+  console.log("Request Method:", req.method);
+  console.log("Request Headers:", Object.fromEntries(req.headers));
+
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    console.log("🌐 CORS Preflight Request");
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  // Return the first admin user's ID
-  return adminUsers[0].id;
-};
+  // Validate service role authentication
+  const authHeader = req.headers.get("Authorization");
+  console.log("Authorization Header:", authHeader);
 
-// Improved invitation handling
-const handleInvitation = async (supabaseAdmin: any, invitationData: any) => {
-  const { email, role, department = '', full_name, custom_message = '' } = invitationData;
-
-  // Validate required fields
-  if (!email || !role || !full_name) {
-    throw new Error('Missing required fields: email, role, and full_name are mandatory');
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.error("❌ Missing or Invalid Authorization Header");
+    return new Response(
+      JSON.stringify({
+        error: "Unauthorized: Missing or invalid token",
+        details: {
+          authHeader: authHeader,
+          expectedPrefix: "Bearer ",
+        },
+      }),
+      {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
-  // Validate email format
-  if (!validateEmail(email)) {
-    throw new Error('Invalid email format');
+  // Extract service role key
+  const providedToken = authHeader.split(" ")[1];
+
+  // Validate service role key
+  if (!validateServiceRoleToken(providedToken)) {
+    console.error("❌ Token Validation Failed");
+    return new Response(
+      JSON.stringify({
+        error: "Unauthorized: Invalid service role key",
+        details: {
+          providedTokenLength: providedToken.length,
+          expectedTokenLength: SUPABASE_SERVICE_ROLE_KEY.length,
+        },
+      }),
+      {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
-  // Find admin user
-  const adminUserId = await findAdminUser(supabaseAdmin);
-  if (!adminUserId) {
-    throw new Error('No admin user found to send invitation');
-  }
+  try {
+    // Parse invitation payload
+    const { email, role, department, custom_message, full_name } =
+      await req.json();
 
-  // Generate secure invitation token
-  const invitation_token = crypto.randomUUID();
-  const expires_at = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
-
-  // Check for existing invitation
-  const { data: existingInvitation, error: existingError } = await supabaseAdmin
-    .from('user_invitations')
-    .select('*')
-    .eq('email', email)
-    .single();
-
-  if (existingError && existingError.code !== 'PGRST116') {
-    console.error('Error checking existing invitation:', existingError);
-    throw existingError;
-  }
-
-  // Upsert invitation with robust logic
-  const { data, error } = await supabaseAdmin.from('user_invitations').upsert(
-    {
+    console.log("📧 Invitation Details:", {
       email,
       role,
       department,
-      full_name,
-      custom_message,
-      status: 'sent',
-      invited_by: adminUserId,
-      invitation_token,
-      expires_at,
-      created_at: new Date().toISOString(),
-    },
-    {
-      onConflict: 'email',
-      returning: 'minimal',
+      hasCustomMessage: !!custom_message,
+      fullName: full_name,
+    });
+
+    // Validate required fields
+    if (!email || !role) {
+      console.error("❌ Missing Required Fields");
+      return new Response(
+        JSON.stringify({ error: "Email and role are required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
-  );
 
-  if (error) {
-    console.error('Invitation upsert error:', error);
-    throw error;
-  }
+    // Generate invitation token
+    const invitationToken = crypto.randomUUID();
 
-  // Log invitation details for local development
-  console.log('✅ Invitation Created:', {
-    email,
-    role,
-    department,
-    full_name,
-    token: invitation_token,
-  });
+    // Construct invitation link
+    const invitationLink = `${FRONTEND_URL}/invitation?token=${invitationToken}`;
 
-  // Call the send-invitation-email function
-  try {
-    const config = getConfig();
-    const emailResponse = await fetch(`${config.SUPABASE_URL}/functions/v1/send-invitation-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.SUPABASE_SERVICE_ROLE_KEY}`,
-      },
-      body: JSON.stringify({
-        email,
-        role,
-        invitation_token,
-        custom_message,
+    // Prepare email body
+    const emailBody = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invitation to Ogetto, Otachi & Co Advocates</title>
+</head>
+<body>
+    <h1>You've Been Invited</h1>
+    <p>You have been invited to join Ogetto, Otachi & Co Advocates</p>
+    
+    <h2>Invitation Details:</h2>
+    <ul>
+        <li><strong>Role:</strong> ${role}</li>
+        ${department ? `<li><strong>Department:</strong> ${department}</li>` : ""}
+    </ul>
+
+    ${
+      custom_message
+        ? `
+    <div style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">
+        <h3>Personal Message:</h3>
+        <p>${custom_message}</p>
+    </div>
+    `
+        : ""
+    }
+
+    <p>To accept your invitation, click the link below:</p>
+    <a href="${invitationLink}">Accept Invitation</a>
+
+    <p>Invitation Code: <strong>${invitationToken.slice(0, 6)}</strong></p>
+</body>
+</html>
+    `;
+
+    // Send email (mock for local development)
+    console.log("📧 Sending invitation email:", {
+      to: email,
+      subject: "Invitation to Ogetto, Otachi & Co Advocates",
+      invitationLink,
+    });
+
+    // Return successful response
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Invitation sent",
+        invitationToken,
       }),
-    });
-
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Failed to send invitation email:', errorText);
-    } else {
-      console.log('✅ Invitation Email Sent');
-    }
-  } catch (emailError) {
-    console.error('Error calling send-invitation-email function:', emailError);
-  }
-
-  return {
-    success: true,
-    message: 'Invitation sent successfully',
-    invitation_token,
-    email,
-  };
-};
-
-serve(async (req) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  // Validate request method
-  if (req.method !== 'POST') {
-    return createErrorResponse('Method not allowed', 405);
-  }
-
-  // Validate authorization
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader.startsWith('Bearer ')) {
-    return createErrorResponse('Missing auth token', 401);
-  }
-
-  const providedToken = authHeader.split(' ')[1];
-  const config = getConfig();
-
-  if (!validateServiceRoleKey(providedToken)) {
-    return createErrorResponse('Unauthorized: Invalid service role key', 401);
-  }
-
-  // Parse request body
-  let invitationData;
-  try {
-    invitationData = await req.json();
-  } catch (error) {
-    console.error('JSON parsing error:', error);
-    return createErrorResponse('Invalid JSON body', 400);
-  }
-
-  try {
-    // Create Supabase admin client
-    const supabaseAdmin = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
-    });
-
-    // Process invitation
-    const result = await handleInvitation(supabaseAdmin, invitationData);
-
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    );
   } catch (error) {
-    console.error('Invitation processing error:', error);
-    return createErrorResponse(error.message || 'Failed to process invitation', 500);
+    console.error("❌ Invitation Error:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to process invitation",
+        details: error.toString(),
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 });

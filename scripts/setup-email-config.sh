@@ -4,16 +4,20 @@
 
 echo "🔧 Supabase Email Configuration Setup"
 echo "====================================="
+echo "Recommended: Use Mailhog for local development"
+echo "Install with: brew install mailhog"
+echo "Web Interface: http://localhost:8025"
+echo ""
 
-# Prompt for SMTP details
-read -p "Enter SMTP Host (default: smtp.gmail.com): " SMTP_HOST
-SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+# Prompt for SMTP details with Mailhog defaults
+read -p "Enter SMTP Host (default: localhost): " SMTP_HOST
+SMTP_HOST=${SMTP_HOST:-localhost}
 
-read -p "Enter SMTP Port (default: 587): " SMTP_PORT
-SMTP_PORT=${SMTP_PORT:-587}
+read -p "Enter SMTP Port (default: 1025): " SMTP_PORT
+SMTP_PORT=${SMTP_PORT:-1025}
 
-read -p "Enter SMTP Username: " SMTP_USERNAME
-read -sp "Enter SMTP Password: " SMTP_PASSWORD
+read -p "Enter SMTP Username (optional for Mailhog): " SMTP_USERNAME
+read -sp "Enter SMTP Password (optional for Mailhog): " SMTP_PASSWORD
 echo  # New line after password input
 
 read -p "Enter From Email Address (default: noreply@ogettootachi.com): " SMTP_FROM
@@ -43,4 +47,6 @@ echo "Note: Keep your .env file secure and do not commit it to version control."
 echo -e "\n📋 Configuration Summary:"
 echo "SMTP Host: $SMTP_HOST"
 echo "SMTP Port: $SMTP_PORT"
-echo "From Email: $SMTP_FROM" 
+echo "From Email: $SMTP_FROM"
+echo ""
+echo "🌐 Mailhog Web Interface: http://localhost:8025" 
