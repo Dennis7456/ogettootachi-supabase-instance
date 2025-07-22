@@ -35,7 +35,6 @@ function runESLint(files) {
       if (code === 0) {
         resolve(0);
       } else {
-        console.error(`❌ Linting found ${code} issue(s)`);
         reject(code);
       }
     });

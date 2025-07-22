@@ -19,7 +19,6 @@ async function fixStoragePoliciesFinal() {
     for (const sql of dropPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
       if (_error) {
-        console.error(`❌ Error dropping policy: ${_error.message}`);
       }
     }
     // Create policies that check user_metadata for admin role
@@ -58,7 +57,6 @@ async function fixStoragePoliciesFinal() {
     for (const sql of createPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
       if (_error) {
-        console.error(`❌ Error creating policy: ${_error.message}`);
       }
     }
       "The key change is using: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"

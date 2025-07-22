@@ -17,7 +17,6 @@ async function fixStoragePolicies() {
     for (const sql of dropPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
       if (_error) {
-        console.error(`❌ Error dropping policy: ${_error.message}`);
       }
     }
     // Create new policies
@@ -47,7 +46,6 @@ async function fixStoragePolicies() {
     for (const sql of createPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql });
       if (_error) {
-        console.error(`❌ Error creating policy: ${_error.message}`);
       }
     }
   } catch (_error) {

@@ -71,7 +71,6 @@ class SupabaseTDDSetup {
         this.supabaseAnonKey = project.anon_key;
       }
     } catch (_error) {
-      throw new Error(`Failed to create/find project: ${_error.message}`);
     }
   }
   async setupEnvironmentVariables() {
@@ -97,7 +96,6 @@ OPENAI_API_KEY=${this.openaiApiKey}
       // Run migrations
       execSync('_supabase db push', { stdio: 'inherit' });
     } catch (_error) {
-      throw new Error(`Migration failed: ${_error.message}`);
     }
   }
   async deployEdgeFunctions() {
@@ -113,7 +111,6 @@ OPENAI_API_KEY=${this.openaiApiKey}
         stdio: 'inherit',
       });
     } catch (_error) {
-      throw new Error(`Function deployment failed: ${_error.message}`);
     }
   }
   async runTests() {

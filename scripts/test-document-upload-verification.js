@@ -74,8 +74,6 @@ async function testDocumentUploadVerification() {
       console.error('❌ Failed to list all documents:', allError.message);
     } else {
       allDocs.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (${doc.id}) - ${doc.category}`
-        );
       });
     }
     // Step 7: Clean up test document

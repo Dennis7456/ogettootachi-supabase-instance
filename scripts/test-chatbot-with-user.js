@@ -53,8 +53,6 @@ async function testChatbotWithUser() {
       console.error('❌ Search error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Step 4: Test conversation storage with real user
@@ -141,8 +139,6 @@ async function testChatbotWithUser() {
           insertError.message
         );
       } else {
-          `✅ Conversation ${i + 1} stored: "${message.substring(0, 30)}..."`
-        );
       }
     }
     // Step 6: Test retrieving user's conversation history

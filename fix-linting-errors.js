@@ -2,7 +2,6 @@ const COMMON_FIXES = {
   unusedVars: (code, varName) => {
     // Prefix unused variables with underscore
     const regex = new RegExp(`\\b${varName}\\b`, 'g');
-    return code.replace(regex, `_${varName}`);
   },
   processExit: code => {
     // Replace process.exit with throw

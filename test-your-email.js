@@ -44,8 +44,6 @@ async function testYourSpecificEmail() {
         afterData.total - beforeData.total
       );
       newMessages.forEach((msg, _index) => {
-          `   From: ${msg.From?.Name || 'Unknown'} <${msg.From?.Address || 'Unknown'}>`
-        );
       });
     } else {
     }
@@ -62,8 +60,6 @@ async function testYourSpecificEmail() {
       .limit(1);
     if (invitations && invitations.length > 0) {
       const inv = invitations[0];
-        `✅ Invitation in database: ${inv.email} (${inv.status}) - ${inv.created_at}`
-      );
     }
   } catch (_error) {
     console.error('Error testing specific email:', _error);

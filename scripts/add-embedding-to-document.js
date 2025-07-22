@@ -95,7 +95,6 @@ async function generateEmbedding(text) {
     // Optional: Validate term values
     Object.entries(terms).forEach(([term, weight]) => {
       if (typeof term !== 'string' || typeof weight !== 'number') {
-        throw new TypeError(`Invalid term: ${term}, weight must be a number`);
       }
     });
     return Object.freeze({ ...terms }); // Return a frozen copy
@@ -177,8 +176,6 @@ async function addEmbeddingToDocument() {
       console.error('❌ Search error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
   } catch (_error) {

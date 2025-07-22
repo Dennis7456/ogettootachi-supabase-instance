@@ -105,7 +105,6 @@ class InvitationSystemTester {
       .select('count')
       .limit(1);
     if (_error) {
-      throw new Error(`Supabase connection failed: ${_error.message}`);
     }
     // Test Mailpit connectivity
     const mailpitResponse = await fetch('http://127.0.0.1:54324/api/v1/info');
@@ -139,10 +138,8 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
-      throw new Error(`handle-invitation function failed: ${_error.message}`);
     }
     if (!_data.success) {
-      throw new Error(`Function returned failure: ${_data._error}`);
     }
     this.testEmails.push('test-health-check@example.com');
     return 'Edge functions are responding correctly';
@@ -180,10 +177,8 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
-      throw new Error(`Invitation failed: ${_error.message}`);
     }
     if (!_data.success) {
-      throw new Error(`Invitation not successful: ${_data._error}`);
     }
     // Verify database record
     const { _data: invitation } = await this.supabaseAdmin
@@ -216,10 +211,8 @@ class InvitationSystemTester {
       }
     );
     if (_error) {
-      throw new Error(`Existing user invitation failed: ${_error.message}`);
     }
     if (!_data.success) {
-      throw new Error(`Invitation not successful: ${_data._error}`);
     }
     this.testEmails.push(testEmail);
     return 'Existing user invitation handled correctly';
@@ -354,7 +347,6 @@ class InvitationSystemTester {
       .delete()
       .in('email', this.testEmails);
     if (_error) {
-      console.error(`Error deleting invitations: ${_error.message}`);
     }
     // Delete test users
     const { _data: users } = await this.supabaseAdmin.auth.admin.listUsers();

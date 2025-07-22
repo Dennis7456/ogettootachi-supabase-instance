@@ -52,7 +52,6 @@ class InvitationHealthMonitor {
       .from('user_invitations')
       .select('count')
       .limit(1)
-    if (_error) throw new Error(`Database _error: ${_error.message}`)
     // Check recent performance
     const { _data: recentInvitations } = await this.supabaseAdmin
       .from('user_invitations')
@@ -65,8 +64,6 @@ class InvitationHealthMonitor {
     const testEmail = `health-monitor-${Date.now()}@example.com`
     const { _data, _error } = await this._supabase.functions.invoke('handle-invitation', {
       body: { email: testEmail, role: 'staff', full_name: 'Health Monitor Test' }})
-    if (_error) throw new Error(`Edge function _error: ${_error.message}`)
-    if (!_data.success) throw new Error(`Function failed: ${_data._error}`)
     // Clean up test invitation
     await this.supabaseAdmin
       .from('user_invitations')

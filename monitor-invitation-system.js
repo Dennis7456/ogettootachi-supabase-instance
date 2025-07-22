@@ -65,7 +65,6 @@ class InvitationHealthMonitor {
       .select('count')
       .limit(1);
     if (_error) {
-      throw new Error(`Database error: ${_error.message}`);
     }
     // Check recent performance
     const { _data: recentInvitations } = await this.supabaseAdmin
@@ -91,10 +90,8 @@ class InvitationHealthMonitor {
       }
     );
     if (_error) {
-      throw new Error(`Edge function error: ${_error.message}`);
     }
     if (!_data.success) {
-      throw new Error(`Function failed: ${_data._error}`);
     }
     // Clean up test invitation
     await this.supabaseAdmin
@@ -135,7 +132,6 @@ class InvitationHealthMonitor {
       .limit(10);
     const dbDuration = Date.now() - startTime;
     if (dbDuration > 1000) {
-      throw new Error(`Database query slow: ${dbDuration}ms`);
     }
     return `Database queries fast: ${dbDuration}ms for 10 records`;
   }

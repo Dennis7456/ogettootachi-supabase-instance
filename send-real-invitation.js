@@ -41,8 +41,6 @@ async function sendRealInvitation() {
       const mailpitData = await mailpitResponse.json();
       if (mailpitData.total > 0) {
         mailpitData.messages.forEach((msg, _index) => {
-            `${_index + 1}. ${msg.Subject} - To: ${msg.To?.[0]?.Address}`
-          );
         });
       } else {
       }

@@ -65,7 +65,6 @@ class MasterTestRunner {
       });
       if (success) {
       } else {
-        console.error(`❌ ${testSuite.name} failed`);
         if (stderr) {
           console.error('Error details:', stderr);
         }
