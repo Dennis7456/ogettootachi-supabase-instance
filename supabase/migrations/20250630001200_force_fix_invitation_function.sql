@@ -1,5 +1,5 @@
 -- Force fix for create_user_invitation function
--- Drop and recreate to ensure the fix is applied
+-- Enhanced token generation with improved uniqueness and security
 
 DROP FUNCTION IF EXISTS create_user_invitation(TEXT, TEXT, INTEGER);
 
@@ -17,6 +17,7 @@ DECLARE
   v_invitation_token TEXT;
   v_invitation_id UUID;
   v_result JSONB;
+  v_token_attempts INTEGER := 0;
 BEGIN
   -- Get current user ID
   current_user_id := auth.uid();
@@ -44,8 +45,27 @@ BEGIN
     RAISE EXCEPTION 'User already exists';
   END IF;
   
-  -- Generate invitation token using a combination of methods
-  v_invitation_token := encode(gen_random_bytes(32), 'hex') || '-' || to_char(NOW(), 'YYYYMMDDHH24MISS');
+  -- Generate unique invitation token with multiple attempts
+  LOOP
+    -- Increment attempts
+    v_token_attempts := v_token_attempts + 1;
+    
+    -- Generate token using cryptographically secure method
+    v_invitation_token := encode(gen_random_bytes(32), 'hex') || 
+                          '-' || to_char(NOW(), 'YYYYMMDDHH24MISS') || 
+                          '-' || md5(random()::text);
+    
+    -- Check for token uniqueness
+    EXIT WHEN NOT EXISTS (
+      SELECT 1 FROM user_invitations 
+      WHERE invitation_token = v_invitation_token
+    );
+    
+    -- Prevent infinite loop
+    IF v_token_attempts > 10 THEN
+      RAISE EXCEPTION 'Failed to generate unique invitation token after 10 attempts';
+    END IF;
+  END LOOP;
   
   -- Create invitation
   INSERT INTO user_invitations (

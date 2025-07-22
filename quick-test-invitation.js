@@ -1,11 +1,13 @@
-/* eslint-disable no-console, no-undef */
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
-// Quick invitation testing script
+// Load environment variables
+dotenv.config();
+
+// Configuration from environment variables
 const _config = {
-  SUPABASE_URL: 'http://127.0.0.1:54321',
-  SUPABASE_ANON_KEY:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+  SUPABASE_URL: process.env.SUPABASE_URL || 'http://127.0.0.1:54321',
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
 };
 
 // Utility function for logging errors
@@ -16,6 +18,12 @@ const _logError = (prefix, _error) => {
 };
 
 async function quickTestInvitation() {
+  // Validate configuration
+  if (!_config.SUPABASE_ANON_KEY) {
+    console.error('❌ SUPABASE_ANON_KEY is not set. Please configure your .env file.');
+    process.exit(1);
+  }
+
   const _email = process.argv[2] || `test-${Date.now()}@example.com`;
   const _role = process.argv[3] || 'staff';
   const _fullName = process.argv[4] || 'Test User';

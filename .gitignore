@@ -1,47 +1,19 @@
-# Dependency directories
-node_modules/
-
-# Environment files
+# Environment Variables
 .env
 *.env
-*.env.local
-*.env.development.local
-*.env.test.local
-*.env.production.local
+!.env.example
+
+# Dependency directories
+node_modules/
 
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Temporary files
-.tmp/
-.temp/
+# Secrets and sensitive files
+*.pem
+*.key
 
-# Backup files
-*.bak
-*.backup
-
-# macOS system files
+# OS generated files
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Build output
-dist/
-build/
-out/
-
-# Supabase local development
-supabase/.branches
-supabase/.temp
-supabase/.env
+Thumbs.db
