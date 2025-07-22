@@ -3,8 +3,8 @@
 # Test Invitation Sending Script
 
 # Supabase local development URL and anon key
-SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-}"
-SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
+SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
 
 # Test invitation details
 EMAIL="test_user@example.com"
