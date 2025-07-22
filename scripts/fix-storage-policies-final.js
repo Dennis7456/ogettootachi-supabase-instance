@@ -26,11 +26,11 @@ async function fixStoragePoliciesFinal() {
 
     // Drop existing policies
     const _dropPolicies = [
-      "DROP POLICY IF EXISTS 'Documents are uploadable by admins' ON storage.objects;",
-      "DROP POLICY IF EXISTS 'Documents are accessible by authenticated users' ON storage.objects;",
-      "DROP POLICY IF EXISTS 'Service role can access all storage' ON storage.objects;",
-      "DROP POLICY IF EXISTS 'Documents are updatable by admins' ON storage.objects;",
-      "DROP POLICY IF EXISTS 'Documents are deletable by admins' ON storage.objects;",
+      'DROP POLICY IF EXISTS \'Documents are uploadable by admins\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are accessible by authenticated users\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Service role can access all storage\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are updatable by admins\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are deletable by admins\' ON storage.objects;',
     ];
 
     for (const _sql of _dropPolicies) {
@@ -87,7 +87,7 @@ async function fixStoragePoliciesFinal() {
       'The issue is that the admin role is in user_metadata, not in the main JWT role field.'
     );
     console.log(
-      "The key change is using: (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'"
+      'The key change is using: (auth.jwt() -> \'user_metadata\' ->> \'role\') = \'admin\''
     );
     console.log('✅ Storage policies updated successfully');
   } catch (_error) {
