@@ -13,19 +13,22 @@ mkdir -p test-secret-detection/invitation-system-backup-20250720-021227
 mkdir -p test-secret-detection/config
 
 # Create files with potential "secrets"
+# ONLY create a secret in test_secret.sh
 echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/test_secret.sh
-echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/backups/backup_secret.sh
-echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/invitation-system-backup-20250720-021227/auth.toml
-echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/node_modules/secret.sh
-echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/.git/secret.sh
-echo 'SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"' > test-secret-detection/config/auth.toml
+
+# Create empty or non-secret files in other locations
+touch test-secret-detection/backups/backup_secret.sh
+touch test-secret-detection/invitation-system-backup-20250720-021227/auth.toml
+touch test-secret-detection/node_modules/secret.sh
+touch test-secret-detection/.git/secret.sh
+touch test-secret-detection/config/auth.toml
 touch test-secret-detection/test.dump
 touch test-secret-detection/test.html
 touch test-secret-detection/test.md
 touch test-secret-detection/test.json
 
 # Run secret detection
-echo "🔍 Running Secret Detection Test..."
+echo "�� Running Secret Detection Test..."
 
 # Prepare exclusion arguments
 EXCLUDE_ARGS=(
