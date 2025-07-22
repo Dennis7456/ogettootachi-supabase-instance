@@ -124,12 +124,37 @@ async function simulateEnhancedResponse(_message, _documents, _sessionId) {
   // Simple intent detection
   let _intent = 'info';
 
-  const bookKeywords = ['book', 'appointment', 'schedule', 'consultation', 'meet'];
-  const contactKeywords = ['contact', 'message', 'reach', 'email', 'phone', 'send'];
+  const bookKeywords = [
+    'book',
+    'appointment',
+    'schedule',
+    'consultation',
+    'meet',
+  ];
+  const contactKeywords = [
+    'contact',
+    'message',
+    'reach',
+    'email',
+    'phone',
+    'send',
+  ];
   const infoKeywords = [
-    'service', 'practice', 'offer', 'area', 'policy', 'team', 
-    'case', 'experience', 'unique', 'about', 'who', 'what', 
-    'where', 'when', 'how'
+    'service',
+    'practice',
+    'offer',
+    'area',
+    'policy',
+    'team',
+    'case',
+    'experience',
+    'unique',
+    'about',
+    'who',
+    'what',
+    'where',
+    'when',
+    'how',
   ];
 
   if (bookKeywords.some(keyword => _lower.includes(keyword))) {

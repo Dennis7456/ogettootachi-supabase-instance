@@ -81,9 +81,23 @@ async function testChatbotSimple() {
       let _response = '';
 
       if (
-        ['service', 'practice', 'offer', 'area', 'policy', 'team', 'case', 
-         'experience', 'unique', 'about', 'who', 'what', 'where', 'when', 'how']
-        .some(keyword => _lowerMessage.includes(keyword))
+        [
+          'service',
+          'practice',
+          'offer',
+          'area',
+          'policy',
+          'team',
+          'case',
+          'experience',
+          'unique',
+          'about',
+          'who',
+          'what',
+          'where',
+          'when',
+          'how',
+        ].some(keyword => _lowerMessage.includes(keyword))
       ) {
         _response =
           'Thank you for your inquiry. Ogetto, Otachi & Co Advocates offers comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.';

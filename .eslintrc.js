@@ -3,18 +3,19 @@ export default {
     es2021: true,
     node: true,
   },
-  extends: [
-    'eslint:recommended',
-  ],
+  extends: ['eslint:recommended'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
   rules: {
-    'quotes': ['error', 'single'],
-    'no-unused-vars': ['error', { 
-      varsIgnorePattern: '^_', 
-      argsIgnorePattern: '^_' 
-    }],
+    quotes: ['error', 'single'],
+    'no-unused-vars': [
+      'error',
+      {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      },
+    ],
   },
 };

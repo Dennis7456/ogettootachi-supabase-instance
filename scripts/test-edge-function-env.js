@@ -77,7 +77,7 @@ try {
   console.log('Supabase Secrets:', _secrets);
 } catch (_error) {
   console.error(
-    '❌ Could not list secrets. Make sure you\'re in the supabase directory.'
+    "❌ Could not list secrets. Make sure you're in the supabase directory."
   );
 }
 
