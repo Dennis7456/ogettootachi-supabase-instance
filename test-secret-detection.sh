@@ -27,30 +27,36 @@ touch test-secret-detection/test.json
 # Run secret detection
 echo "🔍 Running Secret Detection Test..."
 
+# Prepare exclusion arguments
+EXCLUDE_ARGS=(
+    --exclude-dir=node_modules
+    --exclude-dir=.git
+    --exclude-dir=backups
+    --exclude=*.html
+    --exclude=*.md
+    --exclude=*.json
+    --exclude=config/auth.toml
+    --exclude='invitation-system-backup-*/auth.toml'
+    --exclude=*.dump
+)
+
 # More precise secret detection
 SECRET_DETECTION=$(grep -r -i -E '(password|secret|key|token|credentials).*=.*['\"][^'\"]{8,}' \
-    --exclude-dir=node_modules \
-    --exclude-dir=.git \
-    --exclude-dir=backups \
-    --exclude=*.html \
-    --exclude=*.md \
-    --exclude=*.json \
-    --exclude=config/auth.toml \
-    --exclude='invitation-system-backup-*/auth.toml' \
-    --exclude=*.dump \
-    test-secret-detection | grep -v 'email-templates')
+    "${EXCLUDE_ARGS[@]}" \
+    test-secret-detection | grep -v 'email-templates' | grep -v 'config/auth.toml' | grep -v 'invitation-system-backup-')
 
-# Clean up test files
-rm -rf test-secret-detection
-
-# Check results
-if [ -n "$SECRET_DETECTION" ]; then
-    echo "❌ Secret Detection Test FAILED"
-    echo "Detected secrets:"
-    echo "$SECRET_DETECTION"
-    exit 1
+# We expect exactly one hit—our top-level test_secret.sh—and nothing else.
+# 1) It must be non-empty, and
+# 2) All lines must start with 'test-secret-detection/test_secret.sh:'
+if [ -n "$SECRET_DETECTION" ] && \
+   ! printf '%s\n' "$SECRET_DETECTION" | grep -qv '^test-secret-detection/test_secret.sh:'; then
+  echo "✅ Secret Detection Test PASSED"
+  echo "Detected exactly the intended secret in test_secret.sh:"
+  echo "$SECRET_DETECTION"
+  exit 0
 else
-    echo "✅ Secret Detection Test PASSED"
-    echo "No secrets detected in excluded files/directories"
-    exit 0
+  echo "❌ Secret Detection Test FAILED"
+  echo "Detected unexpected secrets (or none at all):"
+  echo "$SECRET_DETECTION"
+  exit 1
 fi

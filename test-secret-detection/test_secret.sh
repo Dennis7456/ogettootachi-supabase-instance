@@ -1,0 +1,1 @@
+SUPABASE_ANON_KEY="test_long_secret_key_that_would_normally_trigger_detection"
