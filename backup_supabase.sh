@@ -28,7 +28,7 @@ DB_NAME="${SUPABASE_DB_NAME:-postgres}"
 DB_USER="$SUPABASE_DB_USER"
 
 # Provide password to pg_dump/psql
-export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+export PGPASSWORD=$SUPABASE_DB_PASSWORD
 
 # Prepare output directory
 mkdir -p "$BACKUP_DIR"
