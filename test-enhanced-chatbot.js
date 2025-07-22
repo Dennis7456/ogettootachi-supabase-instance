@@ -30,8 +30,6 @@ async function testEnhancedChatbot() {
       console.error('❌ Search error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test 2: Intent detection and conversational flows
@@ -72,10 +70,6 @@ async function testEnhancedChatbot() {
         const response = await simulateEnhancedResponse(
           message,
           searchResults || [],
-          `test-session-${scenario.name}`
-        );
-          `Scenario: ${scenario.name}, Message: ${message}, Response: ${response}`
-        );
       }
     }
     // Test 3: Document blending and citation

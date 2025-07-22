@@ -40,8 +40,6 @@ async function testChatbotSimple() {
       console.error('❌ Search error:', searchError.message);
     } else {
       searchResults.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test 3: Test rule-based response generation

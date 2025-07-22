@@ -42,9 +42,9 @@ async function testUIInvitationFlow() {
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.messages && mailpitData.messages.length > 0) {
       mailpitData.messages.forEach((msg, _index) => {
-          `${_index + 1}. From: ${msg.From?.Name || msg.From?.Address || 'Unknown'}`,
-          `   To: ${msg.To?.[0]?.Name || msg.To?.[0]?.Address || 'Unknown'}`
-        );
+        (`${_index + 1}. From: ${msg.From?.Name || msg.From?.Address || 'Unknown'}`,
+            `   To: ${msg.To?.[0]?.Name || msg.To?.[0]?.Address || 'Unknown'}`
+          ));
       });
     } else {
     }

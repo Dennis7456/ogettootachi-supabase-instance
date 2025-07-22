@@ -25,8 +25,7 @@ async function createInvitation() {
     const _data = await response.text();
     try {
       const jsonData = JSON.parse(_data);
-    } catch (e) {
-    }
+    } catch (e) {}
   } catch (_error) {
     console.error('Error creating invitation:', _error);
   }

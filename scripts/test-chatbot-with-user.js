@@ -89,9 +89,7 @@ async function testChatbotWithUser() {
           retrieveError.message
         );
       } else {
-          'Response:',
-          `${retrievedConv.response.substring(0, 100)}...`
-        );
+        ('Response:',
       }
     }
     // Step 5: Test multiple conversations

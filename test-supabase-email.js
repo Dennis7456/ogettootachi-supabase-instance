@@ -54,8 +54,6 @@ async function testSupabaseEmail() {
     const _data = await response.json();
     if (_data.messages && _data.messages.length > 0) {
       _data.messages.slice(0, 5).forEach((msg, _index) => {
-          `${_index + 1}. From: ${msg.From?.Address}, Subject: ${msg.Subject}`
-        );
       });
     } else {
     }

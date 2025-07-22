@@ -62,11 +62,7 @@ async function testChatbot() {
     if (searchError) {
       console.error('❌ Search error:', searchError.message);
     } else {
-        `✅ Search found ${searchResults.length} relevant documents:`
-      );
       searchResults.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (similarity: ${doc.similarity?.toFixed(3) || 'N/A'})`
-        );
       });
     }
     // Test conversation storage

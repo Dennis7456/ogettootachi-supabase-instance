@@ -102,8 +102,6 @@ async function testPdfEmbedding() {
       const avgValue =
         embedding.reduce((sum, val) => sum + val, 0) / embedding.length;
         '   Sparsity:',
-        `${(((embedding.length - nonZeroValues.length) / embedding.length) * 100).toFixed(1)}%`
-      );
       // Show some sample values
       embedding.slice(0, 20).forEach((val, _index) => {});
       // Show highest values

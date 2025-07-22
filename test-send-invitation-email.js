@@ -29,8 +29,7 @@ async function sendInvitationEmail() {
     const _data = await response.text();
     try {
       const jsonData = JSON.parse(_data);
-    } catch (e) {
-    }
+    } catch (e) {}
   } catch (_error) {
     console.error('Error sending invitation email:', _error);
   }

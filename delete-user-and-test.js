@@ -66,8 +66,6 @@ async function deleteUserAndTest() {
       const mailpitData = await mailpitResponse.json();
       if (mailpitData.total > 0) {
         mailpitData.messages.forEach((msg, _index) => {
-            `   From: ${msg.From?.Name || 'Unknown'} <${msg.From?.Address}>`
-          );
         });
           '\n🎯 PERFECT! Your invitation system is now fully working!'
         );

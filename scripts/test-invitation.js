@@ -15,7 +15,6 @@ async function testInvitation() {
     await pgClient.connect();
     // Find admin users, prioritizing users with a full name
     const { rows: adminUsers } = await pgClient.query(
-      `SELECT id, role, full_name, email 
        FROM public.profiles 
        WHERE role = 'admin' 
        ORDER BY 
@@ -24,8 +23,7 @@ async function testInvitation() {
            ELSE 1 
          END,
          created_at DESC
-       LIMIT 1`
-    );
+       LIMIT 1`);
     if (!adminUsers || adminUsers.length === 0) {
       throw new Error('No admin users found');
     }

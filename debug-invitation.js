@@ -54,8 +54,6 @@ async function debugInvitation() {
       console.error('Error fetching invitations:', _error);
     } else {
       invitations.forEach((inv, _index) => {
-          `   ${_index + 1}. ${inv.email} (${inv.role}) - ${inv.status || 'pending'} - ${inv.created_at}`
-        );
       });
     }
   } catch (_error) {
@@ -94,12 +92,8 @@ async function debugInvitation() {
   try {
     const response = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const messages = await response.json();
-      `   📧 Messages in inbox: ${messages.messages ? messages.messages.length : 0}`
-    );
     if (messages.messages && messages.messages.length > 0) {
       messages.messages.slice(0, 3).forEach((msg, _index) => {
-          `   ${_index + 1}. From: ${msg.From}, To: ${msg.To}, Subject: ${msg.Subject}`
-        );
       });
     }
   } catch (_error) {
@@ -117,8 +111,6 @@ async function debugInvitation() {
     );
     if (functionsResponse.ok) {
     } else {
-        `   ⚠️ Functions endpoint returned: ${functionsResponse.status}`
-      );
     }
   } catch (_error) {
     console.error('Error checking functions endpoint:', _error);

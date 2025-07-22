@@ -15,8 +15,6 @@ async function checkUserStatus() {
     const { _data: users } = await _supabase.auth.admin.listUsers();
     const authUser = users.users.find(u => u.email === email);
     if (authUser) {
-        `   Email Confirmed: ${authUser.email_confirmed_at ? 'Yes' : 'No'}`
-      );
     }
     // Check invitations
     const { _data: invitations } = await _supabase
@@ -26,10 +24,6 @@ async function checkUserStatus() {
       .order('created_at', { ascending: false });
     if (invitations && invitations.length > 0) {
       invitations.forEach((inv, i) => {
-          `   ${i + 1}. Status: ${inv.status}, Role: ${inv.role}, Created: ${inv.created_at}`
-        );
-          `      Direct Link: http://localhost:5173/password-setup?token=${inv.invitation_token}&type=invite`
-        );
       });
     }
     // Check Mailpit emails
@@ -39,8 +33,6 @@ async function checkUserStatus() {
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.messages) {
       mailpitData.messages.forEach((msg, i) => {
-          `   ${i + 1}. ${msg.Subject} → ${msg.To?.[0]?.Address} (${msg.Created})`
-        );
       });
     }
     if (authUser) {

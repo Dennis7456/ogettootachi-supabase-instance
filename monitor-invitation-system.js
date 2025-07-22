@@ -177,8 +177,6 @@ class InvitationHealthMonitor {
         line.includes('HEALTHY')
       ).length;
       const uptime = ((healthyCount / recentChecks.length) * 100).toFixed(1);
-        `\n📈 Recent Uptime: ${uptime}% (${healthyCount}/${recentChecks.length} checks)`
-      );
     } catch (_error) {
       console.error('Error reading health history:', _error);
     }

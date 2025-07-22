@@ -289,8 +289,6 @@ class InvitationSystemTester {
       .in('email', this.testEmails);
     if (invitations.length !== this.testEmails.length) {
       throw new Error(
-        `Expected ${this.testEmails.length} records, found ${invitations.length}`
-      );
     }
     // Check required fields
     for (const inv of invitations) {
@@ -370,14 +368,10 @@ class InvitationSystemTester {
     const passed = this.results.filter(r => r.status === 'PASS').length;
     const failed = this.results.filter(r => r.status === 'FAIL').length;
     const totalTime = this.results.reduce((sum, r) => sum + r.duration, 0);
-      `📊 Success Rate: ${((passed / this.results.length) * 100).toFixed(1)}%\n`
-    );
     if (failed === 0) {
         '🎉 ALL TESTS PASSED! Your invitation system is working perfectly.'
       );
     } else {
-        `❌ ${failed} tests failed. Please check the logs for details.`
-      );
     }
   }
 }

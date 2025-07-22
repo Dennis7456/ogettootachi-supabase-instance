@@ -36,12 +36,8 @@ async function testSupabaseAuthEmail() {
       'http://127.0.0.1:54324/api/v1/messages'
     );
     const mailpitData1 = await mailpitResponse1.json();
-      `\n📬 Mailpit after invite: ${mailpitData1.total || 0} messages`
-    );
     if (mailpitData1.total > 0) {
       mailpitData1.messages.forEach((msg, _index) => {
-          `${_index + 1}. ${msg.Subject} - To: ${msg.To?.[0]?.Address}`
-        );
       });
     } else {
       // Method 2: Try password reset method
@@ -84,12 +80,8 @@ async function testSupabaseAuthEmail() {
             'http://127.0.0.1:54324/api/v1/messages'
           );
           const mailpitData2 = await mailpitResponse2.json();
-            `\n📬 Mailpit after reset: ${mailpitData2.total || 0} messages`
-          );
           if (mailpitData2.total > 0) {
             mailpitData2.messages.forEach((msg, _index) => {
-                `${_index + 1}. ${msg.Subject} - To: ${msg.To?.[0]?.Address}`
-              );
             });
           } else {
               '\n🔍 This suggests Supabase Auth SMTP is still not configured correctly'

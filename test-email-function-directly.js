@@ -22,8 +22,6 @@ async function testEmailFunctionDirectly() {
         }),
       }
     );
-      `📋 Response Status: ${response.status} ${response.statusText}`
-    );
     const responseText = await response.text();
     if (!response.ok) {
       console.error('Error response:', responseText);
@@ -44,8 +42,6 @@ async function testEmailFunctionDirectly() {
     const mailpitData = await mailpitResponse.json();
     if (mailpitData.total > 0) {
       mailpitData.messages.forEach((msg, _index) => {
-          `${_index + 1}. ${msg.Subject} - To: ${msg.To?.[0]?.Address}`
-        );
       });
     } else {
     }

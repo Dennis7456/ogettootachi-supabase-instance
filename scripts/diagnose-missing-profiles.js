@@ -38,8 +38,7 @@ async function diagnoseMissingProfiles() {
     }
     // Report results
     if (missingProfiles.length > 0) {
-      missingProfiles.forEach(user => {
-      });
+      missingProfiles.forEach(user => {});
     }
     return {
       totalUsers: users.users.length,

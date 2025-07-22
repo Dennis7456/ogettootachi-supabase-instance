@@ -80,8 +80,6 @@ class InvitationTester {
         this.log(
           'Admin User Check',
           'success',
-          `Found existing admin user: ${this.adminUserId}`
-        );
         return true;
       }
       // If no admin found, try to create one for testing
@@ -298,8 +296,6 @@ class InvitationTester {
       this.log(
         'React App Integration',
         'success',
-        `React app can access invitation data (${_data.length} records)`
-      );
       return true;
     } catch (_error) {
       this.log(

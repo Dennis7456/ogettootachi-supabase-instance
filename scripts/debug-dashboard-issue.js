@@ -33,8 +33,6 @@ async function debugDashboardIssue() {
       console.error('❌ Failed to list documents:', listError.message);
     } else {
       allDocs.forEach((doc, _index) => {
-          `   ${_index + 1}. ${doc.title} (${doc.id}) - ${doc.category} - ${doc.created_at}`
-        );
       });
     }
     // Check 4: Test with anon role (what dashboard might use)
@@ -59,8 +57,6 @@ async function debugDashboardIssue() {
       console.error('❌ Failed to check policies:', policiesError.message);
     } else {
       policies.forEach(policy => {
-          `   - ${policy.policy_name}: ${policy.permissive ? 'PERMISSIVE' : 'RESTRICTIVE'} ${policy.cmd}`
-        );
       });
     }
     // Check 6: Check if RLS is enabled
