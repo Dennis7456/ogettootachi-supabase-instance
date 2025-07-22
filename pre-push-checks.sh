@@ -47,6 +47,7 @@ run_check() {
     local check_name="$1"
     local command="$2"
     local critical="$3"
+    local format_command="$4"
 
     echo ""
     print_info "Running: $check_name"
@@ -56,6 +57,27 @@ run_check() {
         print_success "$check_name passed"
         return 0
     else
+        print_warning "$check_name failed"
+        
+        # If format_command is provided, try to format
+        if [ -n "$format_command" ]; then
+            print_info "Attempting to automatically format code..."
+            if eval "$format_command"; then
+                print_success "Code automatically formatted"
+                # Re-run the original check after formatting
+                if eval "$command"; then
+                    print_success "$check_name passed after formatting"
+                    return 0
+                else
+                    print_error "$check_name still fails after formatting"
+                    return 1
+                fi
+            else
+                print_error "Automatic formatting failed"
+                return 1
+            fi
+        fi
+
         if [ "$critical" = "true" ]; then
             print_error "$check_name FAILED (Critical)"
             return 1
@@ -115,7 +137,7 @@ echo ""
 echo "🎨 STEP 2: CODE FORMATTING CHECK"
 echo "================================"
 
-run_check "Prettier Format Check" "npm run format:check" "true"
+run_check "Prettier Format Check" "npm run format:check" "true" "npm run format"
 track_result $?
 
 echo ""
