@@ -14,7 +14,9 @@ const _config = {
 
 // Validate configuration
 if (!_config.SUPABASE_ANON_KEY || !_config.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error('❌ Missing Supabase configuration. Please set SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY in your .env file.');
+  console.error(
+    '❌ Missing Supabase configuration. Please set SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY in your .env file.'
+  );
   process.exit(1);
 }
 
