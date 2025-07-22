@@ -2,7 +2,10 @@
 import fs from 'fs';
 import path from 'path';
 
-function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']) {
+function findJSFiles(
+  dir,
+  excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']
+) {
   const files = fs.readdirSync(dir);
   const jsFiles = [];
 
@@ -11,7 +14,7 @@ function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'invitation-sys
     const stat = fs.statSync(fullPath);
 
     // Check if directory should be excluded
-    const shouldExclude = excludeDirs.some(excludeDir => 
+    const shouldExclude = excludeDirs.some(excludeDir =>
       fullPath.includes(excludeDir)
     );
 
@@ -28,28 +31,31 @@ function findJSFiles(dir, excludeDirs = ['node_modules', '.git', 'invitation-sys
 function fixSyntaxErrors(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
-    
+
     // Remove extra parentheses
     content = content.replace(/\)\s*\)/g, ')');
     content = content.replace(/\(\s*\(/g, '(');
-    
+
     // Remove unexpected tokens
     content = content.replace(/:\s*\)/g, ')');
-    
+
     // Remove empty block statements
     content = content.replace(/{\s*}/g, '');
-    
+
     // Add ESLint disable comments for global variables
     if (!content.includes('/* eslint-disable')) {
       content = `/* eslint-disable no-console, no-undef, no-unused-vars */\n${content}`;
     }
-    
+
     // Replace console._error with console.error
     content = content.replace(/console\._error/g, 'console.error');
-    
+
     // Remove empty arrow functions
-    content = content.replace(/\(\s*_\w*\s*,\s*_\w*\)\s*=>\s*{\s*}/g, '() => {}');
-    
+    content = content.replace(
+      /\(\s*_\w*\s*,\s*_\w*\)\s*=>\s*{\s*}/g,
+      '() => {}'
+    );
+
     fs.writeFileSync(filePath, content, 'utf8');
     console.log(`Fixed syntax errors in ${filePath}`);
   } catch (error) {
@@ -64,4 +70,4 @@ function main() {
   jsFiles.forEach(fixSyntaxErrors);
 }
 
-main(); 
+main();

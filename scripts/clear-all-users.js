@@ -23,7 +23,7 @@ async function clearAllUsers() {
       .neq('id', '00000000-0000-0000-0000-000000000000'); // Avoid deleting any system reserved profiles
 
     _logError('Error deleting profiles', _profilesError);
-    
+
     if (_profilesError) {
       return false;
     }
@@ -33,7 +33,7 @@ async function clearAllUsers() {
       await _supabase.auth.admin.listUsers();
 
     _logError('Error listing users', _listError);
-    
+
     if (_listError) {
       return false;
     }
@@ -56,8 +56,12 @@ async function clearAllUsers() {
       }
     }
 
-    console.log(`Successfully Deleted: ${_deletionResults.filter(_r => _r.deleted).length}`);
-    console.log(`Failed Deletions: ${_deletionResults.filter(_r => !_r.deleted).length}`);
+    console.log(
+      `Successfully Deleted: ${_deletionResults.filter(_r => _r.deleted).length}`
+    );
+    console.log(
+      `Failed Deletions: ${_deletionResults.filter(_r => !_r.deleted).length}`
+    );
 
     return true;
   } catch (_error) {

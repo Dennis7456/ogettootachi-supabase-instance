@@ -26,7 +26,7 @@ async function checkAndFixRLS() {
       });
 
     _logError('Authentication failed', _authError);
-    
+
     if (_authError) {
       return;
     }
@@ -41,11 +41,13 @@ async function checkAndFixRLS() {
       const _payload = JSON.parse(
         Buffer.from(_tokenParts[1], 'base64').toString()
       );
-      
+
       console.log('JWT Payload:', _payload);
     }
 
-    console.log('- The issue is that the RLS policies are not correctly checking user_metadata');
+    console.log(
+      '- The issue is that the RLS policies are not correctly checking user_metadata'
+    );
 
     // Note: The following SQL commands should be run manually or through a database migration
     const _sqlCommands = [
@@ -118,7 +120,9 @@ async function checkAndFixRLS() {
       console.log(`SQL Command ${_index + 1}:`, _cmd);
     });
 
-    console.log('Please run these SQL commands manually through your database migration tool.');
+    console.log(
+      'Please run these SQL commands manually through your database migration tool.'
+    );
   } catch (_error) {
     console.error('❌ Unexpected error:', _error.message);
   }

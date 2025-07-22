@@ -26,7 +26,7 @@ async function checkAdminJWT() {
         email: 'admin@test.com',
         password: 'admin123456',
       });
-    
+
     logError('Auth error', _authError);
     if (_authError) return;
 
@@ -38,12 +38,12 @@ async function checkAdminJWT() {
     if (session) {
       // Decode JWT (basic decode without verification)
       const _tokenParts = session.access_token.split('.');
-      
+
       if (_tokenParts.length === 3) {
         const _payload = JSON.parse(
           Buffer.from(_tokenParts[1], 'base64').toString()
         );
-        
+
         console.log('JWT Payload:', _payload);
       }
     }
@@ -54,7 +54,7 @@ async function checkAdminJWT() {
       .select('*')
       .eq('id', _authData.user.id)
       .single();
-    
+
     logError('Profile error', _profileError);
 
     if (_profile) {

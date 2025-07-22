@@ -16,7 +16,9 @@ const _logError = (prefix, _error) => {
 };
 
 async function testSupabaseAuthEmail() {
-  console.log('🧪 Testing Supabase Auth email with corrected SMTP configuration...\n');
+  console.log(
+    '🧪 Testing Supabase Auth email with corrected SMTP configuration...\n'
+  );
 
   // Clear Mailpit first
   try {
@@ -59,7 +61,9 @@ async function testSupabaseAuthEmail() {
         console.log(`Mailpit Message ${_index + 1}:`, _msg);
       });
     } else {
-      console.log('\n🔄 Method 2: Using Auth Admin generateLink for password reset...');
+      console.log(
+        '\n🔄 Method 2: Using Auth Admin generateLink for password reset...'
+      );
 
       // First create a user
       const { _data: _createUserData, _error: _createUserError } =
@@ -74,7 +78,10 @@ async function testSupabaseAuthEmail() {
 
       _logError('Create user error', _createUserError);
 
-      if (!_createUserError || _createUserError.message.includes('already exists')) {
+      if (
+        !_createUserError ||
+        _createUserError.message.includes('already exists')
+      ) {
         // Generate password reset link
         const { _data: _resetData, _error: _resetError } =
           await _supabase.auth.admin.generateLink({
@@ -88,7 +95,10 @@ async function testSupabaseAuthEmail() {
         _logError('Reset link error', _resetError);
 
         if (_resetData) {
-          console.log('✅ Reset link generated:', _resetData.properties.action_link);
+          console.log(
+            '✅ Reset link generated:',
+            _resetData.properties.action_link
+          );
 
           // Wait and check again
           await new Promise(_resolve => setTimeout(_resolve, 3000));
@@ -103,7 +113,9 @@ async function testSupabaseAuthEmail() {
               console.log(`Mailpit Message ${_index + 1}:`, _msg);
             });
           } else {
-            console.log('\n🔍 This suggests Supabase Auth SMTP is still not configured correctly');
+            console.log(
+              '\n🔍 This suggests Supabase Auth SMTP is still not configured correctly'
+            );
           }
         }
       }
@@ -113,7 +125,6 @@ async function testSupabaseAuthEmail() {
     const _mailpitInfo = await fetch('http://127.0.0.1:54324/api/v1/info');
     const _infoData = await _mailpitInfo.json();
     console.log('Mailpit Info:', _infoData);
-
   } catch (_error) {
     console.error('Unexpected error:', _error);
   }

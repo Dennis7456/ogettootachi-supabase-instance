@@ -33,7 +33,7 @@ async function createPersistentDocument() {
       .single();
 
     _logError('Failed to create document', _insertError);
-    
+
     if (_insertError) {
       return;
     }

@@ -12,9 +12,9 @@ const _supabase = createClient(supabaseUrl, supabaseServiceKey);
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -60,11 +60,7 @@ async function testPdfEmbedding() {
       earning recognition for our expertise in complex legal matters and our 
       commitment to client satisfaction.
     `;
-    debugLog(
-      '📝 Extracted content length:',
-      pdfContent.length,
-      'characters'
-    );
+    debugLog('📝 Extracted content length:', pdfContent.length, 'characters');
     // Create document in database
     const { data: docData, error: insertError } = await _supabase
       .from('documents')

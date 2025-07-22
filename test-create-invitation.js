@@ -25,9 +25,9 @@ async function createInvitation() {
         body: JSON.stringify(_invitationData),
       }
     );
-    
+
     const _data = await _response.text();
-    
+
     try {
       const _jsonData = JSON.parse(_data);
       console.log('Invitation response:', _jsonData);

@@ -53,7 +53,9 @@ async function testYourSpecificEmail() {
     await setTimeout(3000);
 
     // Check Mailpit AFTER sending
-    const _afterResponse = await fetch('http://127.0.0.1:54324/api/v1/messages');
+    const _afterResponse = await fetch(
+      'http://127.0.0.1:54324/api/v1/messages'
+    );
     const _afterData = await _afterResponse.json();
 
     if (_afterData.total > _beforeData.total) {
@@ -61,7 +63,7 @@ async function testYourSpecificEmail() {
         0,
         _afterData.total - _beforeData.total
       );
-      
+
       _newMessages.forEach((_msg, _index) => {
         console.log(`New message ${_index + 1}:`, _msg);
       });

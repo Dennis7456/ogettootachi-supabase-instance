@@ -31,7 +31,7 @@ async function fixStoragePoliciesComplete() {
 
     for (const _sql of _dropPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql: _sql });
-      
+
       if (_error) {
         _logError(`Error dropping policy: ${_sql}`, _error);
       }
@@ -73,7 +73,7 @@ async function fixStoragePoliciesComplete() {
 
     for (const _sql of _createPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql: _sql });
-      
+
       if (_error) {
         _logError(`Error creating policy: ${_sql}`, _error);
       }

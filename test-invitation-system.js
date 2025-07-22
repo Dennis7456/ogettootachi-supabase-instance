@@ -9,9 +9,9 @@ const __dirname = dirname(__filename);
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -64,11 +64,11 @@ class InvitationTester {
         .from('profiles')
         .select('count')
         .limit(1);
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'Database Connection',
         'success',
@@ -94,11 +94,11 @@ class InvitationTester {
         .select('id')
         .eq('role', 'admin')
         .limit(1);
-      
+
       if (profileError) {
         throw profileError;
       }
-      
+
       if (adminProfiles && adminProfiles.length > 0) {
         this.adminUserId = adminProfiles[0].id;
         this.log(
@@ -108,7 +108,7 @@ class InvitationTester {
         );
         return true;
       }
-      
+
       // If no admin found, try to create one for testing
       this.log(
         'Admin User Check',
@@ -141,7 +141,7 @@ class InvitationTester {
       );
       return false;
     }
-    
+
     try {
       // Test the database function directly
       const { data, error } = await _supabase.rpc('create_user_invitation', {
@@ -149,14 +149,14 @@ class InvitationTester {
         user_role: 'staff',
         expires_in_hours: 72,
       });
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.invitationId = data.id;
       this.invitationToken = data.invitation_token;
-      
+
       this.log(
         'Create Invitation',
         'success',
@@ -185,11 +185,11 @@ class InvitationTester {
   async testGetPendingInvitations() {
     try {
       const { data, error } = await _supabase.rpc('get_pending_invitations');
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'Get Pending Invitations',
         'success',
@@ -216,18 +216,18 @@ class InvitationTester {
         full_name: 'Edge Test User',
         custom_message: 'This is a test invitation via Edge Function',
       };
-      
+
       const { data: _data, error } = await _supabase.functions.invoke(
         'handle-invitation',
         {
           body: testData,
         }
       );
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'Edge Function - Handle Invitation',
         'success',
@@ -255,7 +255,7 @@ class InvitationTester {
       );
       return false;
     }
-    
+
     try {
       const { data: _data, error } = await _supabase.functions.invoke(
         'send-invitation-email',
@@ -268,11 +268,11 @@ class InvitationTester {
           },
         }
       );
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'Email Function',
         'success',
@@ -300,19 +300,22 @@ class InvitationTester {
       );
       return false;
     }
-    
+
     try {
-      const { data: _data, error } = await _supabase.rpc('accept_user_invitation', {
-        invitation_token: this.invitationToken,
-        first_name: 'Test',
-        last_name: 'User',
-        password: 'TestPassword123!',
-      });
-      
+      const { data: _data, error } = await _supabase.rpc(
+        'accept_user_invitation',
+        {
+          invitation_token: this.invitationToken,
+          first_name: 'Test',
+          last_name: 'User',
+          password: 'TestPassword123!',
+        }
+      );
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'Invitation Acceptance',
         'success',
@@ -338,11 +341,11 @@ class InvitationTester {
         .from('user_invitations')
         .select('*')
         .limit(5);
-      
+
       if (error) {
         throw error;
       }
-      
+
       this.log(
         'React App Integration',
         'success',
@@ -368,7 +371,7 @@ class InvitationTester {
           .from('user_invitations')
           .delete()
           .eq('id', this.invitationId);
-        
+
         this.log('Cleanup', 'success', 'Test invitation cleaned up');
       } catch (error) {
         this.log(
@@ -379,12 +382,12 @@ class InvitationTester {
         );
       }
     }
-    
+
     // Clean up test user if created
     try {
       const { data: testUsers } = await _supabase.auth.admin.listUsers();
       const testUser = testUsers.users.find(u => u.email === config.TEST_EMAIL);
-      
+
       if (testUser) {
         await _supabase.auth.admin.deleteUser(testUser.id);
         this.log('Cleanup', 'success', 'Test user cleaned up');
@@ -405,9 +408,11 @@ class InvitationTester {
       warning: this.testResults.filter(r => r.status === 'warning').length,
       error: this.testResults.filter(r => r.status === 'error').length,
     };
-    
+
     if (results.error === 0 && results.success > 0) {
-      debugLog('\n🎉 All critical tests passed! Your invitation system is working.');
+      debugLog(
+        '\n🎉 All critical tests passed! Your invitation system is working.'
+      );
     } else if (results.error > 0) {
       debugLog('\n❌ Some tests failed. Please review the details above.');
     }
@@ -416,19 +421,23 @@ class InvitationTester {
   async runAllTests() {
     // Core infrastructure tests
     const connected = await this.testDatabaseConnection();
-    
+
     if (!connected) {
       return;
     }
-    
+
     const adminFound = await this.findOrCreateAdminUser();
-    
+
     if (!adminFound) {
-      debugLog('\n⚠️  Cannot proceed with invitation tests without an admin user.');
-      debugLog('Please create an admin user first and then run this test again.');
+      debugLog(
+        '\n⚠️  Cannot proceed with invitation tests without an admin user.'
+      );
+      debugLog(
+        'Please create an admin user first and then run this test again.'
+      );
       return;
     }
-    
+
     // Invitation functionality tests
     await this.testCreateInvitation();
     await this.testGetPendingInvitations();
@@ -437,7 +446,7 @@ class InvitationTester {
     // Note: Not testing acceptance as it would consume the invitation
     // await this.testInvitationAcceptance()
     await this.testReactAppIntegration();
-    
+
     // Cleanup and summary
     await this.cleanup();
     this.printSummary();
@@ -449,8 +458,12 @@ if (
   config.SUPABASE_URL.includes('your-project-ref') ||
   config.SUPABASE_SERVICE_ROLE_KEY.includes('your-service-role-key')
 ) {
-  debugLog('\nPlease update the configuration at the top of this file with your actual Supabase credentials:');
-  debugLog('1. Update your environment variables with real Supabase credentials');
+  debugLog(
+    '\nPlease update the configuration at the top of this file with your actual Supabase credentials:'
+  );
+  debugLog(
+    '1. Update your environment variables with real Supabase credentials'
+  );
   throw new Error('Invalid Supabase configuration');
 }
 

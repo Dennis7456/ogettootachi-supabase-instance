@@ -69,7 +69,7 @@ class MasterTestRunner {
       });
       const _duration = Date.now() - _startTime;
       const _success = this.analyzeTestOutput(stdout, stderr, _testSuite);
-      
+
       this.results.push({
         name: _testSuite.name,
         status: _success ? 'PASS' : 'FAIL',
@@ -135,7 +135,9 @@ class MasterTestRunner {
       r => r.critical && r.status !== 'PASS'
     ).length;
 
-    console.log(`📈 Success Rate: ${((_passed / this.results.length) * 100).toFixed(1)}%`);
+    console.log(
+      `📈 Success Rate: ${((_passed / this.results.length) * 100).toFixed(1)}%`
+    );
 
     // Detailed results
     this.results.forEach((_result, _index) => {
@@ -146,7 +148,7 @@ class MasterTestRunner {
             ? '❌'
             : '💥';
       const _critical = _result.critical ? '🚨 CRITICAL' : '';
-      
+
       console.log(
         `${_index + 1}. ${_icon} ${_result.name} (${_result.duration}ms) ${_critical}`
       );
@@ -160,7 +162,9 @@ class MasterTestRunner {
     if (_criticalFailed === 0 && _passed >= this.results.length * 0.8) {
       console.log('✨ SYSTEM FULLY HEALTHY');
     } else if (_criticalFailed === 0) {
-      console.warn('⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.');
+      console.warn(
+        '⚠️  SYSTEM MOSTLY HEALTHY - Critical tests passed but some issues found.'
+      );
     } else {
       console.error('❌ SYSTEM UNHEALTHY - Critical tests failed');
     }
@@ -173,7 +177,9 @@ class MasterTestRunner {
       console.warn('1. 🔍 Review non-critical test failures');
       console.warn('2. 🛠️ Consider minor system adjustments');
     } else {
-      console.log('3. 💾 Consider creating backup: ./backup-invitation-system.sh');
+      console.log(
+        '3. 💾 Consider creating backup: ./backup-invitation-system.sh'
+      );
     }
 
     // Exit with appropriate code

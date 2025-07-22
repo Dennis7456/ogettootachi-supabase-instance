@@ -8,9 +8,9 @@ dotenv.config();
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -31,14 +31,14 @@ async function fixStoragePolicies() {
       'DROP POLICY IF EXISTS "Documents are updatable by admins" ON storage.objects;',
       'DROP POLICY IF EXISTS "Documents are deletable by admins" ON storage.objects;',
     ];
-    
+
     for (const sql of dropPolicies) {
       const { error } = await _supabase.rpc('exec_sql', { sql });
       if (error) {
         debugLog('❌ Error dropping policy:', error);
       }
     }
-    
+
     // Create new policies
     const createPolicies = [
       `CREATE POLICY "Documents are uploadable by admins" ON storage.objects
@@ -63,14 +63,14 @@ async function fixStoragePolicies() {
       `CREATE POLICY "Service role can access all storage" ON storage.objects
         FOR ALL USING (auth.role() = 'service_role');`,
     ];
-    
+
     for (const sql of createPolicies) {
       const { error } = await _supabase.rpc('exec_sql', { sql });
       if (error) {
         debugLog('❌ Error creating policy:', error);
       }
     }
-    
+
     debugLog('✅ Storage policies updated successfully');
   } catch (error) {
     debugLog('❌ Unexpected error:', error.message);

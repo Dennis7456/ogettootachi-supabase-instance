@@ -146,8 +146,12 @@ async function debugDashboardIssue() {
     }
 
     console.log('Debug Recommendations:');
-    console.log('   - Check if you\'re looking at the correct project in Supabase dashboard');
-    console.log('   - Check if you\'re in the right environment (local vs remote)');
+    console.log(
+      '   - Check if you\'re looking at the correct project in Supabase dashboard'
+    );
+    console.log(
+      '   - Check if you\'re in the right environment (local vs remote)'
+    );
   } catch (_error) {
     console.error('❌ Debug failed:', _error.message);
     console.error('Error details:', _error);

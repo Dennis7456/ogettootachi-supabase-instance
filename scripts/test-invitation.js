@@ -5,9 +5,9 @@ import { Client } from 'pg';
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -21,11 +21,11 @@ async function testInvitation() {
     user: 'postgres',
     password: 'postgres',
   });
-  
+
   try {
     // Connect to PostgreSQL
     await pgClient.connect();
-    
+
     // Find admin users, prioritizing users with a full name
     const { rows: adminUsers } = await pgClient.query(`
       SELECT * 
@@ -38,14 +38,14 @@ async function testInvitation() {
         END,
         created_at DESC
       LIMIT 1`);
-    
+
     if (!adminUsers || adminUsers.length === 0) {
       throw new Error('No admin users found');
     }
-    
+
     // Use the first admin user
     const adminUser = adminUsers[0];
-    
+
     // Prepare invitation data
     const invitationData = {
       email: `test-${crypto.randomBytes(4).toString('hex')}@example.com`,
@@ -58,7 +58,7 @@ async function testInvitation() {
       expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
       status: 'sent',
     };
-    
+
     // Insert invitation directly via PostgreSQL
     const { rows: invitation } = await pgClient.query(
       `INSERT INTO public.user_invitations 
@@ -79,9 +79,9 @@ async function testInvitation() {
         new Date().toISOString(),
       ]
     );
-    
+
     debugLog('✅ Invitation created successfully');
-    
+
     return {
       id: invitation[0].id,
       email: invitation[0].email,

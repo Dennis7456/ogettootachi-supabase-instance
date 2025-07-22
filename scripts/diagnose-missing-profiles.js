@@ -4,9 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -28,12 +28,12 @@ async function createProfileForUser(userId, fullName, role) {
       })
       .select()
       .single();
-    
+
     if (error) {
       debugLog('❌ Failed to create profile:', error);
       return null;
     }
-    
+
     return data;
   } catch (error) {
     debugLog('❌ Unexpected error creating profile:', error);
@@ -48,16 +48,16 @@ async function diagnoseMissingProfiles() {
     // Get all users from auth.users
     const { data: users, error: usersError } =
       await _supabaseService.auth.admin.listUsers();
-    
+
     if (usersError) {
       debugLog('❌ Failed to list users:', usersError);
       return;
     }
-    
+
     // Track missing and created profiles
     const missingProfiles = [];
     const createdProfiles = [];
-    
+
     // Check each user's profile
     for (const _user of users.users) {
       // Check if profile exists
@@ -66,31 +66,32 @@ async function diagnoseMissingProfiles() {
         .select('*')
         .eq('id', _user.id)
         .single();
-      
+
       if (profileError) {
         // Profile doesn't exist
         missingProfiles.push(_user);
-        
+
         // Attempt to create profile
         const newProfile = await createProfileForUser(
           _user.id,
           _user.user_metadata?.full_name || _user.email?.split('@')[0],
           _user.user_metadata?.role || 'user'
         );
-        
+
         if (newProfile) {
           createdProfiles.push(newProfile);
         }
       }
     }
-    
+
     // Report results
     if (missingProfiles.length > 0) {
-      debugLog('❌ Missing profiles for users:', 
+      debugLog(
+        '❌ Missing profiles for users:',
         missingProfiles.map(_user => _user.email)
       );
     }
-    
+
     return {
       totalUsers: users.users.length,
       missingProfiles: missingProfiles.length,

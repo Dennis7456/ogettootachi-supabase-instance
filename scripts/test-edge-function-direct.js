@@ -10,9 +10,9 @@ const supabaseAnonKey =
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -21,7 +21,7 @@ async function testEdgeFunction() {
   try {
     // Create Supabase client
     const _supabase = createClient(supabaseUrl, supabaseAnonKey);
-    
+
     // First, let's sign in as an admin user
     // Try to sign in with a test admin account
     const { data: _signInData, error: signInError } =
@@ -29,7 +29,7 @@ async function testEdgeFunction() {
         email: 'admin@example.com',
         password: 'password123',
       });
-    
+
     if (signInError) {
       // Try to sign up as admin
       const { data: _signUpData, error: signUpError } =
@@ -44,40 +44,40 @@ async function testEdgeFunction() {
             },
           },
         });
-      
+
       if (signUpError) {
         debugLog('❌ Sign up failed:', signUpError);
         return false;
       }
     }
-    
+
     // Get the current session
     const {
       data: { session },
     } = await _supabase.auth.getSession();
-    
+
     if (!session) {
       debugLog('❌ No session found');
       return false;
     }
-    
+
     // Check user role
     const { data: profile, error: profileError } = await _supabase
       .from('profiles')
       .select('role')
       .eq('id', session.user.id)
       .single();
-    
+
     if (profileError) {
       debugLog('❌ Profile error:', profileError);
       return false;
     }
-    
+
     if (profile.role !== 'admin') {
       debugLog('❌ User is not admin');
       return false;
     }
-    
+
     // Test the Edge Function
     const testData = {
       title: 'Test Document from Edge Function',
@@ -85,19 +85,17 @@ async function testEdgeFunction() {
       category: 'test',
       file_path: 'test-file.txt',
     };
-    
-    const { data: _edgeData, error: edgeError } = await _supabase.functions.invoke(
-      'process-document',
-      {
+
+    const { data: _edgeData, error: edgeError } =
+      await _supabase.functions.invoke('process-document', {
         body: testData,
-      }
-    );
-    
+      });
+
     if (edgeError) {
       debugLog('❌ Edge Function failed:', edgeError);
       return false;
     }
-    
+
     // Verify document was created
     const { data: documents, error: fetchError } = await _supabase
       .from('documents')
@@ -105,12 +103,12 @@ async function testEdgeFunction() {
       .eq('title', testData.title)
       .order('created_at', { ascending: false })
       .limit(1);
-    
+
     if (fetchError) {
       debugLog('❌ Document fetch failed:', fetchError);
       return false;
     }
-    
+
     if (documents && documents.length > 0) {
       const _doc = documents[0];
       debugLog('✅ Document found:', _doc);
@@ -118,7 +116,7 @@ async function testEdgeFunction() {
       debugLog('❌ Document not found in database');
       return false;
     }
-    
+
     return true;
   } catch (error) {
     debugLog('❌ Test failed:', error);

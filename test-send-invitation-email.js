@@ -29,9 +29,9 @@ async function sendInvitationEmail() {
         }),
       }
     );
-    
+
     const _data = await _response.text();
-    
+
     try {
       const _jsonData = JSON.parse(_data);
       console.log('Invitation email response:', _jsonData);

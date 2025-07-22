@@ -24,7 +24,7 @@ async function createAdminProfile() {
       await _supabase.auth.admin.listUsers();
 
     _logError('Failed to list users', _usersError);
-    
+
     if (_usersError) {
       return false;
     }
@@ -47,7 +47,7 @@ async function createAdminProfile() {
       .single();
 
     _logError('Profile check failed', _profileError);
-    
+
     if (_profileError && _profileError.code !== 'PGRST116') {
       return false;
     }
@@ -71,7 +71,7 @@ async function createAdminProfile() {
       .single();
 
     _logError('Profile creation failed', _createError);
-    
+
     if (_createError) {
       return false;
     }

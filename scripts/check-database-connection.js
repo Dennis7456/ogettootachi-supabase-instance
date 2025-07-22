@@ -16,7 +16,10 @@ const _logError = (prefix, _error) => {
   }
 };
 
-console.log('   Service Role Key:', _supabaseServiceKey.substring(0, 20) + '...');
+console.log(
+  '   Service Role Key:',
+  _supabaseServiceKey.substring(0, 20) + '...'
+);
 
 const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
@@ -56,7 +59,9 @@ async function checkConnection() {
     if (_docs) {
       console.log('Recent Documents:');
       _docs.forEach((_doc, _index) => {
-        console.log(`   ${_index + 1}. ${_doc.title} (${_doc.id}) - ${_doc.created_at}`);
+        console.log(
+          `   ${_index + 1}. ${_doc.title} (${_doc.id}) - ${_doc.created_at}`
+        );
       });
     }
 

@@ -20,20 +20,22 @@ const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
 async function fixStoragePoliciesFinal() {
   try {
-    console.log('The issue is that the admin role is in user_metadata, not in the main JWT role field.');
+    console.log(
+      'The issue is that the admin role is in user_metadata, not in the main JWT role field.'
+    );
 
     // Drop existing policies
     const _dropPolicies = [
-      'DROP POLICY IF EXISTS "Documents are uploadable by admins" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are accessible by authenticated users" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Service role can access all storage" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are updatable by admins" ON storage.objects;',
-      'DROP POLICY IF EXISTS "Documents are deletable by admins" ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are uploadable by admins\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are accessible by authenticated users\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Service role can access all storage\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are updatable by admins\' ON storage.objects;',
+      'DROP POLICY IF EXISTS \'Documents are deletable by admins\' ON storage.objects;',
     ];
 
     for (const _sql of _dropPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql: _sql });
-      
+
       if (_error) {
         _logError(`Error dropping policy: ${_sql}`, _error);
       }
@@ -41,7 +43,7 @@ async function fixStoragePoliciesFinal() {
 
     // Create policies that check user_metadata for admin role
     const _createPolicies = [
-      `CREATE POLICY "Documents are uploadable by admins" ON storage.objects
+      `CREATE POLICY 'Documents are uploadable by admins' ON storage.objects
         FOR INSERT WITH CHECK (
           bucket_id = 'documents' AND 
           (
@@ -49,7 +51,7 @@ async function fixStoragePoliciesFinal() {
             auth.role() = 'service_role'
           )
         );`,
-      `CREATE POLICY "Documents are updatable by admins" ON storage.objects
+      `CREATE POLICY 'Documents are updatable by admins' ON storage.objects
         FOR UPDATE USING (
           bucket_id = 'documents' AND 
           (
@@ -57,7 +59,7 @@ async function fixStoragePoliciesFinal() {
             auth.role() = 'service_role'
           )
         );`,
-      `CREATE POLICY "Documents are deletable by admins" ON storage.objects
+      `CREATE POLICY 'Documents are deletable by admins' ON storage.objects
         FOR DELETE USING (
           bucket_id = 'documents' AND 
           (
@@ -65,23 +67,28 @@ async function fixStoragePoliciesFinal() {
             auth.role() = 'service_role'
           )
         );`,
-      `CREATE POLICY "Documents are accessible by authenticated users" ON storage.objects
+      `CREATE POLICY 'Documents are accessible by authenticated users' ON storage.objects
         FOR SELECT USING (
           bucket_id = 'documents' AND auth.role() = 'authenticated'
         );`,
-      `CREATE POLICY "Service role can access all storage" ON storage.objects
+      `CREATE POLICY 'Service role can access all storage' ON storage.objects
         FOR ALL USING (auth.role() = 'service_role');`,
     ];
 
     for (const _sql of _createPolicies) {
       const { _error } = await _supabase.rpc('exec_sql', { sql: _sql });
-      
+
       if (_error) {
         _logError(`Error creating policy: ${_sql}`, _error);
       }
     }
 
-    console.log('The key change is using: (auth.jwt() -> \'user_metadata\' ->> \'role\') = \'admin\'');
+    console.log(
+      'The issue is that the admin role is in user_metadata, not in the main JWT role field.'
+    );
+    console.log(
+      'The key change is using: (auth.jwt() -> \'user_metadata\' ->> \'role\') = \'admin\''
+    );
     console.log('✅ Storage policies updated successfully');
   } catch (_error) {
     console.error('❌ Unexpected error:', _error.message);

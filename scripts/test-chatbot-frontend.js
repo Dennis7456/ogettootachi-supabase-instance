@@ -33,7 +33,7 @@ async function testChatbotFrontend() {
           },
         },
       });
-    
+
     logError('Sign up error', _signUpError);
     if (_signUpError) return;
 
@@ -43,11 +43,13 @@ async function testChatbotFrontend() {
         email: _testEmail,
         password: _testPassword,
       });
-    
+
     logError('Sign in error', _signInError);
     if (_signInError) return;
 
-    console.log(`   Access token: ${_signInData.session.access_token.substring(0, 20)}...`);
+    console.log(
+      `   Access token: ${_signInData.session.access_token.substring(0, 20)}...`
+    );
 
     // Step 2: Test chatbot with authentication
     const _testMessages = [
@@ -66,7 +68,7 @@ async function testChatbotFrontend() {
             session_id: `frontend-test-session-${Date.now()}`,
           },
         });
-        
+
         logError(`Chatbot error for message ${_i + 1}`, _error);
       } catch (_error) {
         console.error(
@@ -82,7 +84,7 @@ async function testChatbotFrontend() {
       .select('*')
       .eq('user_id', _signInData.user.id)
       .order('created_at', { ascending: false });
-    
+
     logError('History retrieval error', _historyError);
 
     if (_conversations) {
@@ -102,7 +104,7 @@ async function testChatbotFrontend() {
           session_id: `search-test-${Date.now()}`,
         },
       });
-      
+
       logError('Search test error', _error);
 
       if (_data && _data.documents && _data.documents.length > 0) {
@@ -133,7 +135,6 @@ async function testChatbotFrontend() {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU'
     );
     await _serviceSupabase.auth.admin.deleteUser(_signInData.user.id);
-
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
   }

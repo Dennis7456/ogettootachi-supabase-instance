@@ -26,7 +26,7 @@ async function testUploadFinal() {
       });
 
     _logError('Authentication failed', _authError);
-    
+
     if (_authError) {
       return;
     }
@@ -45,7 +45,7 @@ async function testUploadFinal() {
       .upload(`test-final-${Date.now()}.txt`, _testFile);
 
     _logError('Upload failed', _uploadError);
-    
+
     if (_uploadError) {
       return;
     }
@@ -64,7 +64,7 @@ async function testUploadFinal() {
       .single();
 
     _logError('Database insert failed', _docError);
-    
+
     if (_docError) {
       return;
     }
@@ -100,7 +100,7 @@ async function testUploadFinal() {
         .upload(`realistic-test-${Date.now()}.txt`, _realisticFile);
 
     _logError('Realistic upload failed', _realisticUploadError);
-    
+
     if (_realisticUploadError) {
       return;
     }
@@ -120,7 +120,7 @@ async function testUploadFinal() {
         .single();
 
     _logError('Realistic database insert failed', _realisticDocError);
-    
+
     if (_realisticDocError) {
       return;
     }

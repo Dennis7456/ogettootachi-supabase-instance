@@ -53,8 +53,10 @@ async function testChatbot() {
 
     let _simpleResponse;
     if (_chatError) {
-      console.log('\n💡 The chatbot might be trying to use Ollama (local LLM) which is not running.');
-      
+      console.log(
+        '\n💡 The chatbot might be trying to use Ollama (local LLM) which is not running.'
+      );
+
       // Create a simple test response
       _simpleResponse = {
         response: 'A simple response about legal services',
@@ -69,17 +71,17 @@ async function testChatbot() {
 
     // Test document search functionality
     const _searchQuery = 'legal services';
-    
+
     // Create a simple embedding for the search query
     const _words = _searchQuery.toLowerCase().split(/\s+/);
     const _queryEmbedding = new Array(1536).fill(0);
-    
+
     _words.forEach(_word => {
       const _hash = _word.split('').reduce((_a, _b) => {
         _a = (_a << 5) - _a + _b.charCodeAt(0);
         return _a & _a;
       }, 0);
-      
+
       const _position = Math.abs(_hash) % 1536;
       _queryEmbedding[_position] = 1;
     });
@@ -131,7 +133,9 @@ async function testChatbot() {
         .eq('id', _convData.id);
     }
 
-    console.log('   - Chatbot response generation needs Ollama or alternative LLM');
+    console.log(
+      '   - Chatbot response generation needs Ollama or alternative LLM'
+    );
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
     console.error('Error details:', _error);

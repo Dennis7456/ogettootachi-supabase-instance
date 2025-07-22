@@ -151,7 +151,9 @@ class PerformanceMonitor {
     const startTime = Date.now();
     try {
       const _controller = new AbortController();
-      const _timeoutId = setTimeout(CONFIG.timeoutMs, () => _controller.abort());
+      const _timeoutId = setTimeout(CONFIG.timeoutMs, () =>
+        _controller.abort()
+      );
       const response = await fetch(url, {
         ...options,
         signal: _controller.signal,
@@ -313,7 +315,7 @@ class PerformanceMonitor {
     // Check if performance meets thresholds
     const meetsThreshold =
       successRate >= CONFIG.successThreshold * 100 && avgDuration < 5000;
-    
+
     // Placeholder for additional logic if needed
     if (meetsThreshold) {
       // Performance meets threshold
@@ -322,7 +324,9 @@ class PerformanceMonitor {
     }
   }
   async runAllTests() {
-    console.log(`Configuration: ${CONFIG.concurrentRequests} concurrent, ${CONFIG.totalRequests} total requests`);
+    console.log(
+      `Configuration: ${CONFIG.concurrentRequests} concurrent, ${CONFIG.totalRequests} total requests`
+    );
     try {
       await this.setup();
       await this.testAppointments();
@@ -339,8 +343,7 @@ class PerformanceMonitor {
             results
               .filter(r => r.success)
               .reduce((sum, r) => sum + r.duration, 0) /
-              results.filter(r => r.success).length ||
-            0;
+              results.filter(r => r.success).length || 0;
           console.log(
             `   ${_functionName}: ${successRate.toFixed(1)}% success, ${avgDuration.toFixed(0)}ms avg`
           );

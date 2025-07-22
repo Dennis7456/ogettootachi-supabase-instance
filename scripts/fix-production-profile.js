@@ -90,7 +90,9 @@ async function fixProductionProfile() {
     _logError('Error creating profile', _insertError);
 
     if (_newProfile) {
-      console.log('✅ Profile fix completed! The user should now be able to log in.');
+      console.log(
+        '✅ Profile fix completed! The user should now be able to log in.'
+      );
       console.log('New Profile:', _newProfile);
     }
   } catch (_error) {
@@ -99,9 +101,15 @@ async function fixProductionProfile() {
 }
 
 // Instructions for running this script
-console.log('This script will create a missing profile for the user experiencing the 406 error.');
-console.log('1. Make sure you have the production SUPABASE_SERVICE_ROLE_KEY in your .env file');
-console.log('Make sure you have the correct service role key and understand what this script does.');
+console.log(
+  'This script will create a missing profile for the user experiencing the 406 error.'
+);
+console.log(
+  '1. Make sure you have the production SUPABASE_SERVICE_ROLE_KEY in your .env file'
+);
+console.log(
+  'Make sure you have the correct service role key and understand what this script does.'
+);
 
 // Check if we should run the script
 const _shouldRun = process.argv.includes('--run');

@@ -24,7 +24,7 @@ async function getInvitationLinks() {
       invitations.forEach((invitation, index) => {
         const invitationUrl = `http://localhost:5173/invite/${invitation.id}`;
         const timeAgo = new Date(invitation.created_at).toLocaleString();
-        
+
         console.log(`${index + 1}. ${invitationUrl} (Created: ${timeAgo})`);
       });
 

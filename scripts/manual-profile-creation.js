@@ -5,9 +5,9 @@ import Deno from 'deno';
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -22,12 +22,12 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
     // First, get the user details from auth.users
     const { data: userData, error: userError } =
       await _supabaseService.auth.admin.getUserById(userId);
-    
+
     if (userError) {
       debugLog('❌ Error fetching user:', userError);
       return null;
     }
-    
+
     // Derive full name
     const derivedFullName =
       fullName ||
@@ -35,10 +35,10 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
       userData.user.user_metadata?.first_name ||
       userData.user.email?.split('@')[0] ||
       'Unknown User';
-    
+
     // Derive role
     const derivedRole = role || userData.user.user_metadata?.role || 'user';
-    
+
     const { data, error } = await _supabaseService
       .from('profiles')
       .upsert(
@@ -56,12 +56,12 @@ async function createProfileForUser(userId, fullName = '', role = 'user') {
       )
       .select()
       .single();
-    
+
     if (error) {
       debugLog('❌ Error creating profile:', error);
       return null;
     }
-    
+
     debugLog('✅ Profile created successfully');
     return data;
   } catch (error) {
@@ -75,12 +75,14 @@ if (import.meta.main) {
   const userId = process.argv[2];
   const fullName = process.argv[3];
   const role = process.argv[4];
-  
+
   if (!userId) {
-    debugLog('Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]');
+    debugLog(
+      'Usage: deno run -A manual-profile-creation.js <user_id> [full_name] [role]'
+    );
     Deno.exit(1);
   }
-  
+
   createProfileForUser(userId, fullName, role);
 }
 

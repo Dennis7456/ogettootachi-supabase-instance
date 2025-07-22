@@ -4,9 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -21,14 +21,17 @@ async function setupStorageBuckets() {
     // List existing buckets
     const { data: buckets, error: bucketsError } =
       await _supabase.storage.listBuckets();
-    
+
     if (bucketsError) {
       debugLog('❌ Error listing buckets:', bucketsError.message);
       return;
     }
-    
-    debugLog('Found buckets:', buckets.map(b => b.name));
-    
+
+    debugLog(
+      'Found buckets:',
+      buckets.map(b => b.name)
+    );
+
     // Check if documents bucket exists
     const documentsBucket = buckets.find(bucket => bucket.name === 'documents');
     if (!documentsBucket) {
@@ -43,13 +46,13 @@ async function setupStorageBuckets() {
           ],
           fileSizeLimit: 10485760, // 10MB
         });
-      
+
       if (createError) {
         debugLog('❌ Failed to create documents bucket:', createError.message);
         return;
       }
     }
-    
+
     // Check if public bucket exists
     const publicBucket = buckets.find(bucket => bucket.name === 'public');
     if (!publicBucket) {
@@ -57,13 +60,16 @@ async function setupStorageBuckets() {
         await _supabase.storage.createBucket('public', {
           public: true,
         });
-      
+
       if (createPublicError) {
-        debugLog('❌ Failed to create public bucket:', createPublicError.message);
+        debugLog(
+          '❌ Failed to create public bucket:',
+          createPublicError.message
+        );
         return;
       }
     }
-    
+
     // Check if blog-images bucket exists
     const blogImagesBucket = buckets.find(
       bucket => bucket.name === 'blog-images'
@@ -80,29 +86,35 @@ async function setupStorageBuckets() {
           ],
           fileSizeLimit: 5242880, // 5MB
         });
-      
+
       if (createBlogError) {
-        debugLog('❌ Failed to create blog-images bucket:', createBlogError.message);
+        debugLog(
+          '❌ Failed to create blog-images bucket:',
+          createBlogError.message
+        );
         return;
       }
     }
-    
+
     // Verify all buckets exist
     const { data: finalBuckets, error: finalError } =
       await _supabase.storage.listBuckets();
-    
+
     if (finalError) {
       debugLog('❌ Error listing final buckets:', finalError.message);
       return;
     }
-    
-    debugLog('✅ All buckets:', finalBuckets.map(b => b.name));
-    
+
+    debugLog(
+      '✅ All buckets:',
+      finalBuckets.map(b => b.name)
+    );
+
     const requiredBuckets = ['documents', 'public', 'blog-images'];
     const missingBuckets = requiredBuckets.filter(
       name => !finalBuckets.find(b => b.name === name)
     );
-    
+
     if (missingBuckets.length > 0) {
       debugLog('❌ Missing buckets:', missingBuckets);
     } else {

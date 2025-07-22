@@ -3,7 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { execSync as _execSync } from 'child_process';
 
-function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']) {
+function findJSFiles(
+  _dir,
+  _excludeDirs = ['node_modules', '.git', 'invitation-system-backup-*']
+) {
   const _files = fs.readdirSync(_dir);
   const _jsFiles = [];
 
@@ -12,7 +15,7 @@ function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'invitation-s
     const _stat = fs.statSync(_fullPath);
 
     // Check if directory should be excluded
-    const _shouldExclude = _excludeDirs.some(_excludeDir => 
+    const _shouldExclude = _excludeDirs.some(_excludeDir =>
       _fullPath.includes(_excludeDir)
     );
 
@@ -29,7 +32,7 @@ function findJSFiles(_dir, _excludeDirs = ['node_modules', '.git', 'invitation-s
 function fixSyntaxErrors(_filePath) {
   try {
     let _content = fs.readFileSync(_filePath, 'utf8');
-    
+
     // Add ESLint disable comments if not present
     if (!_content.includes('/* eslint-disable')) {
       _content = `/* eslint-disable no-console, no-undef, no-unused-vars, no-empty, no-unused-expressions, no-empty-function, no-warning-comments, no-unused-labels, no-unreachable */\n${_content}`;
@@ -38,7 +41,9 @@ function fixSyntaxErrors(_filePath) {
     // Import necessary modules for global functions
     const _importsToAdd = new Set();
     if (_content.includes('_createClient')) {
-      _importsToAdd.add('import { createClient } from \'@supabase/supabase-js\';');
+      _importsToAdd.add(
+        'import { createClient } from \'@supabase/supabase-js\';'
+      );
     }
     if (_content.includes('setTimeout')) {
       _importsToAdd.add('import { setTimeout } from \'timers/promises\';');
@@ -91,45 +96,48 @@ const __dirname = path.dirname(__filename);
       .replace(/:\s*\)/g, ')')
       .replace(/:\s*{}/g, '{}')
       .replace(/\{\s*\}/g, '{}')
-      
+
       // Remove empty block statements and empty arrow functions
       .replace(/{\s*}/g, '')
       .replace(/\(\s*\) => {\s*}/g, '() => {}')
       .replace(/\(\s*_\w*\s*,\s*_\w*\)\s*=>\s*{\s*}/g, '() => {}')
-      
+
       // Replace deprecated or problematic function calls
       .replace(/console\._error/g, 'console.error')
       .replace(/_createClient/g, 'createClient')
       .replace(/_Deno/g, 'Deno')
-      
+
       // Remove unused variables and empty functions
       .replace(/let\s+\w+\s*=\s*[^;]+;\s*(?=\n|$)/g, '')
       .replace(/const\s+\w+\s*=\s*[^;]+;\s*(?=\n|$)/g, '')
-      
+
       // Remove unused expressions and empty statements
       .replace(/^\s*[^(]+\s*;/gm, '')
       .replace(/^\s*;/gm, '')
-      
+
       // Add missing semicolons
       .replace(/([^;])\s*$/gm, '$1;')
-      
+
       // Remove console logs in production code
       .replace(/console\.log\([^)]*\);/g, '')
       .replace(/console\.\w+\([^)]*\);/g, '')
-      
+
       // Handle unused variables by prefixing with underscore
-      .replace(/\b(let|const)\s+(\w+)\s*=/g, (match, keyword, varName) => 
-        `${keyword} _${varName} =`
+      .replace(
+        /\b(let|const)\s+(\w+)\s*=/g,
+        (match, keyword, varName) => `${keyword} _${varName} =`
       )
-      
+
       // Remove empty function parameters
       .replace(/\(\s*\w+\s*,\s*\w+\s*\)\s*=>\s*{}/g, '() => {}')
-      
+
       // Remove empty arrow functions
       .replace(/\(\s*_\w*\)\s*=>\s*{\s*}/g, '() => {}')
-      
+
       // Add default configuration for email and test files
-      .replace(/^(export default \[?)/m, `
+      .replace(
+        /^(export default \[?)/m,
+        `
 // Email and test configuration
 const config = {
   SUPABASE_URL: 'http://127.0.0.1:54321',
@@ -159,7 +167,8 @@ const safeRun = async (fn) => {
   }
 };
 
-$1`);
+$1`
+      );
 
     // Wrap in try-catch for error handling if not already present
     if (!_content.includes('try {') && !_content.includes('catch (')) {
@@ -182,19 +191,19 @@ $1`);
       .replace(/\(\s*\(/g, '(')
       .replace(/:\s*\)/g, ')')
       .replace(/\{\s*\}/g, '{}')
-      
+
       // Ensure proper function and block syntax
       .replace(/\(\s*\)\s*=>\s*{}/g, '() => {}')
-      
+
       // Replace console statements with mock console
       .replace(/console\.(log|error|warn)\(/g, 'mockConsole.$1(')
-      
+
       // Remove unused expressions
       .replace(/^[^(]+\s*;/gm, '')
-      
+
       // Add semicolons to standalone expressions
       .replace(/([^;])\s*$/gm, '$1;')
-      
+
       // Handle specific parsing errors
       .replace(/return\s*{}/g, 'return null;')
       .replace(/public\s*{}/g, 'const _public = {};')
@@ -242,10 +251,10 @@ function main() {
     'tests/setup.js',
     'tests/setup.test.js',
     'verify-production-setup.js',
-    'view-invitations.js'
+    'view-invitations.js',
   ];
 
-  const _fullPathTargetFiles = _targetFiles.map(_file => 
+  const _fullPathTargetFiles = _targetFiles.map(_file =>
     path.join(_startDir, _file)
   );
 
@@ -256,4 +265,4 @@ function main() {
   });
 }
 
-main(); 
+main();

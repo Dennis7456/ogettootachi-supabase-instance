@@ -16,7 +16,9 @@ const logError = (prefix, error) => {
 };
 
 async function deleteUserAndTest() {
-  console.log('🗑️ Deleting existing user and testing complete invitation flow...\n');
+  console.log(
+    '🗑️ Deleting existing user and testing complete invitation flow...\n'
+  );
 
   const _supabase = createClient(
     config.SUPABASE_URL,
@@ -37,7 +39,7 @@ async function deleteUserAndTest() {
       const { _error: _deleteError } = await _supabase.auth.admin.deleteUser(
         _existingUser.id
       );
-      
+
       logError('Error deleting user', _deleteError);
     }
 
@@ -46,7 +48,7 @@ async function deleteUserAndTest() {
       .from('user_invitations')
       .delete()
       .eq('email', _testEmail);
-    
+
     logError('Error deleting invitations', _deleteInviteError);
 
     // Wait a moment
@@ -64,7 +66,7 @@ async function deleteUserAndTest() {
         },
       }
     );
-    
+
     logError('Error invoking handle-invitation', _error);
     if (_error) return;
 
@@ -84,10 +86,14 @@ async function deleteUserAndTest() {
         _mailpitData.messages.forEach((_msg, _index) => {
           console.log(`Message ${_index + 1}:`, _msg);
         });
-        
-        console.log('\n🎯 PERFECT! Your invitation system is now fully working!');
+
+        console.log(
+          '\n🎯 PERFECT! Your invitation system is now fully working!'
+        );
       } else {
-        console.log('💡 You can still use the direct link to test the invitation');
+        console.log(
+          '💡 You can still use the direct link to test the invitation'
+        );
         console.log('Invitation URL:', _invitationUrl);
       }
     }

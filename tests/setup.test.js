@@ -58,28 +58,30 @@ describe('Supabase Project Setup', () => {
 
   describe('Authentication', () => {
     it('should allow anonymous access', async () => {
-      const { _data: { _user }, _error } = await _supabase.auth.getUser();
+      const {
+        _data: { _user },
+        _error,
+      } = await _supabase.auth.getUser();
       expect(_error).toBeNull();
     });
 
     it('should have service role access', async () => {
-      const { _data: { _user }, _error } = await _supabaseService.auth.getUser();
+      const {
+        _data: { _user },
+        _error,
+      } = await _supabaseService.auth.getUser();
       expect(_error).toBeNull();
     });
   });
 
   describe('Row Level Security', () => {
     it('should enforce RLS on profiles', async () => {
-      const { _data, _error } = await _supabase
-        .from('profiles')
-        .select('*');
+      const { _data, _error } = await _supabase.from('profiles').select('*');
       expect(_error).not.toBeNull();
     });
 
     it('should enforce RLS on documents', async () => {
-      const { _data, _error } = await _supabase
-        .from('documents')
-        .select('*');
+      const { _data, _error } = await _supabase.from('documents').select('*');
       expect(_error).not.toBeNull();
     });
   });
@@ -94,9 +96,9 @@ describe('Supabase Project Setup', () => {
         .insert({
           title: 'Test Vector Document',
           content: 'This is a test document for vector embeddings.',
-          embedding: _testVector
+          embedding: _testVector,
         });
-      
+
       expect(_error).toBeNull();
     });
   });
@@ -109,9 +111,9 @@ describe('Supabase Project Setup', () => {
           user_id: null,
           session_id: 'test-session',
           message: 'Test message',
-          response: 'Test response'
+          response: 'Test response',
         });
-      
+
       expect(_error).toBeNull();
     });
   });

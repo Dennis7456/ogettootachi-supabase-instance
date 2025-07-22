@@ -34,17 +34,17 @@ async function testChatbotSimple() {
 
     // Test 2: Test document search directly
     const _searchQuery = 'legal services';
-    
+
     // Create embedding for search
     const _words = _searchQuery.toLowerCase().split(/\s+/);
     const _queryEmbedding = new Array(1536).fill(0);
-    
+
     _words.forEach(_word => {
       const _hash = _word.split('').reduce((_a, _b) => {
         _a = (_a << 5) - _a + _b.charCodeAt(0);
         return _a & _a;
       }, 0);
-      
+
       const _position = Math.abs(_hash) % 1536;
       _queryEmbedding[_position] = 1;
     });
@@ -81,9 +81,9 @@ async function testChatbotSimple() {
       let _response = '';
 
       if (
-        _lowerMessage.includes('service') ||
-        _lowerMessage.includes('offer') ||
-        _lowerMessage.includes('practice')
+        ['service', 'practice', 'offer', 'area', 'policy', 'team', 'case', 
+         'experience', 'unique', 'about', 'who', 'what', 'where', 'when', 'how']
+        .some(keyword => _lowerMessage.includes(keyword))
       ) {
         _response =
           'Thank you for your inquiry. Ogetto, Otachi & Co Advocates offers comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.';
@@ -94,7 +94,7 @@ async function testChatbotSimple() {
         _lowerMessage.includes('email')
       ) {
         _response =
-          'To contact our firm, you can reach us through our website or by calling our office directly. We\'re committed to providing timely responses to all inquiries.';
+          'To contact our firm, you can reach us through our website or by calling our office directly. We are committed to providing timely responses to all inquiries.';
       } else if (
         _lowerMessage.includes('cost') ||
         _lowerMessage.includes('fee') ||
@@ -115,7 +115,7 @@ async function testChatbotSimple() {
           'Thank you for your inquiry. Ogetto, Otachi & Co Advocates is a leading law firm committed to providing exceptional legal services. For specific questions, we recommend scheduling a consultation.';
       }
 
-      console.log(`Response for "${_message}":`, _response);
+      console.log(`Response for '${_message}':`, _response);
       return _response;
     });
 
@@ -146,7 +146,9 @@ async function testChatbotSimple() {
         .eq('id', _convData.id);
     }
 
-    console.log('💡 The chatbot is functional but needs authentication setup for the Edge Function.');
+    console.log(
+      '💡 The chatbot is functional but needs authentication setup for the Edge Function.'
+    );
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
     console.error('Error details:', _error);

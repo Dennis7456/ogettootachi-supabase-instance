@@ -24,15 +24,16 @@ async function testSupabaseEmail() {
   // Test 1: Try to create a user and send invite
   try {
     const _testEmail = `test-email-${Date.now()}@example.com`;
-    const { _data: _userData, _error: _userError } = await _supabaseAdmin.auth.admin.createUser({
-      email: _testEmail,
-      password: 'testPassword123',
-      email_confirm: false,
-      user_metadata: {
-        role: 'staff',
-        full_name: 'Test User',
-      },
-    });
+    const { _data: _userData, _error: _userError } =
+      await _supabaseAdmin.auth.admin.createUser({
+        email: _testEmail,
+        password: 'testPassword123',
+        email_confirm: false,
+        user_metadata: {
+          role: 'staff',
+          full_name: 'Test User',
+        },
+      });
 
     _logError('User creation error', _userError);
 
@@ -46,18 +47,22 @@ async function testSupabaseEmail() {
   // Test 2: Try to send reset password email (this should trigger email)
   try {
     const _testEmail = 'password-reset-test@example.com';
-    const { _data: _resetData, _error: _resetError } = await _supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email: _testEmail,
-      options: {
-        redirectTo: 'http://localhost:5173/password-setup',
-      },
-    });
+    const { _data: _resetData, _error: _resetError } =
+      await _supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: _testEmail,
+        options: {
+          redirectTo: 'http://localhost:5173/password-setup',
+        },
+      });
 
     _logError('Password reset link generation error', _resetError);
 
     if (_resetData) {
-      console.log('Password reset link generated:', _resetData.properties.action_link);
+      console.log(
+        'Password reset link generated:',
+        _resetData.properties.action_link
+      );
     }
   } catch (_error) {
     console.error('Unexpected error in password reset:', _error);
@@ -80,7 +85,9 @@ async function testSupabaseEmail() {
     console.error('Error checking Mailpit messages:', _error);
   }
 
-  console.log('3. For local development, Supabase should auto-use Inbucket/Mailpit');
+  console.log(
+    '3. For local development, Supabase should auto-use Inbucket/Mailpit'
+  );
 }
 
 testSupabaseEmail().catch(console.error);

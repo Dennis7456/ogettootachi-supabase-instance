@@ -25,7 +25,7 @@ function findJSFiles(dir) {
 function fixLintingErrors(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    
+
     // Remove trailing comments
     const cleanedContent = content.replace(regex, '');
 

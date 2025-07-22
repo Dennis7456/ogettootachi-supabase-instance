@@ -45,7 +45,6 @@ async function debugTrigger() {
         table_name: 'profiles',
       });
     logError('RLS policy check error', _policiesError);
-
   } catch (_error) {
     console.error('❌ Debug failed:', _error);
   }
@@ -64,7 +63,6 @@ async function _createDebugFunctions() {
       'create_function_check_function'
     );
     logError('Error creating function check function', _functionCheckError);
-
   } catch (_error) {
     console.error('❌ Error creating debug functions:', _error);
   }

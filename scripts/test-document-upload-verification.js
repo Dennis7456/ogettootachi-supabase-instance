@@ -25,7 +25,9 @@ async function testDocumentUploadVerification() {
     if (_listError) return;
 
     // Log existing documents count
-    console.log(`✅ Documents table accessible. Found ${_existingDocs.length} existing documents.`);
+    console.log(
+      `✅ Documents table accessible. Found ${_existingDocs.length} existing documents.`
+    );
 
     // Step 2: Create a test document
     const _testDocument = {
@@ -83,7 +85,6 @@ async function testDocumentUploadVerification() {
       .delete()
       .eq('id', _docData.id);
     logError('Failed to clean up', _deleteError);
-
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
   }

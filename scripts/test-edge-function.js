@@ -91,14 +91,17 @@ async function testEdgeFunction() {
       _logError('Long document Edge Function failed', _longFunctionError);
 
       if (!_longFunctionError) {
-        console.log('✅ Long document Edge Function succeeded:', _longFunctionData);
+        console.log(
+          '✅ Long document Edge Function succeeded:',
+          _longFunctionData
+        );
       }
     }
 
     // Cleanup
     try {
       await _supabase.from('documents').delete().eq('id', _docData.id);
-      
+
       if (_longDocData) {
         await _supabase.from('documents').delete().eq('id', _longDocData.id);
       }

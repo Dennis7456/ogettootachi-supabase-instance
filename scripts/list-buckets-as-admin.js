@@ -8,9 +8,9 @@ dotenv.config();
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -27,20 +27,23 @@ async function listBucketsAsAdmin() {
         email: 'admin@test.com',
         password: 'admin123456',
       });
-    
+
     if (authError) {
       debugLog('❌ Auth error:', authError.message);
       return;
     }
-    
+
     // List buckets
     const { data: buckets, error: bucketsError } =
       await _supabase.storage.listBuckets();
-    
+
     if (bucketsError) {
       debugLog('❌ Error listing buckets:', bucketsError.message);
     } else {
-      debugLog('✅ Buckets visible to admin:', buckets.map(b => b.name));
+      debugLog(
+        '✅ Buckets visible to admin:',
+        buckets.map(b => b.name)
+      );
     }
   } catch (error) {
     debugLog('❌ Unexpected error:', error.message);

@@ -196,7 +196,9 @@ class InvitationHealthMonitor {
     }
 
     if (!_allHealthy) {
-      console.log('💡 Run the full test suite: node test-invitation-system-complete.js');
+      console.log(
+        '💡 Run the full test suite: node test-invitation-system-complete.js'
+      );
     }
   }
 
@@ -217,7 +219,9 @@ class InvitationHealthMonitor {
         _line.includes('HEALTHY')
       ).length;
 
-      const _uptime = (((_healthyCount / _recentChecks.length) * 100) || 0).toFixed(1);
+      const _uptime = (
+        (_healthyCount / _recentChecks.length) * 100 || 0
+      ).toFixed(1);
       console.log(`System Uptime: ${_uptime}%`);
     } catch (_error) {
       console.error('Error reading health history:', _error);

@@ -34,7 +34,9 @@ class SupabaseTDDSetup {
       await this.runTests();
 
       // Instruction for frontend configuration
-      console.log('1. Update your frontend .env.local with the new Supabase credentials');
+      console.log(
+        '1. Update your frontend .env.local with the new Supabase credentials'
+      );
     } catch (_error) {
       console.error('\n❌ Setup failed:', _error.message);
       throw new Error('Process exit blocked');
@@ -74,7 +76,7 @@ class SupabaseTDDSetup {
       });
       const _projects = JSON.parse(_projectsOutput);
       const _existingProject = _projects.find(p => p.name === _projectName);
-      
+
       if (_existingProject) {
         this.projectRef = _existingProject.id;
         this.supabaseUrl = _existingProject.api_url;

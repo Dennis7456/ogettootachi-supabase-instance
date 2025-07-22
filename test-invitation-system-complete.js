@@ -306,7 +306,9 @@ class InvitationSystemTester {
       .in('email', this.testEmails);
 
     if (_invitations.length !== this.testEmails.length) {
-      throw new Error(`Expected ${this.testEmails.length} invitations, found ${_invitations.length}`);
+      throw new Error(
+        `Expected ${this.testEmails.length} invitations, found ${_invitations.length}`
+      );
     }
 
     // Check required fields

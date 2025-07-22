@@ -45,14 +45,14 @@ async function sendRealInvitation() {
     );
 
     _logError('Invitation error', _error);
-    
+
     if (_error) {
       return;
     }
 
     if (_data.success) {
       const _invitationUrl = `http://localhost:5173/password-setup?token=${_data.invitation_token}&type=invite`;
-      
+
       console.log('Invitation URL:', _invitationUrl);
 
       // Wait and check for email

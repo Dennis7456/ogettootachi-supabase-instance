@@ -30,7 +30,7 @@ async function viewInvitations() {
       .limit(10);
 
     _logError('Fetch invitations error', _error);
-    
+
     if (!_invitations || _invitations.length === 0) {
       console.log('No invitations found.');
       return;
@@ -39,11 +39,11 @@ async function viewInvitations() {
     _invitations.forEach((_invitation, _index) => {
       const _acceptUrl = `http://localhost:5173/password-setup?token=${_invitation.invitation_token}&type=invite`;
       const _timeAgo = new Date(_invitation.created_at).toLocaleString();
-      
+
       console.log(`Invitation ${_index + 1}:`, {
         acceptUrl: _acceptUrl,
         timeAgo: _timeAgo,
-        details: _invitation
+        details: _invitation,
       });
     });
   } catch (_error) {

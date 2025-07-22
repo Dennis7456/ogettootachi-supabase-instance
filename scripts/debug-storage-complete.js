@@ -35,7 +35,7 @@ async function debugStorageComplete() {
       );
 
       const _documentsBucket = _buckets.find(_b => _b.name === 'documents');
-      
+
       if (_documentsBucket) {
         console.log('✅ Documents bucket exists');
       } else {
@@ -107,7 +107,9 @@ async function debugStorageComplete() {
     }
 
     // 6. Check current storage policies
-    console.log('Please run this SQL in Supabase SQL Editor to see current policies:');
+    console.log(
+      'Please run this SQL in Supabase SQL Editor to see current policies:'
+    );
     console.log(`
 SELECT 
   schemaname,

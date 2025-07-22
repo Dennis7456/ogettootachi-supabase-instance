@@ -31,7 +31,7 @@ async function createMissingProfile() {
       await _supabase.auth.admin.getUserById(_userId);
 
     _logError('Error fetching user', _userError);
-    
+
     if (_userError) {
       return;
     }
@@ -49,7 +49,7 @@ async function createMissingProfile() {
       .single();
 
     _logError('Error checking existing profile', _profileError);
-    
+
     if (_profileError && _profileError.code !== 'PGRST116') {
       return;
     }
@@ -81,7 +81,7 @@ async function createMissingProfile() {
       .single();
 
     _logError('Error creating profile', _insertError);
-    
+
     if (_insertError) {
       return;
     }

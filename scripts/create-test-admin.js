@@ -8,9 +8,9 @@ dotenv.config();
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -34,12 +34,12 @@ async function createTestAdmin() {
           role: 'admin',
         },
       });
-    
+
     if (userError) {
       debugLog('❌ Error creating user:', userError.message);
       return;
     }
-    
+
     // Create admin profile
     const { data: _profileData, error: profileError } = await _supabase
       .from('profiles')
@@ -51,12 +51,12 @@ async function createTestAdmin() {
       })
       .select()
       .single();
-    
+
     if (profileError) {
       debugLog('❌ Error creating profile:', profileError.message);
       return;
     }
-    
+
     debugLog('✅ Test admin created successfully');
   } catch (error) {
     debugLog('❌ Unexpected error:', error.message);

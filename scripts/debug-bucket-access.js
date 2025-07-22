@@ -64,9 +64,10 @@ async function debugBucketAccess() {
       type: 'text/plain',
     });
 
-    const { _data: _uploadData, _error: _uploadError } = await _userSupabase.storage
-      .from('documents')
-      .upload('test-debug.txt', _testFile);
+    const { _data: _uploadData, _error: _uploadError } =
+      await _userSupabase.storage
+        .from('documents')
+        .upload('test-debug.txt', _testFile);
 
     _logError('Upload failed', _uploadError);
 

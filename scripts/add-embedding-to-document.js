@@ -23,9 +23,9 @@ async function generateEmbedding(_text) {
     .split(/\s+/)
     .filter(_word => _word.length > 2)
     .slice(0, 800);
-  
+
   const _embedding = new Array(1536).fill(0);
-  
+
   // Common legal terms and their semantic weights
   const _legalTerms = {
     discrimination: 0.6,
@@ -106,43 +106,43 @@ async function generateEmbedding(_text) {
     if (typeof _terms !== 'object' || _terms === null) {
       throw new TypeError('Legal terms must be an object');
     }
-    
+
     // Optional: Validate term values
     Object.entries(_terms).forEach(([_term, _weight]) => {
       if (typeof _term !== 'string' || typeof _weight !== 'number') {
         console.warn(`Invalid term or weight: ${_term}, ${_weight}`);
       }
     });
-    
+
     return Object.freeze({ ..._terms }); // Return a frozen copy
   }
 
   const _processedLegalTerms = processLegalTerms(_legalTerms);
-  
+
   _words.forEach((_word, _wordIndex) => {
     const _hash = _word.split('').reduce((_a, _b) => {
       _a = (_a << 5) - _a + _b.charCodeAt(0);
       return _a & _a;
     }, 0);
-    
+
     const _semanticWeight = _processedLegalTerms[_word] || 0.1;
     const _numPositions = Math.max(1, Math.floor(_semanticWeight * 10));
-    
+
     for (let _i = 0; _i < _numPositions; _i++) {
       const _position = Math.abs(_hash + _i * 31) % 1536;
       const _value = _semanticWeight * (1 - _i * 0.1);
       _embedding[_position] += _value;
     }
-    
+
     const _freqPosition = (_wordIndex * 7) % 1536;
     _embedding[_freqPosition] += 0.2;
-    
+
     const _lengthPosition = (_word.length * 13) % 1536;
     _embedding[_lengthPosition] += 0.1;
   });
 
   const _maxValue = Math.max(..._embedding);
-  
+
   if (_maxValue > 0) {
     _embedding.forEach((_val, _index) => {
       _embedding[_index] = _val / _maxValue;
@@ -164,19 +164,19 @@ async function addEmbeddingToDocument() {
       .from('documents')
       .select('*')
       .eq('title', 'Ogetto, Otachi & Co Advocates - Firm Profile');
-    
+
     logError('Error fetching document', _fetchError);
-    
+
     if (!_documents || _documents.length === 0) {
       console.error('❌ No firm profile document found');
       return;
     }
 
     const _document = _documents[0];
-    
+
     // Step 2: Generate embedding
     const _embedding = await generateEmbedding(_document.content);
-    
+
     // Step 3: Update document with embedding
     const { _data: _updatedDoc, _error: _updateError } = await _supabase
       .from('documents')
@@ -187,13 +187,13 @@ async function addEmbeddingToDocument() {
       .eq('id', _document.id)
       .select()
       .single();
-    
+
     logError('Error updating document', _updateError);
-    
+
     // Step 4: Test document search
     const _testQuery = 'practice areas';
     const _queryEmbedding = await generateEmbedding(_testQuery);
-    
+
     const { _data: _searchResults, _error: _searchError } = await _supabase.rpc(
       'match_documents',
       {
@@ -202,7 +202,7 @@ async function addEmbeddingToDocument() {
         match_count: 3,
       }
     );
-    
+
     logError('Search error', _searchError);
 
     if (_searchResults) {

@@ -31,13 +31,13 @@ try {
 async function testServiceRole() {
   try {
     const _supabaseService = createClient(_supabaseUrl, _supabaseServiceKey);
-    
+
     // Test if service role can read documents
     const { _data, _error } = await _supabaseService
       .from('documents')
       .select('*')
       .limit(1);
-    
+
     _logError('Service role read failed', _error);
 
     // Test if service role can insert documents (should work)
@@ -52,12 +52,15 @@ async function testServiceRole() {
       .insert(_testDoc)
       .select()
       .single();
-    
+
     _logError('Service role insert failed', _insertError);
 
     if (_insertData) {
       // Clean up test document
-      await _supabaseService.from('documents').delete().eq('id', _insertData.id);
+      await _supabaseService
+        .from('documents')
+        .delete()
+        .eq('id', _insertData.id);
     }
 
     return true;
@@ -83,12 +86,16 @@ async function runTests() {
   const _success = await testServiceRole();
 
   if (_success) {
-    console.log('✅ Edge Function should work with proper environment variables');
+    console.log(
+      '✅ Edge Function should work with proper environment variables'
+    );
   } else {
     console.error('❌ Edge Function environment test failed');
   }
 
-  console.log('2. Deploy the Edge Function: supabase functions deploy process-document');
+  console.log(
+    '2. Deploy the Edge Function: supabase functions deploy process-document'
+  );
 }
 
 runTests();

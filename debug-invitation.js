@@ -62,7 +62,7 @@ async function debugInvitation() {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(5);
-    
+
     logError('Error fetching invitations', _error);
 
     if (_invitations) {
@@ -92,9 +92,11 @@ async function debugInvitation() {
       }
     );
     const _responseText = await _response.text();
-    
+
     if (_response.status === 404) {
-      console.warn('⚠️ send-invitation-email function not found - this might be why emails aren\'t sent');
+      console.warn(
+        '⚠️ send-invitation-email function not found - this might be why emails aren\'t sent'
+      );
     } else {
       console.log('✅ Send invitation email function response:', _responseText);
     }
@@ -106,7 +108,7 @@ async function debugInvitation() {
   try {
     const _response = await fetch('http://127.0.0.1:54324/api/v1/messages');
     const _messages = await _response.json();
-    
+
     if (_messages.messages && _messages.messages.length > 0) {
       _messages.messages.slice(0, 3).forEach((_msg, _index) => {
         console.log(`Message ${_index + 1}:`, _msg);
@@ -128,7 +130,7 @@ async function debugInvitation() {
         },
       }
     );
-    
+
     if (_functionsResponse.ok) {
       console.log('✅ Functions endpoint is accessible');
     } else {
@@ -140,8 +142,12 @@ async function debugInvitation() {
 
   // Recommendations
   console.log('Troubleshooting Recommendations:');
-  console.log('1. Check if send-invitation-email function exists and is called');
-  console.log('2. If database shows invitations but email service shows no messages:');
+  console.log(
+    '1. Check if send-invitation-email function exists and is called'
+  );
+  console.log(
+    '2. If database shows invitations but email service shows no messages:'
+  );
 }
 
 debugInvitation().catch(console.error);

@@ -31,7 +31,7 @@ async function checkUserExists() {
       await _supabase.auth.admin.listUsers();
 
     _logError('Error fetching auth users', _authError);
-    
+
     const _user = _authUser.users.find(_u => _u.email === _email);
 
     if (!_user) {

@@ -4,9 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 function debugLog(...args) {
   if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
-    const logMessage = args.map(arg => 
-      typeof arg === 'object' ? JSON.stringify(arg) : arg
-    ).join(' ');
+    const logMessage = args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
@@ -21,13 +21,15 @@ const _supabase = createClient(supabaseUrl, supabaseAnonKey);
 async function testLogin() {
   const testEmail = 'webmastaz2019@gmail.com';
   const testPassword = 'testpassword123'; // This will fail, but we'll see the specific error
-  
+
   try {
-    const { data: _loginData, error } = await _supabase.auth.signInWithPassword({
-      email: testEmail,
-      password: testPassword,
-    });
-    
+    const { data: _loginData, error } = await _supabase.auth.signInWithPassword(
+      {
+        email: testEmail,
+        password: testPassword,
+      }
+    );
+
     if (error) {
       // Check specific error types
       if (error.message.includes('Invalid login credentials')) {

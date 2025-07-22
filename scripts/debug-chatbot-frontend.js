@@ -86,8 +86,12 @@ async function debugChatbotFrontend() {
     }
 
     console.log('Debug Recommendations:');
-    console.log('   - Check if the user is properly authenticated in the frontend');
-    console.log('   - Ensure the chatbot component is using the correct Supabase client');
+    console.log(
+      '   - Check if the user is properly authenticated in the frontend'
+    );
+    console.log(
+      '   - Ensure the chatbot component is using the correct Supabase client'
+    );
   } catch (_error) {
     console.error('❌ Debug failed:', _error.message);
     console.error('Error details:', _error);

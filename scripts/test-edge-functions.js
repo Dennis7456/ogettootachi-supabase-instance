@@ -49,9 +49,11 @@ async function testAppointmentsFunction() {
 
     if (_createResponse.ok) {
       const _data = await _createResponse.json();
-      
-      console.log('⚠️  GET appointments test skipped (requires authentication)');
-      
+
+      console.log(
+        '⚠️  GET appointments test skipped (requires authentication)'
+      );
+
       return _data.appointment.id;
     } else {
       const _error = await _createResponse.json();
@@ -67,17 +69,22 @@ async function testAppointmentsFunction() {
 async function testContactFunction() {
   try {
     // Test POST - Create contact message
-    const _createResponse = await fetch(`${_supabaseUrl}/functions/v1/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(_testContactMessage),
-    });
+    const _createResponse = await fetch(
+      `${_supabaseUrl}/functions/v1/contact`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_testContactMessage),
+      }
+    );
 
     if (_createResponse.ok) {
       const _data = await _createResponse.json();
-      
-      console.log('⚠️  GET contact messages test skipped (requires authentication)');
-      
+
+      console.log(
+        '⚠️  GET contact messages test skipped (requires authentication)'
+      );
+
       return _data.contact_message.id;
     } else {
       const _error = await _createResponse.json();
@@ -153,7 +160,7 @@ async function main() {
     // Test functions
     const _appointmentId = await testAppointmentsFunction();
     const _contactId = await testContactFunction();
-    
+
     await testErrorCases();
 
     // Cleanup

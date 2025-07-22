@@ -35,7 +35,9 @@ async function checkAndCreateBuckets() {
     );
 
     // Check if documents bucket exists
-    const _documentsBucket = _buckets.find(_bucket => _bucket.name === 'documents');
+    const _documentsBucket = _buckets.find(
+      _bucket => _bucket.name === 'documents'
+    );
     if (!_documentsBucket) {
       const { _data: _newBucket, _error: _createError } =
         await _supabase.storage.createBucket('documents', {

@@ -23,7 +23,7 @@ function findJSFiles(dir) {
 function fixSyntaxErrors(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    
+
     // Remove extra parentheses
     const cleanedContent = content
       .replace(/\)\s*\)/g, ')')

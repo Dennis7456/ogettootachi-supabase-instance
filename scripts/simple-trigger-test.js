@@ -26,7 +26,7 @@ async function testTrigger() {
           role: 'user',
         },
       });
-    
+
     logError('User creation error', _userError);
     if (_userError) return;
 
@@ -44,7 +44,7 @@ async function testTrigger() {
         .select('id, email, raw_user_meta_data')
         .eq('id', _userData.user.id)
         .single();
-      
+
       logError('Auth user check error', _authError);
 
       // Step 4: Try to manually create profile
@@ -59,16 +59,15 @@ async function testTrigger() {
           })
           .select()
           .single();
-      
+
       logError('Manual profile creation error', _manualError);
     }
 
     // Step 5: Clean up - delete the test user
     const { _error: _deleteError } =
       await _supabaseService.auth.admin.deleteUser(_userData.user.id);
-    
-    logError('User deletion error', _deleteError);
 
+    logError('User deletion error', _deleteError);
   } catch (_error) {
     console.error('❌ Test failed:', _error);
   }

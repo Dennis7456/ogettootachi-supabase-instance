@@ -20,7 +20,9 @@ const _supabase = createClient(_supabaseUrl, _supabaseServiceKey);
 
 async function fixStoragePoliciesSQL() {
   try {
-    console.log('Since the exec_sql function is not available, please run the following SQL commands');
+    console.log(
+      'Since the exec_sql function is not available, please run the following SQL commands'
+    );
 
     // Step 1: Drop existing storage policies
     const _dropPolicies = [

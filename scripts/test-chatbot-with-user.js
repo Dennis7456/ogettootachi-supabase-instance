@@ -51,17 +51,17 @@ async function testChatbotWithUser() {
 
     // Step 3: Test document search
     const _searchQuery = 'legal services';
-    
+
     // Create embedding for search
     const _words = _searchQuery.toLowerCase().split(/\s+/);
     const _queryEmbedding = new Array(1536).fill(0);
-    
+
     _words.forEach(_word => {
       const _hash = _word.split('').reduce((_a, _b) => {
         _a = (_a << 5) - _a + _b.charCodeAt(0);
         return _a & _a;
       }, 0);
-      
+
       const _position = Math.abs(_hash) % 1536;
       _queryEmbedding[_position] = 1;
     });
@@ -132,7 +132,10 @@ async function testChatbotWithUser() {
       const _lowerMessage = _message.toLowerCase();
       let _response = '';
 
-      if (_lowerMessage.includes('service') || _lowerMessage.includes('offer')) {
+      if (
+        _lowerMessage.includes('service') ||
+        _lowerMessage.includes('offer')
+      ) {
         _response =
           'We offer comprehensive legal services including Corporate Law, Litigation, Intellectual Property, Employment Law, Real Estate, Tax Services, and Environmental Law.';
       } else if (_lowerMessage.includes('contact')) {
@@ -180,9 +183,13 @@ async function testChatbotWithUser() {
     _logError('History retrieval error', _historyError);
 
     if (_userConversations) {
-      console.log(`✅ Retrieved ${_userConversations.length} conversations for user:`);
+      console.log(
+        `✅ Retrieved ${_userConversations.length} conversations for user:`
+      );
       _userConversations.forEach((_conv, _index) => {
-        console.log(`   ${_index + 1}. "${_conv.message.substring(0, 40)}..." (${_conv.created_at})`);
+        console.log(
+          `   ${_index + 1}. "${_conv.message.substring(0, 40)}..." (${_conv.created_at})`
+        );
       });
     }
 
@@ -194,7 +201,9 @@ async function testChatbotWithUser() {
 
     await _supabase.auth.admin.deleteUser(_userData.user.id);
 
-    console.log('\n💡 The chatbot is fully functional! You can now integrate it into your frontend.');
+    console.log(
+      '\n💡 The chatbot is fully functional! You can now integrate it into your frontend.'
+    );
   } catch (_error) {
     console.error('❌ Test failed:', _error.message);
     console.error('Error details:', _error);

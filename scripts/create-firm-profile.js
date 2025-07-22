@@ -101,7 +101,9 @@ For consultations and legal services, please contact our office. We are committe
 
     _logError('Verification error', _verifyError);
 
-    console.log('📋 The chatbot will now use real firm information instead of test content.');
+    console.log(
+      '📋 The chatbot will now use real firm information instead of test content.'
+    );
   } catch (_error) {
     console.error('❌ Failed to create firm profile:', _error.message);
     console.error('Error details:', _error);
