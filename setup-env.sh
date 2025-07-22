@@ -13,14 +13,14 @@ fi
 # Check if running in development or production
 if [ "$ENV" = "production" ]; then
     supabase secrets set SUPABASE_URL=$PROD_SUPABASE_URL
-    supabase secrets set SUPABASE_ANON_KEY="$PROD_SUPABASE_ANON_KEY"
-    supabase secrets set SUPABASE_SERVICE_ROLE_KEY="$PROD_SUPABASE_SERVICE_ROLE_KEY"
-    supabase secrets set OPENAI_API_KEY="$PROD_OPENAI_API_KEY"
+    supabase secrets set SUPABASE_ANON_KEY=$PROD_SUPABASE_ANON_KEY
+    supabase secrets set SUPABASE_SERVICE_ROLE_KEY=$PROD_SUPABASE_SERVICE_ROLE_KEY
+    supabase secrets set OPENAI_API_KEY=$PROD_OPENAI_API_KEY
 else
-    supabase secrets set SUPABASE_URL="http://127.0.0.1:54321"
-    supabase secrets set SUPABASE_ANON_KEY="$DEV_SUPABASE_ANON_KEY"
-    supabase secrets set SUPABASE_SERVICE_ROLE_KEY="$DEV_SUPABASE_SERVICE_ROLE_KEY"
-    supabase secrets set OPENAI_API_KEY="$DEV_OPENAI_API_KEY"
+    supabase secrets set SUPABASE_URL=http://127.0.0.1:54321
+    supabase secrets set SUPABASE_ANON_KEY=$DEV_SUPABASE_ANON_KEY
+    supabase secrets set SUPABASE_SERVICE_ROLE_KEY=$DEV_SUPABASE_SERVICE_ROLE_KEY
+    supabase secrets set OPENAI_API_KEY=$DEV_OPENAI_API_KEY
 fi
 
 echo ""
