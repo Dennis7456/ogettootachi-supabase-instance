@@ -10,12 +10,12 @@ function findJSFiles(
   const _files = fs.readdirSync(_dir);
   const _jsFiles = [];
 
-  _files.forEach(_file => {
+  _files.forEach((_file) => {
     const _fullPath = path.join(_dir, _file);
     const _stat = fs.statSync(_fullPath);
 
     // Check if directory should be excluded
-    const _shouldExclude = _excludeDirs.some(_excludeDir =>
+    const _shouldExclude = _excludeDirs.some((_excludeDir) =>
       _fullPath.includes(_excludeDir)
     );
 
@@ -254,11 +254,11 @@ function main() {
     'view-invitations.js',
   ];
 
-  const _fullPathTargetFiles = _targetFiles.map(_file =>
+  const _fullPathTargetFiles = _targetFiles.map((_file) =>
     path.join(_startDir, _file)
   );
 
-  _fullPathTargetFiles.forEach(_filePath => {
+  _fullPathTargetFiles.forEach((_filePath) => {
     if (fs.existsSync(_filePath)) {
       fixSyntaxErrors(_filePath);
     }
