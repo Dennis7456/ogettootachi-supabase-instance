@@ -1,42 +1,42 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 // Debug logging function to replace console.log
 function debugLog(...args) {
-  if (process.env.DEBUG === "true") {
+  if (process.env.DEBUG === 'true') {
     const timestamp = new Date().toISOString();
     const logMessage = args
-      .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
-      .join(" ");
+      .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : arg))
+      .join(' ');
     process.stderr.write(`[DEBUG ${timestamp}] ${logMessage}\n`);
   }
 }
 
-const supabaseUrl = "http://127.0.0.1:54321";
+const supabaseUrl = 'http://127.0.0.1:54321';
 const supabaseServiceKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 // Function to create a profile for a user
 async function createProfileForUser(userId, fullName, role) {
   try {
     const { data, error } = await _supabaseService
-      .from("profiles")
+      .from('profiles')
       .insert({
         id: userId,
-        full_name: fullName || "Unknown User",
-        role: role || "user",
+        full_name: fullName || 'Unknown User',
+        role: role || 'user',
         is_active: true,
       })
       .select()
       .single();
 
     if (error) {
-      debugLog("❌ Failed to create profile:", error);
+      debugLog('❌ Failed to create profile:', error);
       return null;
     }
 
     return data;
   } catch (error) {
-    debugLog("❌ Unexpected error creating profile:", error);
+    debugLog('❌ Unexpected error creating profile:', error);
     return null;
   }
 }
@@ -49,7 +49,7 @@ async function diagnoseMissingProfiles() {
     const { data: users, error: usersError } = await _supabaseService.auth.admin.listUsers();
 
     if (usersError) {
-      debugLog("❌ Failed to list users:", usersError);
+      debugLog('❌ Failed to list users:', usersError);
       return;
     }
 
@@ -61,9 +61,9 @@ async function diagnoseMissingProfiles() {
     for (const _user of users.users) {
       // Check if profile exists
       const { data: _profile, error: profileError } = await _supabaseService
-        .from("profiles")
-        .select("*")
-        .eq("id", _user.id)
+        .from('profiles')
+        .select('*')
+        .eq('id', _user.id)
         .single();
 
       if (profileError) {
@@ -73,8 +73,8 @@ async function diagnoseMissingProfiles() {
         // Attempt to create profile
         const newProfile = await createProfileForUser(
           _user.id,
-          _user.user_metadata?.full_name || _user.email?.split("@")[0],
-          _user.user_metadata?.role || "user"
+          _user.user_metadata?.full_name || _user.email?.split('@')[0],
+          _user.user_metadata?.role || 'user'
         );
 
         if (newProfile) {
@@ -86,7 +86,7 @@ async function diagnoseMissingProfiles() {
     // Report results
     if (missingProfiles.length > 0) {
       debugLog(
-        "❌ Missing profiles for users:",
+        '❌ Missing profiles for users:',
         missingProfiles.map((_user) => _user.email)
       );
     }
@@ -97,7 +97,7 @@ async function diagnoseMissingProfiles() {
       createdProfiles: createdProfiles.length,
     };
   } catch (error) {
-    debugLog("❌ Unexpected error:", error);
+    debugLog('❌ Unexpected error:', error);
   }
 }
 

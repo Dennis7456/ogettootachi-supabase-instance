@@ -3,25 +3,25 @@ export default {
     es2021: true,
     node: true,
   },
-  extends: ["eslint:recommended", "prettier"],
+  extends: ['eslint:recommended', 'prettier'],
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+    ecmaVersion: 'latest',
+    sourceType: 'module',
   },
   rules: {
     quotes: [
-      "error",
-      "single",
+      'error',
+      'single',
       {
         avoidEscape: true,
         allowTemplateLiterals: true,
       },
     ],
-    "no-unused-vars": [
-      "error",
+    'no-unused-vars': [
+      'error',
       {
-        varsIgnorePattern: "^_",
-        argsIgnorePattern: "^_",
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
       },
     ],
   },

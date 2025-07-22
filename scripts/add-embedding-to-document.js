@@ -1,10 +1,10 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || "http://localhost:54321";
+const supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 const _supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Utility function for logging errors
@@ -19,7 +19,7 @@ async function generateEmbedding(_text) {
   const _limitedText = _text.substring(0, 8000);
   const _words = _limitedText
     .toLowerCase()
-    .replace(/[^\w\s]/g, " ")
+    .replace(/[^\w\s]/g, ' ')
     .split(/\s+/)
     .filter((_word) => _word.length > 2)
     .slice(0, 800);
@@ -34,7 +34,7 @@ async function generateEmbedding(_text) {
     finance: 0.4,
     banking: 0.4,
     insurance: 0.4,
-    "real estate": 0.5,
+    'real estate': 0.5,
     family: 0.4,
     divorce: 0.6,
     custody: 0.6,
@@ -103,13 +103,13 @@ async function generateEmbedding(_text) {
 
   // Add type checking and safer object handling
   function processLegalTerms(_terms) {
-    if (typeof _terms !== "object" || _terms === null) {
-      throw new TypeError("Legal terms must be an object");
+    if (typeof _terms !== 'object' || _terms === null) {
+      throw new TypeError('Legal terms must be an object');
     }
 
     // Optional: Validate term values
     Object.entries(_terms).forEach(([_term, _weight]) => {
-      if (typeof _term !== "string" || typeof _weight !== "number") {
+      if (typeof _term !== 'string' || typeof _weight !== 'number') {
         console.warn(`Invalid term or weight: ${_term}, ${_weight}`);
       }
     });
@@ -120,7 +120,7 @@ async function generateEmbedding(_text) {
   const _processedLegalTerms = processLegalTerms(_legalTerms);
 
   _words.forEach((_word, _wordIndex) => {
-    const _hash = _word.split("").reduce((_a, _b) => {
+    const _hash = _word.split('').reduce((_a, _b) => {
       _a = (_a << 5) - _a + _b.charCodeAt(0);
       return _a & _a;
     }, 0);
@@ -161,14 +161,14 @@ async function addEmbeddingToDocument() {
   try {
     // Step 1: Get the firm profile document
     const { _data: _documents, _error: _fetchError } = await _supabase
-      .from("documents")
-      .select("*")
-      .eq("title", "Ogetto, Otachi & Co Advocates - Firm Profile");
+      .from('documents')
+      .select('*')
+      .eq('title', 'Ogetto, Otachi & Co Advocates - Firm Profile');
 
-    logError("Error fetching document", _fetchError);
+    logError('Error fetching document', _fetchError);
 
     if (!_documents || _documents.length === 0) {
-      console.error("❌ No firm profile document found");
+      console.error('❌ No firm profile document found');
       return;
     }
 
@@ -179,28 +179,28 @@ async function addEmbeddingToDocument() {
 
     // Step 3: Update document with embedding
     const { _data: _updatedDoc, _error: _updateError } = await _supabase
-      .from("documents")
+      .from('documents')
       .update({
         embedding: _embedding,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", _document.id)
+      .eq('id', _document.id)
       .select()
       .single();
 
-    logError("Error updating document", _updateError);
+    logError('Error updating document', _updateError);
 
     // Step 4: Test document search
-    const _testQuery = "practice areas";
+    const _testQuery = 'practice areas';
     const _queryEmbedding = await generateEmbedding(_testQuery);
 
-    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc("match_documents", {
+    const { _data: _searchResults, _error: _searchError } = await _supabase.rpc('match_documents', {
       query_embedding: _queryEmbedding,
       match_threshold: 0.1,
       match_count: 3,
     });
 
-    logError("Search error", _searchError);
+    logError('Search error', _searchError);
 
     if (_searchResults) {
       _searchResults.forEach((_doc, _index) => {
@@ -208,7 +208,7 @@ async function addEmbeddingToDocument() {
       });
     }
   } catch (_error) {
-    console.error("❌ Failed to add embedding:", _error.message);
+    console.error('❌ Failed to add embedding:', _error.message);
   }
 }
 

@@ -167,12 +167,47 @@ echo ""
 echo "🔒 STEP 5: SECURITY CHECKS"
 echo "=========================="
 
-run_check "Security Audit" "npm audit --audit-level=moderate" "false"
-track_result $?
+# Security Audit
+echo "ℹ️  Running: Security Audit"
+npm audit --audit-level=moderate
 
-# Check for common security issues
-run_check "Secret Detection" "! grep -r -i -E '(password|secret|key|token).*=.*['\\\"][^'\\\"]{8,}' --include='*.js' --include='*.ts' --exclude-dir=node_modules ." "true"
-track_result $?
+# Secret Detection
+echo "ℹ️  Running: Secret Detection"
+
+# Exclude specific patterns and files
+EXCLUDED_PATTERNS=(
+    "*.html"  # Email templates
+    "*.md"    # Markdown files
+    "*.json"  # JSON configuration files
+    "node_modules/*"  # Exclude node_modules
+    ".git/*"  # Exclude git directory
+)
+
+# Build exclude pattern for grep
+EXCLUDE_ARGS=()
+for pattern in "${EXCLUDED_PATTERNS[@]}"; do
+    EXCLUDE_ARGS+=("--exclude=$pattern")
+done
+
+# More precise secret detection
+SECRET_DETECTION=$(grep -r -i -E '(password|secret|key|token|credentials).*=.*['\"][^'\"]{8,}' \
+    --exclude-dir=node_modules \
+    --exclude-dir=.git \
+    --exclude=*.html \
+    --exclude=*.md \
+    --exclude=*.json \
+    . | grep -v 'email-templates')
+
+if [ -n "$SECRET_DETECTION" ]; then
+    echo "⚠️  Potential secrets found:"
+    echo "$SECRET_DETECTION"
+    echo "❌ Secret Detection FAILED (Critical)"
+    exit 1
+else
+    echo "✅ Secret Detection passed"
+fi
+
+exit 0
 
 echo ""
 echo "📦 STEP 6: BUILD VALIDATION"

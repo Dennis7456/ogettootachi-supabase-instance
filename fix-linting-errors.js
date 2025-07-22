@@ -1,6 +1,6 @@
 /* eslint-disable no-console, no-undef */
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 const regex = /\s*\/\/.*$/gm;
 
@@ -14,7 +14,7 @@ function findJSFiles(dir) {
 
     if (stat.isDirectory()) {
       jsFiles.push(...findJSFiles(fullPath));
-    } else if (file.endsWith(".js")) {
+    } else if (file.endsWith('.js')) {
       jsFiles.push(fullPath);
     }
   });
@@ -24,10 +24,10 @@ function findJSFiles(dir) {
 
 function fixLintingErrors(filePath) {
   try {
-    const content = fs.readFileSync(filePath, "utf8");
+    const content = fs.readFileSync(filePath, 'utf8');
 
     // Remove trailing comments
-    const cleanedContent = content.replace(regex, "");
+    const cleanedContent = content.replace(regex, '');
 
     fs.writeFileSync(filePath, cleanedContent);
     console.log(`Fixed linting errors in ${filePath}`);

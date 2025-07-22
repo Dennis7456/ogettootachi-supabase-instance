@@ -1,11 +1,11 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 // View Recent Invitations with Access Links
 const _config = {
-  SUPABASE_URL: "http://127.0.0.1:54321",
+  SUPABASE_URL: 'http://127.0.0.1:54321',
   SUPABASE_SERVICE_ROLE_KEY:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU",
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
 };
 
 // Utility function for logging errors
@@ -21,15 +21,15 @@ async function viewInvitations() {
   try {
     // Get recent invitations
     const { _data: _invitations, _error } = await _supabaseAdmin
-      .from("user_invitations")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .from('user_invitations')
+      .select('*')
+      .order('created_at', { ascending: false })
       .limit(10);
 
-    _logError("Fetch invitations error", _error);
+    _logError('Fetch invitations error', _error);
 
     if (!_invitations || _invitations.length === 0) {
-      console.log("No invitations found.");
+      console.log('No invitations found.');
       return;
     }
 
@@ -44,7 +44,7 @@ async function viewInvitations() {
       });
     });
   } catch (_error) {
-    console.error("Error viewing invitations:", _error);
+    console.error('Error viewing invitations:', _error);
   }
 }
 

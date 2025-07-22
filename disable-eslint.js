@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 const files = [
-  "debug-invitation.js",
-  "scripts/check-database-connection.js",
-  "scripts/debug-dashboard-issue.js",
-  "scripts/fix-storage-policies-final.js",
-  "scripts/fix-syntax-errors.js",
-  "scripts/test-edge-function-env.js"
+  'debug-invitation.js',
+  'scripts/check-database-connection.js',
+  'scripts/debug-dashboard-issue.js',
+  'scripts/fix-storage-policies-final.js',
+  'scripts/fix-syntax-errors.js',
+  'scripts/test-edge-function-env.js',
 ];
 
 function removeDisableComments(content) {
@@ -19,15 +19,15 @@ function removeDisableComments(content) {
     .replace(/\/\*\s*eslint-disable\s*quotes\s*\*\/\n/gm, '');
 }
 
-files.forEach(file => {
+files.forEach((file) => {
   const fullPath = path.resolve(process.cwd(), file);
-  
+
   try {
-    let content = fs.readFileSync(fullPath, "utf8");
+    let content = fs.readFileSync(fullPath, 'utf8');
     const newContent = removeDisableComments(content);
-    
+
     if (content !== newContent) {
-      fs.writeFileSync(fullPath, newContent, "utf8");
+      fs.writeFileSync(fullPath, newContent, 'utf8');
       console.log(`Removed ESLint disable comments from ${file}`);
     }
   } catch (error) {
@@ -35,4 +35,4 @@ files.forEach(file => {
   }
 });
 
-console.log("ESLint disable comments removal completed."); 
+console.log('ESLint disable comments removal completed.');

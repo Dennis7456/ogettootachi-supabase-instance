@@ -1,13 +1,13 @@
 /* eslint-disable no-console, no-undef */
-import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const _supabaseUrl = process.env.SUPABASE_URL || "http://localhost:54321";
+const _supabaseUrl = process.env.SUPABASE_URL || 'http://localhost:54321';
 const _supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 // Utility function for logging errors
 const _logError = (prefix, _error) => {
@@ -22,11 +22,11 @@ async function createFirmProfile() {
   try {
     // Step 1: Delete the test document
     const { _data: _testDocs, _error: _fetchError } = await _supabase
-      .from("documents")
-      .select("id, title")
-      .eq("title", "Dashboard Test Document");
+      .from('documents')
+      .select('id, title')
+      .eq('title', 'Dashboard Test Document');
 
-    _logError("Error fetching test documents", _fetchError);
+    _logError('Error fetching test documents', _fetchError);
 
     if (_fetchError) {
       return;
@@ -35,9 +35,9 @@ async function createFirmProfile() {
     if (_testDocs && _testDocs.length > 0) {
       for (const _doc of _testDocs) {
         const { _error: _deleteError } = await _supabase
-          .from("documents")
+          .from('documents')
           .delete()
-          .eq("id", _doc.id);
+          .eq('id', _doc.id);
 
         _logError(`Error deleting test document ${_doc.id}`, _deleteError);
       }
@@ -45,8 +45,8 @@ async function createFirmProfile() {
 
     // Step 2: Create firm profile document
     const _firmProfile = {
-      title: "Ogetto, Otachi & Co Advocates - Firm Profile",
-      category: "legal",
+      title: 'Ogetto, Otachi & Co Advocates - Firm Profile',
+      category: 'legal',
       content: `Ogetto, Otachi & Co Advocates is a prestigious law firm based in Kenya, established in 2003. We are committed to providing exceptional legal services with integrity, professionalism, and dedication to our clients' success.
 Our firm specializes in comprehensive legal services across multiple practice areas:
 CORPORATE LAW & COMMERCIAL TRANSACTIONS
@@ -68,12 +68,12 @@ For consultations and legal services, please contact our office. We are committe
     };
 
     const { _data: _newDoc, _error: _insertError } = await _supabase
-      .from("documents")
+      .from('documents')
       .insert(_firmProfile)
       .select()
       .single();
 
-    _logError("Error creating firm profile", _insertError);
+    _logError('Error creating firm profile', _insertError);
 
     if (_insertError) {
       return;
@@ -81,7 +81,7 @@ For consultations and legal services, please contact our office. We are committe
 
     // Step 3: Process with Edge Function
     const { _data: _processData, _error: _processError } = await _supabase.functions.invoke(
-      "process-document",
+      'process-document',
       {
         body: {
           document_id: _newDoc.id,
@@ -92,21 +92,21 @@ For consultations and legal services, please contact our office. We are committe
       }
     );
 
-    _logError("Edge Function processing error", _processError);
+    _logError('Edge Function processing error', _processError);
 
     // Step 4: Verify final state
     const { _data: _finalDoc, _error: _verifyError } = await _supabase
-      .from("documents")
-      .select("*")
-      .eq("id", _newDoc.id)
+      .from('documents')
+      .select('*')
+      .eq('id', _newDoc.id)
       .single();
 
-    _logError("Verification error", _verifyError);
+    _logError('Verification error', _verifyError);
 
-    console.log("📋 The chatbot will now use real firm information instead of test content.");
+    console.log('📋 The chatbot will now use real firm information instead of test content.');
   } catch (_error) {
-    console.error("❌ Failed to create firm profile:", _error.message);
-    console.error("Error details:", _error);
+    console.error('❌ Failed to create firm profile:', _error.message);
+    console.error('Error details:', _error);
   }
 }
 

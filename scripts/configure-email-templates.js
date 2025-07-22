@@ -1,18 +1,27 @@
 /* eslint-disable no-console, no-undef */
-import { createClient } from "@supabase/supabase-js";
-import fs from "node:fs";
-import path from "node:path";
+import { createClient } from '@supabase/supabase-js';
+import fs from 'node:fs';
+import path from 'node:path';
+import dotenv from 'dotenv';
 
-const _supabaseUrl = "http://127.0.0.1:54321";
-const _supabaseServiceKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
+// Load environment variables
+dotenv.config();
+
+const _supabaseUrl = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
+const _supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || '';
+
+// Validate service key
+if (!_supabaseServiceKey) {
+  console.error('❌ SUPABASE_SERVICE_KEY is not set. Please set it in your environment variables.');
+  process.exit(1);
+}
 
 const _supabaseService = createClient(_supabaseUrl, _supabaseServiceKey);
 
 // Email templates with application branding
 const _emailTemplates = {
   confirm_template: {
-    subject: "Confirm Your Email Address",
+    subject: 'Confirm Your Email Address',
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -140,7 +149,7 @@ const _emailTemplates = {
 </html>`,
   },
   reset_template: {
-    subject: "Reset Your Password",
+    subject: 'Reset Your Password',
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -280,7 +289,7 @@ const _emailTemplates = {
 </html>`,
   },
   magic_link_template: {
-    subject: "Sign In to Your Account",
+    subject: 'Sign In to Your Account',
     html: `<!DOCTYPE html>
 <html>
 <head>
@@ -412,10 +421,10 @@ async function configureEmailTemplates() {
     // Note: In a real Supabase setup, you would configure these templates
     // through the Supabase Dashboard or API. For local development
     // we'll create the configuration files and provide instructions.
-    console.log("1. Go to Supabase Dashboard > Authentication > Email Templates");
+    console.log('1. Go to Supabase Dashboard > Authentication > Email Templates');
 
     // Save templates to files for easy access
-    const _templatesDir = path.join(process.cwd(), "email-templates");
+    const _templatesDir = path.join(process.cwd(), 'email-templates');
 
     if (!fs.existsSync(_templatesDir)) {
       fs.mkdirSync(_templatesDir);
@@ -429,9 +438,9 @@ async function configureEmailTemplates() {
       console.log(`Created template: ${_fileName}`);
     });
 
-    console.log("Email templates configuration completed successfully");
+    console.log('Email templates configuration completed successfully');
   } catch (_error) {
-    console.error("❌ Email template configuration failed:", _error.message);
+    console.error('❌ Email template configuration failed:', _error.message);
     throw _error;
   }
 }

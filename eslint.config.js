@@ -9,8 +9,8 @@ export default [
     rules: {
       // Disable all rules
       'no-unused-vars': 'off',
-      'semi': 'off',
-      'quotes': 'off',
+      semi: 'off',
+      quotes: 'off',
       'no-console': 'off',
       'no-empty': 'off',
       'no-undef': 'off',
