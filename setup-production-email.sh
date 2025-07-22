@@ -87,13 +87,13 @@ echo "📝 Setting Edge Function secrets..."
 
 # Note: SUPABASE_URL is automatically provided by Supabase in Edge Functions
 echo "Setting RESEND_API_KEY..."
-supabase secrets set RESEND_API_KEY="$RESEND_API_KEY"
+supabase secrets set RESEND_API_KEY=$RESEND_API_KEY
 
 echo "Setting SUPABASE_SERVICE_ROLE_KEY..."
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY
 
 echo "Setting FRONTEND_URL..."
-supabase secrets set FRONTEND_URL="$FRONTEND_URL"
+supabase secrets set FRONTEND_URL=$FRONTEND_URL
 
 echo "✅ Secrets set successfully!"
 echo "   Note: SUPABASE_URL is automatically provided by Supabase"
