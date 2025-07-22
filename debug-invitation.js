@@ -86,7 +86,7 @@ async function debugInvitation() {
 
     if (_response.status === 404) {
       console.warn(
-        '⚠️ send-invitation-email function not found - this might be why emails aren\'t sent'
+        "⚠️ send-invitation-email function not found - this might be why emails aren't sent"
       );
     } else {
       console.log('✅ Send invitation email function response:', _responseText);

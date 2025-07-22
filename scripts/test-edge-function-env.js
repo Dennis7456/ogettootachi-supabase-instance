@@ -70,7 +70,7 @@ try {
   const _secrets = execSync('supabase secrets list', { encoding: 'utf8' });
   console.log('Supabase Secrets:', _secrets);
 } catch (_error) {
-  console.error('❌ Could not list secrets. Make sure you\'re in the supabase directory.');
+  console.error("❌ Could not list secrets. Make sure you're in the supabase directory.");
 }
 
 // Run the service role test
