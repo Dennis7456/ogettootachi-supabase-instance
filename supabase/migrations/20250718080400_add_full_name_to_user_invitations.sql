@@ -1,14 +1,32 @@
 -- Add full_name and status columns to user_invitations table
 -- This allows storing additional metadata during the invitation process
 
--- Add full_name column
-ALTER TABLE user_invitations 
-ADD COLUMN full_name TEXT NULL;
+-- Add full_name column if it doesn't already exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name='user_invitations' AND column_name='full_name'
+    ) THEN
+        ALTER TABLE user_invitations 
+        ADD COLUMN full_name TEXT NULL;
+    END IF;
+END $$;
 
--- Add status column with a check constraint
-ALTER TABLE user_invitations 
-ADD COLUMN status TEXT NOT NULL DEFAULT 'pending' 
-CHECK (status IN ('pending', 'sent', 'accepted', 'expired'));
+-- Add status column with a check constraint if it doesn't already exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name='user_invitations' AND column_name='status'
+    ) THEN
+        ALTER TABLE user_invitations 
+        ADD COLUMN status TEXT NOT NULL DEFAULT 'pending' 
+        CHECK (status IN ('pending', 'sent', 'accepted', 'expired'));
+    END IF;
+END $$;
 
 -- Add comments to explain the columns
 COMMENT ON COLUMN user_invitations.full_name IS 'Full name of the invited user';

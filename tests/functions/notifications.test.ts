@@ -45,13 +45,13 @@ describe('Notifications RLS', () => {
   it('User A sees their notification', async () => {
     await supabase.auth.signInWithPassword(userA);
     const { data, error } = await supabase.from('notifications').select('*');
-    expect(error).toBeNull(); expect(data.length).toBe(1);
+    expect(error).toBeNull(); expect((data ?? []).length).toBe(1);
   });
 
   it('User B cannot see it', async () => {
     await supabase.auth.signInWithPassword(userB);
     const { data } = await supabase.from('notifications').select('*');
-    expect(data.length).toBe(0);
+    expect((data ?? []).length).toBe(0);
   });
 
   it('Mark as read RPC works', async () => {
@@ -62,6 +62,6 @@ describe('Notifications RLS', () => {
     });
     expect(error).toBeNull(); expect(data).toBe(1);
     const { data: after } = await supabase.from('notifications').select('read').eq('id', notificationId).single();
-    expect(after.read).toBe(true);
+    expect(after?.read).toBe(true);
   });
 });
