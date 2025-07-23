@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'\;
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'\;
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { 
   corsHeaders, 
   createErrorResponse,
   validateRequiredFields,
   validateEmail
-} from '../_shared/error-handler';
+} from '../_shared/error-handler.ts';
 
 // Logging function
 function log(entry) {

@@ -5,11 +5,11 @@ import {
   withAuth, 
   AuthResult, 
   authenticateRequest 
-} from '../_shared/auth';
+} from '../_shared/auth.ts';
 import { 
   corsHeaders, 
   createErrorResponse 
-} from '../_shared/error-handler';
+} from '../_shared/error-handler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

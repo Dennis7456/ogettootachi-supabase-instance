@@ -4,11 +4,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { 
   withAuth, 
   AuthResult 
-} from '../_shared/auth';
+} from '../_shared/auth.ts';
 import { 
   corsHeaders, 
   createErrorResponse 
-} from '../_shared/error-handler';
+} from '../_shared/error-handler.ts';
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
