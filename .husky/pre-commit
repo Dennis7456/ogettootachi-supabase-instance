@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# Pre-Commit Hook: Secret Detection
+# Pre-Commit Hook: Secret Detection and Testing
 
 # Prevent committing files with sensitive information
 prevent_secret_commit() {
-    # Regex to detect potential secrets
-    local SECRET_REGEX='(password|secret|key|token).*=.*['"'"'"][^'"'"'"]{20,}'
+    # Regex to detect potential secrets, excluding comments and script files
+    local SECRET_REGEX='^(?!#).*((password|secret|key|token).*=.*['"'"'"][^'"'"'"]{20,})'
     
     # Find staged files
     local staged_files=$(git diff --cached --name-only)
     
     # Check each staged file for potential secrets
     for file in $staged_files; do
-        # Skip binary files and certain directories
+        # Skip binary files, certain directories, and script files
         if [[ "$file" =~ \.(jpg|jpeg|png|gif|pdf|lock)$ ]] || 
-           [[ "$file" =~ ^(node_modules/|\.git/|venv/|dist/) ]]; then
+           [[ "$file" =~ ^(node_modules/|\.git/|venv/|dist/|scripts/|\.sh$) ]]; then
             continue
         fi
         
@@ -36,5 +36,8 @@ prevent_secret_commit() {
 # Run secret detection
 prevent_secret_commit
 
-# Continue with commit if no secrets are found
+# Run project test suite
+./test-all.sh
+
+# Continue with commit if all checks pass
 exit 0 

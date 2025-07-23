@@ -1,5 +1,25 @@
 {
+  "name": "ogettootachi-supabase-instance",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules vitest run",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules vitest",
+    "test:ui": "NODE_OPTIONS=--experimental-vm-modules vitest --ui",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules vitest run --coverage",
+    "pre-commit": "npm run test:lint && npm run test",
+    "test:lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "dotenv": "^17.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.0.0",
+    "vite-tsconfig-paths": "^4.0.0",
+    "vitest": "^1.0.0"
   }
 }

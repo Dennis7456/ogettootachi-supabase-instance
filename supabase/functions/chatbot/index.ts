@@ -1,6 +1,15 @@
 // @ts-nocheck
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { 
+  withAuth, 
+  AuthResult, 
+  authenticateRequest 
+} from '../_shared/auth';
+import { 
+  corsHeaders, 
+  createErrorResponse 
+} from '../_shared/error-handler';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,10 +47,30 @@ function blendDocuments(docs: any[]) {
   return summary;
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+// Logging function
+function log(entry: {
+  timestamp: string;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  message: string;
+  method?: string;
+  path?: string;
+  userId?: string;
+  userRole?: string;
+  clientId?: string;
+  duration?: number;
+  statusCode?: number;
+  error?: string;
+  metadata?: Record<string, any>;
+}) {
+  console.log(JSON.stringify(entry));
+}
+
+// Main chatbot request handler
+async function handleChatbotRequest(req: Request, authResult: AuthResult | null): Promise<Response> {
+  const startTime = Date.now();
+  const url = new URL(req.url);
+  const method = req.method;
+  const path = url.pathname;
 
   try {
     const { message, session_id } = await req.json();
@@ -51,27 +80,9 @@ serve(async (req) => {
     }
 
     const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    // Check for authentication (optional for public chatbot)
-    let user = null;
-    const authHeader = req.headers.get('authorization');
-
-    if (authHeader) {
-      try {
-        const {
-          data: { user: authUser },
-          error: authError,
-        } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-        if (!authError && authUser) {
-          user = authUser;
-        }
-      } catch (error) {
-        console.log('Auth check failed, continuing as public user:', error.message);
-      }
-    }
 
     // Generate embedding for user message
     const messageEmbedding = await generateEmbedding(message);
@@ -92,10 +103,10 @@ serve(async (req) => {
     const response = await generateResponse(message, documents || [], session_id);
 
     // Store conversation only if user is authenticated
-    if (user) {
+    if (authResult?.user) {
       try {
         const { error: insertError } = await supabase.from('chatbot_conversations').insert({
-          user_id: user.id,
+          user_id: authResult.user.id,
           session_id,
           message,
           response: response.response,
@@ -112,21 +123,79 @@ serve(async (req) => {
       }
     }
 
+    const duration = Date.now() - startTime;
+
+    // Log chatbot interaction
+    log({
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      message: 'Chatbot interaction processed',
+      method,
+      path,
+      userId: authResult?.user?.id,
+      userRole: authResult?.profile?.role,
+      duration,
+      statusCode: 200,
+      metadata: {
+        sessionId: session_id,
+        tokensUsed: response.tokens_used || 0,
+        authenticated: !!authResult,
+      },
+    });
+
     return new Response(
       JSON.stringify({
         response: response.response,
         documents: documents || [],
         tokens_used: response.tokens_used || 0,
-        authenticated: !!user,
+        authenticated: !!authResult,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.error('Chatbot error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+
+    return createErrorResponse(error, {
+      method,
+      path,
+      duration,
     });
+  }
+}
+
+// Main serve function
+export default serve(async (req: Request) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ 
+        success: false,
+        error: 'Method not allowed', 
+        allowedMethods: ['POST', 'OPTIONS'] 
+      }), 
+      {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  // Chatbot allows unauthenticated requests
+  try {
+    // Try to authenticate, but don't require it
+    const authResult = await authenticateRequest(req, {
+      requireAuth: false
+    });
+    return await handleChatbotRequest(req, authResult);
+  } catch (error) {
+    // If authentication fails, still allow chatbot interaction
+    return await handleChatbotRequest(req, null);
   }
 });
 

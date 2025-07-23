@@ -1,145 +1,125 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { 
+  withAuth, 
+  AuthResult, 
+  authenticateRequest 
+} from '../_shared/auth';
+import { 
+  corsHeaders, 
+  createErrorResponse 
+} from '../_shared/error-handler';
 
-// Extensive logging for environment variables and configuration
-console.log("🌍 Environment Variables:");
-console.log(
-  "SUPABASE_SERVICE_ROLE_KEY (env):",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
-);
-console.log("SUPABASE_URL (env):", Deno.env.get("SUPABASE_URL"));
-console.log("FRONTEND_URL (env):", Deno.env.get("FRONTEND_URL"));
+// Configuration helper
+const getConfig = () => ({
+  SUPABASE_URL: Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321',
+  SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+  FRONTEND_URL: Deno.env.get('FRONTEND_URL') || 'http://localhost:5173',
+});
 
-// Hardcoded configuration with fallback to environment variables
-const SUPABASE_SERVICE_ROLE_KEY =
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "http://127.0.0.1:54321";
-const FRONTEND_URL = Deno.env.get("FRONTEND_URL") || "http://localhost:5173";
-
-// Extensive logging for hardcoded configuration
-console.log("🔐 Hardcoded Configuration:");
-console.log(
-  "SUPABASE_SERVICE_ROLE_KEY (hardcoded):",
-  SUPABASE_SERVICE_ROLE_KEY,
-);
-console.log(
-  "SUPABASE_SERVICE_ROLE_KEY Length:",
-  SUPABASE_SERVICE_ROLE_KEY.length,
-);
-console.log(
-  "SUPABASE_SERVICE_ROLE_KEY First 10 Chars:",
-  SUPABASE_SERVICE_ROLE_KEY.slice(0, 10),
-);
-
-// CORS headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-// Explicit token validation function with extensive logging
-function validateServiceRoleToken(providedToken: string): boolean {
-  console.log("🔐 Token Validation Details:");
-  console.log("Provided Token:", providedToken);
-  console.log("Provided Token Length:", providedToken.length);
-  console.log("Provided Token First 10 Chars:", providedToken.slice(0, 10));
-
-  console.log("Expected Token:", SUPABASE_SERVICE_ROLE_KEY);
-  console.log("Expected Token Length:", SUPABASE_SERVICE_ROLE_KEY.length);
-  console.log(
-    "Expected Token First 10 Chars:",
-    SUPABASE_SERVICE_ROLE_KEY.slice(0, 10),
-  );
-
-  // Trim whitespace and compare exact tokens
-  const trimmedProvided = providedToken.trim();
-  const trimmedExpected = SUPABASE_SERVICE_ROLE_KEY.trim();
-
-  console.log("Trimmed Provided Token:", trimmedProvided);
-  console.log("Trimmed Expected Token:", trimmedExpected);
-
-  const isValid = trimmedProvided === trimmedExpected;
-  console.log("Token Validation Result:", isValid);
-
-  return isValid;
+// Logging function with enhanced error tracking
+function log(entry: {
+  timestamp: string;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  message: string;
+  method?: string;
+  path?: string;
+  userId?: string;
+  userRole?: string;
+  clientId?: string;
+  duration?: number;
+  statusCode?: number;
+  error?: string;
+  metadata?: Record<string, any>;
+}) {
+  console.log(JSON.stringify(entry));
 }
 
-serve(async (req) => {
-  console.log("🔍 Invitation Function Called");
-  console.log("Request Method:", req.method);
-  console.log("Request Headers:", Object.fromEntries(req.headers));
-
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    console.log("🌐 CORS Preflight Request");
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  // Validate service role authentication
-  const authHeader = req.headers.get("Authorization");
-  console.log("Authorization Header:", authHeader);
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.error("❌ Missing or Invalid Authorization Header");
-    return new Response(
-      JSON.stringify({
-        error: "Unauthorized: Missing or invalid token",
-        details: {
-          authHeader: authHeader,
-          expectedPrefix: "Bearer ",
-        },
-      }),
-      {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
-  }
-
-  // Extract service role key
-  const providedToken = authHeader.split(" ")[1];
-
-  // Validate service role key
-  if (!validateServiceRoleToken(providedToken)) {
-    console.error("❌ Token Validation Failed");
-    return new Response(
-      JSON.stringify({
-        error: "Unauthorized: Invalid service role key",
-        details: {
-          providedTokenLength: providedToken.length,
-          expectedTokenLength: SUPABASE_SERVICE_ROLE_KEY.length,
-        },
-      }),
-      {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
-  }
+// Main invitation handler
+async function handleInvitation(req: Request, authResult: AuthResult): Promise<Response> {
+  const startTime = Date.now();
+  const url = new URL(req.url);
+  const method = req.method;
+  const path = url.pathname;
 
   try {
-    // Parse invitation payload
-    const { email, role, department, custom_message, full_name } =
-      await req.json();
-
-    console.log("📧 Invitation Details:", {
-      email,
-      role,
-      department,
-      hasCustomMessage: !!custom_message,
-      fullName: full_name,
+    // Detailed logging of request context
+    console.log('Invitation Request Context:', {
+      method,
+      path,
+      authUser: authResult.user?.id,
+      authUserRole: authResult.profile?.role,
+      headers: Object.fromEntries(req.headers)
     });
+
+    const config = getConfig();
+    const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY);
+
+    // Parse invitation payload with detailed error handling
+    let payload: Record<string, any>;
+    try {
+      payload = await req.json();
+    } catch (parseError: unknown) {
+      console.error('Payload Parsing Error:', {
+        error: parseError instanceof Error ? parseError.message : String(parseError),
+        stack: parseError instanceof Error ? parseError.stack : undefined,
+        rawBody: await req.text()
+      });
+      throw new Error('Invalid request payload');
+    }
+
+    const { 
+      email, 
+      role, 
+      department, 
+      custom_message, 
+      full_name,
+      force_resend = false 
+    } = payload;
 
     // Validate required fields
     if (!email || !role) {
-      console.error("❌ Missing Required Fields");
+      console.error('Validation Error: Email and role are required', { email, role });
+      throw new Error('Email and role are required');
+    }
+
+    // Log initial invitation details
+    console.log('Invitation Request Details:', {
+      email,
+      role,
+      department,
+      force_resend,
+      invitedBy: authResult.user.id
+    });
+
+    // Check for existing invitation
+    const { data: existingInvitation, error: existingError } = await supabase
+      .from('user_invitations')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    // Log existing invitation details
+    console.log('Existing Invitation Check:', {
+      existingInvitation: !!existingInvitation,
+      existingError: existingError ? JSON.stringify(existingError) : null
+    });
+
+    // Handle duplicate invitation
+    if (existingInvitation && !force_resend) {
+      console.warn('Duplicate Invitation Attempt', { 
+        email, 
+        existingInvitationId: existingInvitation.id 
+      });
       return new Response(
-        JSON.stringify({ error: "Email and role are required" }),
+        JSON.stringify({
+          error: 'Invitation already exists',
+          details: 'An invitation for this email has already been sent'
+        }),
         {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+          status: 409,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
       );
     }
 
@@ -147,74 +127,128 @@ serve(async (req) => {
     const invitationToken = crypto.randomUUID();
 
     // Construct invitation link
-    const invitationLink = `${FRONTEND_URL}/invitation?token=${invitationToken}`;
+    const invitationLink = `${config.FRONTEND_URL}/invitation?token=${invitationToken}`;
 
-    // Prepare email body
-    const emailBody = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Invitation to Ogetto, Otachi & Co Advocates</title>
-</head>
-<body>
-    <h1>You've Been Invited</h1>
-    <p>You have been invited to join Ogetto, Otachi & Co Advocates</p>
-    
-    <h2>Invitation Details:</h2>
-    <ul>
-        <li><strong>Role:</strong> ${role}</li>
-        ${department ? `<li><strong>Department:</strong> ${department}</li>` : ""}
-    </ul>
+    // Prepare invitation record
+    const invitationRecord = {
+      email,
+      role,
+      department: department || null,
+      full_name: full_name || null,
+      invitation_token: invitationToken,
+      status: 'sent',
+      expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+      invited_by: authResult.user.id,
+      custom_message: custom_message || null
+    };
 
-    ${
-      custom_message
-        ? `
-    <div style="background-color: #f4f4f4; padding: 10px; border-radius: 5px;">
-        <h3>Personal Message:</h3>
-        <p>${custom_message}</p>
-    </div>
-    `
-        : ""
+    // Insert or update invitation
+    const { data, error } = existingInvitation
+      ? await supabase
+          .from('user_invitations')
+          .update(invitationRecord)
+          .eq('email', email)
+          .select()
+      : await supabase
+          .from('user_invitations')
+          .insert(invitationRecord)
+          .select()
+          .single();
+
+    // Log database operation result
+    console.log('Invitation Database Operation:', {
+      success: !error,
+      error: error ? JSON.stringify(error) : null,
+      invitationId: data?.id
+    });
+
+    if (error) {
+      console.error('Invitation Creation Error', { 
+        error: JSON.stringify(error),
+        invitationRecord 
+      });
+      throw error;
     }
 
-    <p>To accept your invitation, click the link below:</p>
-    <a href="${invitationLink}">Accept Invitation</a>
+    const duration = Date.now() - startTime;
 
-    <p>Invitation Code: <strong>${invitationToken.slice(0, 6)}</strong></p>
-</body>
-</html>
-    `;
-
-    // Send email (mock for local development)
-    console.log("📧 Sending invitation email:", {
-      to: email,
-      subject: "Invitation to Ogetto, Otachi & Co Advocates",
-      invitationLink,
+    // Log invitation event
+    log({
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      message: force_resend ? 'Invitation resent' : 'Invitation created',
+      method,
+      path,
+      userId: authResult.user.id,
+      userRole: authResult.profile?.role || 'unknown',
+      duration,
+      statusCode: 200,
+      metadata: {
+        email,
+        role,
+        invitationId: data.id,
+        forceResend: force_resend,
+      },
     });
 
     // Return successful response
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Invitation sent",
-        invitationToken,
+        message: force_resend ? 'Invitation resent' : 'Invitation sent',
+        invitation_token: invitationToken,
+        invitation: data,
       }),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     );
-  } catch (error) {
-    console.error("❌ Invitation Error:", error);
-    return new Response(
-      JSON.stringify({
-        error: "Failed to process invitation",
-        details: error.toString(),
-      }),
+  } catch (error: unknown) {
+    const duration = Date.now() - startTime;
+    console.error('❌ Invitation Error:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      details: JSON.stringify(error)
+    });
+
+    return createErrorResponse(
+      error instanceof Error 
+        ? error 
+        : new Error(String(error)), 
       {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+        method,
+        path,
+        duration,
+      }
     );
   }
+}
+
+// Main serve function
+export default serve(async (req: Request) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ 
+        success: false,
+        error: 'Method not allowed', 
+        allowedMethods: ['POST', 'OPTIONS'] 
+      }), 
+      {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  // Invitation requires admin or staff authentication
+  return withAuth(handleInvitation, {
+    allowedRoles: ['admin', 'staff'],
+    requireAuth: true
+  })(req);
 });

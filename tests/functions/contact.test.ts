@@ -154,6 +154,13 @@ describe('Contact Edge Function', () => {
         body: JSON.stringify(testContactMessage),
       });
 
+      // Log detailed response information
+      console.log('Contact Message Response:', {
+        status: response.status,
+        headers: Object.fromEntries(response.headers),
+        body: await response.text()
+      });
+
       expect(response.status).toBe(200);
       const data = await response.json();
 
@@ -176,6 +183,13 @@ describe('Contact Edge Function', () => {
         body: JSON.stringify(invalidMessage),
       });
 
+      // Log detailed response information
+      console.log('Missing Fields Response:', {
+        status: response.status,
+        headers: Object.fromEntries(response.headers),
+        body: await response.text()
+      });
+
       expect(response.status).toBe(400);
       const data = await response.json();
 
@@ -190,6 +204,13 @@ describe('Contact Edge Function', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(invalidMessage),
+      });
+
+      // Log detailed response information
+      console.log('Invalid Email Response:', {
+        status: response.status,
+        headers: Object.fromEntries(response.headers),
+        body: await response.text()
       });
 
       expect(response.status).toBe(400);
@@ -212,6 +233,13 @@ describe('Contact Edge Function', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(minimalMessage),
+      });
+
+      // Log detailed response information
+      console.log('Optional Fields Response:', {
+        status: response.status,
+        headers: Object.fromEntries(response.headers),
+        body: await response.text()
       });
 
       expect(response.status).toBe(200);

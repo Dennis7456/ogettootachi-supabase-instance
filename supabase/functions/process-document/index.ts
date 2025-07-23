@@ -9,22 +9,40 @@ declare namespace Deno {
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 // @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { 
+  withAuth, 
+  AuthResult, 
+  authenticateRequest 
+} from '../_shared/auth';
+import { 
+  corsHeaders, 
+  createErrorResponse 
+} from '../_shared/error-handler';
 
 interface DocumentRecord {
   id: string;
   content: string;
   embedding?: number[];
+  user_id?: string;
 }
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-);
+// Logging function
+function log(entry: {
+  timestamp: string;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  message: string;
+  method?: string;
+  path?: string;
+  userId?: string;
+  userRole?: string;
+  clientId?: string;
+  duration?: number;
+  statusCode?: number;
+  error?: string;
+  metadata?: Record<string, any>;
+}) {
+  console.log(JSON.stringify(entry));
+}
 
 // Improved embedding generator that creates more meaningful embeddings
 function generateEmbedding(text: string): number[] {
@@ -41,7 +59,7 @@ function generateEmbedding(text: string): number[] {
   const embedding = new Array(1536).fill(0);
 
   // Common legal terms and their semantic weights
-  const legalTerms = {
+  const legalTerms: { [key: string]: number } = {
     law: 0.8,
     legal: 0.8,
     attorney: 0.7,
@@ -161,15 +179,22 @@ function generateEmbedding(text: string): number[] {
   return embedding;
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+// Main document processing handler
+async function handleDocumentProcessing(req: Request, authResult: AuthResult | null): Promise<Response> {
+  const startTime = Date.now();
+  const url = new URL(req.url);
+  const method = req.method;
+  const path = url.pathname;
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
 
   try {
     console.log('=== Edge Function Started ===');
-    console.log('Method:', req.method);
-    console.log('URL:', req.url);
+    console.log('Method:', method);
+    console.log('URL:', url.toString());
 
     // Parse request body
     let body;
@@ -178,10 +203,7 @@ serve(async (req) => {
       console.log('Request body received:', JSON.stringify(body, null, 2));
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError);
-      return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      throw new Error('Invalid JSON in request body');
     }
 
     // Handle different input formats
@@ -197,33 +219,12 @@ serve(async (req) => {
       record = body.document;
       console.log('Using body.document format');
     } else {
-      console.error('No valid record found in request body');
-      return new Response(
-        JSON.stringify({
-          error:
-            'Missing required fields. Expected: { record: {...} } or { id, content } or { document: {...} }',
-          received: Object.keys(body),
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      throw new Error('Missing required fields for document processing');
     }
 
     // Validate record
     if (!record || !record.id || !record.content) {
-      console.error('Invalid record structure:', record);
-      return new Response(
-        JSON.stringify({
-          error: 'Missing required fields: record.id or record.content',
-          received: record ? Object.keys(record) : 'null',
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      throw new Error('Missing required fields: record.id or record.content');
     }
 
     // Check if already processed
@@ -236,49 +237,99 @@ serve(async (req) => {
 
     console.log(`Processing document: ${record.id} (${record.content.length} chars)`);
 
+    // Add user_id from authenticated user if available
+    if (authResult?.user) {
+      record.user_id = authResult.user.id;
+    }
+
     // Generate embedding with timeout protection
     const embedding = generateEmbedding(record.content);
     console.log(`Generated embedding with length: ${embedding.length}`);
 
+    // Prepare update payload
+    const updatePayload: { embedding: number[], user_id?: string } = { embedding };
+    if (record.user_id) {
+      updatePayload.user_id = record.user_id;
+    }
+
     // Update database
     console.log('Updating database...');
-    const { error } = await supabase.from('documents').update({ embedding }).eq('id', record.id);
+    const { error } = await supabase
+      .from('documents')
+      .update(updatePayload)
+      .eq('id', record.id);
 
     if (error) {
       console.error('Database update error:', error);
-      return new Response(
-        JSON.stringify({
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
+      throw new Error(error.message);
     }
 
-    console.log(`Successfully processed document: ${record.id}`);
+    const duration = Date.now() - startTime;
+
+    // Log successful document processing
+    log({
+      timestamp: new Date().toISOString(),
+      level: 'info',
+      message: 'Document processed successfully',
+      method,
+      path,
+      userId: authResult?.user?.id,
+      userRole: authResult?.profile?.role,
+      duration,
+      statusCode: 200,
+      metadata: {
+        documentId: record.id,
+        embeddingLength: embedding.length,
+        authenticated: !!authResult,
+      },
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
         embedding_length: embedding.length,
         document_id: record.id,
+        authenticated: !!authResult,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    const duration = Date.now() - startTime;
     console.error('Process document error:', error);
+
+    return createErrorResponse(error, {
+      method,
+      path,
+      duration,
+    });
+  }
+}
+
+// Main serve function
+export default serve(async (req: Request) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Only allow POST requests
+  if (req.method !== 'POST') {
     return new Response(
-      JSON.stringify({
-        error: error.message || 'Unknown error occurred',
-        stack: error.stack,
-      }),
+      JSON.stringify({ 
+        success: false,
+        error: 'Method not allowed', 
+        allowedMethods: ['POST', 'OPTIONS'] 
+      }), 
       {
-        status: 500,
+        status: 405,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   }
+
+  // Document processing requires admin or staff authentication
+  return withAuth(handleDocumentProcessing, {
+    allowedRoles: ['admin', 'staff'],
+    requireAuth: true
+  })(req);
 });

@@ -40,44 +40,94 @@ describe('Process Document Edge Function', () => {
         error: signInError,
       } = await supabase.auth.signInWithPassword(adminUser);
 
+      console.log('Existing user sign-in:', {
+        session: !!session,
+        signInError: JSON.stringify(signInError)
+      });
+
       if (session) {
         // User exists, clean up and recreate
         const {
           data: { user },
+          error: getUserError,
         } = await supabase.auth.getUser();
+
+        console.log('Existing user details:', {
+          user: !!user,
+          getUserError: JSON.stringify(getUserError)
+        });
+
         if (user) {
           // Delete profile first (trigger will handle recreation)
-          await supabaseService.from('profiles').delete().eq('id', user.id);
+          const { error: deleteProfileError } = await supabaseService
+            .from('profiles')
+            .delete()
+            .eq('id', user.id);
+
+          console.log('Profile deletion:', {
+            deleteProfileError: JSON.stringify(deleteProfileError)
+          });
+
           // Try to delete user - if admin API fails, we'll continue
           try {
-            await supabaseService.auth.admin.deleteUser(user.id);
+            const { error: deleteUserError } = await supabaseService.auth.admin.deleteUser(user.id);
+            console.log('User deletion:', {
+              deleteUserError: JSON.stringify(deleteUserError)
+            });
           } catch (error) {
-            console.log('Could not delete user via admin API, continuing...');
+            console.log('Could not delete user via admin API, continuing...', error);
           }
         }
       }
     } catch (error) {
-      // User doesn't exist, continue with creation
+      console.log('Error during existing user cleanup:', error);
     }
 
-    // Create admin user with metadata for role
-    const {
-      data: { user },
-      error: signUpError,
-    } = await supabase.auth.signUp({
-      ...adminUser,
-      options: {
-        data: {
-          role: 'admin',
-          full_name: 'Admin User',
-        },
-      },
-    });
+    // Attempt to sign up admin user multiple times
+    let signUpAttempts = 0;
+    const maxAttempts = 3;
+    let signUpResult = null;
 
-    if (signUpError) {
-      console.error('Sign up error:', signUpError);
-      throw signUpError;
+    while (signUpAttempts < maxAttempts) {
+      try {
+        console.log(`Attempting to sign up admin user (Attempt ${signUpAttempts + 1}):`, adminUser);
+        const result = await supabase.auth.signUp({
+          ...adminUser,
+          options: {
+            data: {
+              role: 'admin',
+              full_name: 'Admin User',
+            },
+          },
+        });
+
+        console.log('Sign up result:', {
+          user: !!result.data.user,
+          session: !!result.data.session,
+          signUpError: JSON.stringify(result.error)
+        });
+
+        if (result.error) {
+          console.error('Sign up error:', result.error);
+          throw result.error;
+        }
+
+        signUpResult = result;
+        break;
+      } catch (error) {
+        console.error(`Sign up attempt ${signUpAttempts + 1} failed:`, error);
+        signUpAttempts++;
+        
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
+
+    if (!signUpResult) {
+      throw new Error(`Failed to sign up admin user after ${maxAttempts} attempts`);
+    }
+
+    const { data: { user, session } } = signUpResult;
 
     // Wait a moment for the trigger to create the profile
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -89,29 +139,40 @@ describe('Process Document Edge Function', () => {
         .update({ role: 'admin' })
         .eq('id', user.id);
 
+      console.log('Profile update:', {
+        updateError: JSON.stringify(updateError)
+      });
+
       if (updateError) {
         console.error('Profile update error:', updateError);
       }
 
       // Get session - try multiple times in case of timing issues
-      let session: any = null;
+      let finalSession: any = null;
       let attempts = 0;
-      while (!session && attempts < 3) {
+      while (!finalSession && attempts < 3) {
         const {
           data: { session: signInSession },
           error: signInError,
         } = await supabase.auth.signInWithPassword(adminUser);
+
+        console.log('Sign in attempt:', {
+          attempt: attempts + 1,
+          session: !!signInSession,
+          signInError: JSON.stringify(signInError)
+        });
+
         if (signInError) {
           console.error('Sign in error:', signInError);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           attempts++;
         } else {
-          session = signInSession;
+          finalSession = signInSession;
         }
       }
 
-      if (session) {
-        adminToken = session.access_token;
+      if (finalSession) {
+        adminToken = finalSession.access_token;
       } else {
         throw new Error('Failed to get session after multiple attempts');
       }
