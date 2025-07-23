@@ -13,7 +13,11 @@ export interface AuthResult {
  */
 function createAuthedClient(token: string) {
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321';
-  return createClient(SUPABASE_URL, token, {
+  const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || '';
+  // We authenticate requests via the Authorization header while keeping the
+  // anon key as the project API key. This mirrors how the Supabase client works
+  // in a browser environment.
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: {
       headers: { Authorization: `Bearer ${token}` },
     },

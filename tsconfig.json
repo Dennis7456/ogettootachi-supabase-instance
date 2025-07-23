@@ -4,6 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
