@@ -9,6 +9,12 @@ const supabaseServiceKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Reusable headers for direct edge function calls
+const authHeaders = {
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${supabaseAnonKey}`,
+};
 const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
 
 // Test data
@@ -150,7 +156,7 @@ describe('Contact Edge Function', () => {
     it('should create a new contact message with valid data', async () => {
       const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(testContactMessage),
       });
 
@@ -179,7 +185,7 @@ describe('Contact Edge Function', () => {
 
       const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(invalidMessage),
       });
 
@@ -202,7 +208,7 @@ describe('Contact Edge Function', () => {
 
       const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(invalidMessage),
       });
 
@@ -231,7 +237,7 @@ describe('Contact Edge Function', () => {
 
       const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify(minimalMessage),
       });
 
@@ -292,7 +298,7 @@ describe('Contact Edge Function', () => {
     it('should reject request without authorization', async () => {
       const response = await fetch(`${supabaseUrl}/functions/v1/contact`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
       });
 
       expect(response.status).toBe(400);
