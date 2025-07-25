@@ -21,7 +21,21 @@ let id: string;
 
 describe('blog_posts RLS', () => {
   beforeAll(async () => {
-    const { data } = await srv.from('blog_posts').insert(post).select('id').single();
+    // Insert the blog post first
+    const { error: insertError } = await srv.from('blog_posts').insert(post);
+    expect(insertError).toBeNull();
+    
+    // Then fetch the post to get its ID
+    const { data, error: fetchError } = await srv
+      .from('blog_posts')
+      .select('id')
+      .eq('title', post.title)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+      
+    expect(fetchError).toBeNull();
+    expect(data).toBeDefined();
     id = data.id;
   });
   afterAll(async () => { if (id) await srv.from('blog_posts').delete().eq('id', id); });

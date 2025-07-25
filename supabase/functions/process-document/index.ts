@@ -254,14 +254,28 @@ async function handleDocumentProcessing(req: Request, authResult: AuthResult | n
 
     // Update database
     console.log('Updating database...');
-    const { error } = await supabase
-      .from('documents')
-      .update(updatePayload)
-      .eq('id', record.id);
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .update(updatePayload)
+        .eq('id', record.id);
 
-    if (error) {
-      console.error('Database update error:', error);
-      throw new Error(error.message);
+      if (error) {
+        console.error('Database Update Error:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+    } catch (dbError) {
+      console.error('Document Save Error:', {
+        error: dbError instanceof Error ? dbError.message : String(dbError),
+        updatePayload: { ...updatePayload, embedding: '...' } // Don't log full embedding
+      });
+
+      return createErrorResponse(new Error('Failed to save document to database'), {
+        method,
+        path,
+        status: 500,
+        details: 'Database error while saving document'
+      });
     }
 
     const duration = Date.now() - startTime;
@@ -294,10 +308,13 @@ async function handleDocumentProcessing(req: Request, authResult: AuthResult | n
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error('Process document error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
 
-    return createErrorResponse(error, {
+    console.error('Document Processing Error:', {
+      message: errorMessage,
+      stack: errorStack,
+      timestamp: new Date().toISOString(),
       method,
       path,
       duration,

@@ -26,8 +26,8 @@ DECLARE
 BEGIN
   SELECT EXISTS (
     SELECT 1 FROM information_schema.tables
-    WHERE table_schema = 'public' AND table_name = table_info.table_name
-  ) INTO exists_bool FROM (SELECT table_name) AS table_info;
+    WHERE table_schema = 'public' AND table_name = get_table_info.table_name
+  ) INTO exists_bool;
 
   RETURN json_build_object(
     'table', table_name,
