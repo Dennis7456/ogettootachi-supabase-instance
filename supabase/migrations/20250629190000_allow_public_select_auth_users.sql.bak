@@ -1,9 +1,0 @@
--- Allow public (anon) users to select email from auth.users for appointments RLS
--- Migration: 20250629190000_allow_public_select_auth_users.sql
-
--- Enable RLS on auth.users if not already enabled
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
-
--- Allow public (anon) users to select email from auth.users (for RLS subquery in appointments)
-CREATE POLICY "Public can select email for appointments RLS" ON auth.users
-    FOR SELECT USING (true); 

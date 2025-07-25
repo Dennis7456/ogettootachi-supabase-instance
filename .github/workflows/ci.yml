@@ -2,9 +2,9 @@ name: Security and CI Checks
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   security-checks:
@@ -72,4 +72,4 @@ jobs:
           status: ${{ job.status }}
           text: Security or build checks failed!
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} 
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

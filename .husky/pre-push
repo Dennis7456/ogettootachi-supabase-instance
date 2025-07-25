@@ -1,5 +1,0 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-# Run the project's dedicated pre-push validation script
-bash "$(dirname -- "$0")/../pre-push-checks.sh"
