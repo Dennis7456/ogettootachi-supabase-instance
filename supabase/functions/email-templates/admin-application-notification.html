@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Job Application - Ogetto Otachi Advocates</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .alert {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #991b1b;
+        }
+        .applicant-details {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .applicant-details h3 {
+            color: #1e3a8a;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .job-details {
+            background-color: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .job-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+        .job-info {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .application-id {
+            background-color: #f1f5f9;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            color: #475569;
+        }
+        .footer {
+            background-color: #1e293b;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .stat {
+            flex: 1;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Job Application</h1>
+            <p>Action Required - Review Application</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert">
+                <strong>⚠️ New Application Received</strong><br>
+                A new job application has been submitted and requires your review.
+            </div>
+            
+            <div class="application-id">
+                Application ID: {{application_id}}
+            </div>
+            
+            <div class="applicant-details">
+                <h3>Applicant Information</h3>
+                <p><strong>Name:</strong> {{applicant_name}}</p>
+                <p><strong>Email:</strong> {{applicant_email}}</p>
+                <p><strong>Phone:</strong> {{applicant_phone}}</p>
+                <p><strong>Applied:</strong> {{application_date}}</p>
+                <p><strong>Resume:</strong> {{has_resume}}</p>
+            </div>
+            
+            <div class="job-details">
+                <div class="job-title">{{job_title}}</div>
+                <div class="job-info">
+                    <strong>Department:</strong> {{department}}<br>
+                    <strong>Location:</strong> {{location}}<br>
+                    <strong>Employment Type:</strong> {{employment_type}}<br>
+                    <strong>Experience Level:</strong> {{experience_level}}
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">{{total_applications}}</div>
+                    <div class="stat-label">Total Applications</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{pending_reviews}}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{this_job_applications}}</div>
+                    <div class="stat-label">This Job</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{admin_dashboard_url}}" class="btn btn-primary">Review Application</a>
+                <a href="{{applications_list_url}}" class="btn btn-secondary">View All Applications</a>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background-color: #f0f9ff; border-radius: 8px;">
+                <h3 style="color: #0369a1; margin-top: 0;">Quick Actions</h3>
+                <ul style="color: #0c4a6e;">
+                    <li>Review the applicant's cover letter and resume</li>
+                    <li>Check if the candidate meets the job requirements</li>
+                    <li>Schedule an interview if qualified</li>
+                    <li>Update the application status</li>
+                    <li>Send follow-up communication</li>
+                </ul>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 14px; color: #64748b;">
+                <p><strong>Note:</strong> This is an automated notification. Please log into the admin dashboard to take action on this application.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Ogetto Otachi Advocates</strong></p>
+            <p>Admin Dashboard</p>
+            <p>Nairobi, Kenya</p>
+        </div>
+    </div>
+</body>
+</html> 

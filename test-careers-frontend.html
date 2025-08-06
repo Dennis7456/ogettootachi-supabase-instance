@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers API Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Careers API Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Test the careers API
+        async function testCareersAPI() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                // Create Supabase client with correct remote API key
+                const supabase = window.supabase.createClient(
+                    'https://szbjuskqrfthmjehknly.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6Ymp1c2txcmZ0aG1qZWhrbmx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MzU4OTksImV4cCI6MjA2OTAxMTg5OX0.hWqB5s3SO9e38DYIP3Qk_j5iRw8ZbCfR4-SV3kH6JHI'
+                );
+
+                resultsDiv.innerHTML = '<p>Testing careers API...</p>';
+
+                // Test direct RPC call
+                const { data: jobs, error } = await supabase.rpc('get_job_postings', {
+                    limit_count: 10,
+                    offset_count: 0,
+                    status_filter: 'published',
+                    department_filter: null,
+                    experience_filter: null,
+                    employment_type_filter: null
+                });
+
+                if (error) {
+                    resultsDiv.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+                } else {
+                    resultsDiv.innerHTML += `<p style="color: green;">✅ Success! Found ${jobs?.length || 0} jobs</p>`;
+                    
+                    if (jobs && jobs.length > 0) {
+                        resultsDiv.innerHTML += '<h3>Jobs:</h3><ul>';
+                        jobs.forEach(job => {
+                            resultsDiv.innerHTML += `<li><strong>${job.title}</strong> - ${job.department} (${job.status})</li>`;
+                        });
+                        resultsDiv.innerHTML += '</ul>';
+                    } else {
+                        resultsDiv.innerHTML += '<p style="color: orange;">⚠️ No published jobs found in the database</p>';
+                    }
+                }
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<p style="color: red;">❌ Test failed: ${error.message}</p>`;
+            }
+        }
+
+        // Run the test when page loads
+        window.addEventListener('load', testCareersAPI);
+    </script>
+</body>
+</html> 

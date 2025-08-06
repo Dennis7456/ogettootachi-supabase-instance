@@ -8,7 +8,9 @@ const corsHeaders = {
 
 type NotificationEvent = 
   | 'contact_message'
+  | 'contact_message_notification'
   | 'appointment_booking'
+  | 'appointment_update'
   | 'document_upload'
   | 'auth_email'
   | 'password_change'
@@ -169,6 +171,72 @@ Ogetto, Otachi & Company Advocates`,
         `
       };
 
+    case 'contact_message_notification':
+      const loginUrl = data.recipientRole === 'admin' 
+        ? 'https://ogettootachi.com/admin/login' 
+        : 'https://ogettootachi.com/staff/login';
+      
+      return {
+        subject: `New Contact Message from ${data.senderName} - Ogetto Otachi Law Firm`,
+        textPart: `Dear ${name},
+
+You have received a new contact message from a potential client.
+
+Message Details:
+- Client Name: ${data.senderName}
+- Client Email: ${data.senderEmail}
+- Client Phone: ${data.senderPhone || 'Not provided'}
+- Subject: ${data.subject}
+- Practice Area: ${data.practiceArea || 'Not specified'}
+- Message: ${data.message}
+- Time Sent: ${new Date().toLocaleString()}
+
+Please login to your dashboard to view the complete message and respond to the client.
+
+Login URL: ${loginUrl}
+
+Best regards,
+Ogetto, Otachi & Company Advocates`,
+        htmlPart: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="color: #2c3e50; margin: 0;">New Contact Message Received</h2>
+            </div>
+            
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+              <p>Dear ${name},</p>
+              
+              <p>You have received a new contact message from a potential client.</p>
+              
+              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Message Details:</h4>
+                <p><strong>Client Name:</strong> ${data.senderName}</p>
+                <p><strong>Client Email:</strong> ${data.senderEmail}</p>
+                <p><strong>Client Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
+                <p><strong>Subject:</strong> ${data.subject}</p>
+                <p><strong>Practice Area:</strong> ${data.practiceArea || 'Not specified'}</p>
+                <p><strong>Message:</strong></p>
+                <div style="background-color: #ffffff; padding: 10px; border-radius: 3px; border-left: 3px solid #007bff; margin: 10px 0;">
+                  <p style="margin: 0; white-space: pre-wrap;">${data.message}</p>
+                </div>
+                <p><strong>Time Sent:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+              
+              <div style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196f3;">
+                <h4 style="margin: 0 0 10px 0; color: #1976d2;">Action Required</h4>
+                <p style="margin: 0 0 15px 0;">Please login to your dashboard to view the complete message and respond to the client.</p>
+                <a href="${loginUrl}" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                  Login to Dashboard
+                </a>
+              </div>
+              
+              <br>
+              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
+            </div>
+          </div>
+        `
+      };
+
     case 'appointment_booking':
       return {
         subject: 'Appointment Booking Confirmation - Ogetto Otachi Law Firm',
@@ -210,6 +278,58 @@ Ogetto, Otachi & Company Advocates`,
               </div>
               
               <p>We will contact you within 24 hours to confirm your appointment.</p>
+              
+              <br>
+              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
+            </div>
+          </div>
+        `
+      };
+
+    case 'appointment_update':
+      return {
+        subject: 'Appointment Update Notification - Ogetto Otachi Law Firm',
+        textPart: `Dear ${name},
+
+Your appointment with Ogetto, Otachi & Company Advocates has been updated. Please review the updated details below.
+
+Updated Appointment Details:
+- Name: ${data.client_name}
+- Email: ${data.client_email}
+- Practice Area: ${data.practice_area}
+- Preferred Date: ${data.preferred_date}
+- Preferred Time: ${data.preferred_time}
+- Appointment Type: ${data.appointment_type}
+
+${data.message ? `Additional Notes: ${data.message}` : ''}
+
+If you have any questions about these changes, please contact our office.
+
+Best regards,
+Ogetto, Otachi & Company Advocates`,
+        htmlPart: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="color: #856404; margin: 0;">⚠️ Appointment Update Notification</h2>
+            </div>
+            
+            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+              <p>Dear ${name},</p>
+              
+              <p>Your appointment with <strong>Ogetto, Otachi & Company Advocates</strong> has been updated. Please review the updated details below.</p>
+              
+              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Updated Appointment Details:</h4>
+                <p><strong>Name:</strong> ${data.client_name}</p>
+                <p><strong>Email:</strong> ${data.client_email}</p>
+                <p><strong>Practice Area:</strong> ${data.practice_area}</p>
+                <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
+                <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
+                <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
+                ${data.message ? `<p><strong>Additional Notes:</strong> ${data.message}</p>` : ''}
+              </div>
+              
+              <p>If you have any questions about these changes, please contact our office.</p>
               
               <br>
               <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
@@ -335,8 +455,27 @@ Subject: ${data.subject}
 Practice Area: ${data.practice_area || 'Not specified'}
 Message: ${data.message}`;
 
+    case 'contact_message_notification':
+      return `New contact message received:
+Client Name: ${data.senderName}
+Client Email: ${data.senderEmail}
+Client Phone: ${data.senderPhone || 'Not provided'}
+Subject: ${data.subject}
+Practice Area: ${data.practiceArea || 'Not specified'}
+Message: ${data.message}
+Time Sent: ${new Date().toLocaleString()}`;
+
     case 'appointment_booking':
       return `New appointment booking received:
+Name: ${data.client_name}
+Email: ${data.client_email}
+Practice Area: ${data.practice_area}
+Preferred Date: ${data.preferred_date}
+Preferred Time: ${data.preferred_time}
+Appointment Type: ${data.appointment_type}`;
+
+    case 'appointment_update':
+      return `Appointment updated:
 Name: ${data.client_name}
 Email: ${data.client_email}
 Practice Area: ${data.practice_area}
@@ -388,7 +527,31 @@ function getAdminNotificationDetails(event: NotificationEvent, data: any) {
         <p><strong>Message:</strong> ${data.message}</p>
       `;
 
+    case 'contact_message_notification':
+      return `
+        <p><strong>Client Name:</strong> ${data.senderName}</p>
+        <p><strong>Client Email:</strong> ${data.senderEmail}</p>
+        <p><strong>Client Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+        <p><strong>Practice Area:</strong> ${data.practiceArea || 'Not specified'}</p>
+        <p><strong>Message:</strong></p>
+        <div style="background-color: #ffffff; padding: 10px; border-radius: 3px; border-left: 3px solid #007bff; margin: 10px 0;">
+          <p style="margin: 0; white-space: pre-wrap;">${data.message}</p>
+        </div>
+        <p><strong>Time Sent:</strong> ${new Date().toLocaleString()}</p>
+      `;
+
     case 'appointment_booking':
+      return `
+        <p><strong>Name:</strong> ${data.client_name}</p>
+        <p><strong>Email:</strong> ${data.client_email}</p>
+        <p><strong>Practice Area:</strong> ${data.practice_area}</p>
+        <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
+        <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
+        <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
+      `;
+
+    case 'appointment_update':
       return `
         <p><strong>Name:</strong> ${data.client_name}</p>
         <p><strong>Email:</strong> ${data.client_email}</p>

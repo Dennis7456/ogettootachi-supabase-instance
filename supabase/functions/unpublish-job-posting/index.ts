@@ -1,0 +1,69 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    )
+
+    // Get job ID from URL
+    const url = new URL(req.url)
+    const jobId = url.searchParams.get('id')
+
+    if (!jobId) {
+      throw new Error('Job ID is required')
+    }
+
+    // Call the database function to update status to inactive
+    const { data, error } = await supabaseClient.rpc('update_job_posting', {
+      job_id: jobId,
+      job_status: 'inactive'
+    })
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      throw new Error('Job posting not found')
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        data: { id: jobId },
+        message: 'Job posting unpublished successfully' 
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    )
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      }
+    )
+  }
+}) 
