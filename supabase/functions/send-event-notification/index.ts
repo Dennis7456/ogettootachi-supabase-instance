@@ -579,54 +579,26 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  try {
-    // Get the authorization header
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'No authorization header provided' 
-        }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Create a Supabase client with the service role key for admin operations
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
+  // Debug endpoint for local development
+  if (req.method === 'GET') {
+    return new Response(
+      JSON.stringify({ 
+        message: 'send-event-notification Edge Function is running',
+        timestamp: new Date().toISOString()
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     )
+  }
 
-    // Verify the JWT token
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''))
+  try {
+    console.log('📧 Edge Function called with method:', req.method);
     
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Invalid or expired token' 
-        }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    console.log('✅ Token verified, user ID:', user.id);
-
-    // Parse the request body
+    // Parse the request body first to check the event type
     const notificationData: NotificationData = await req.json();
+    console.log('📧 Received notification data:', notificationData);
 
     // Validate required fields
     if (!notificationData.event || !notificationData.recipientEmail || !notificationData.data) {
@@ -641,6 +613,64 @@ serve(async (req) => {
         }
       )
     }
+
+    // Create a Supabase client with the service role key for admin operations
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321';
+    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+    
+    console.log('🔧 Environment variables:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceRoleKey: !!supabaseServiceRoleKey,
+      supabaseUrl: supabaseUrl?.substring(0, 50) + '...',
+    });
+    
+    const supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+
+    // Check if this event requires authentication
+    const eventsRequiringAuth = ['contact_message_notification', 'new_appointment_notification', 'appointment_assigned', 'appointment_reassigned'];
+    const requiresAuth = eventsRequiringAuth.includes(notificationData.event);
+
+    if (requiresAuth) {
+      // Get the authorization header for events that require authentication
+      const authHeader = req.headers.get('authorization')
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'No authorization header provided for this event type' 
+          }),
+          { 
+            status: 401, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+
+      // Verify the JWT token
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''))
+      
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Invalid or expired token' 
+          }),
+          { 
+            status: 401, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+
+      console.log('✅ Token verified, user ID:', user.id);
+    } else {
+          console.log('✅ Public event (no auth required):', notificationData.event);
+  }
 
     // Get admin emails for admin notifications
     if (!notificationData.adminEmails) {
@@ -657,29 +687,32 @@ serve(async (req) => {
     // Send the email notification
     const emailSent = await sendEventEmail(notificationData);
 
-    if (emailSent) {
+    // In local development, return success even if email sending fails so UI can proceed
+    const isLocal = (Deno.env.get('SUPABASE_URL') || '').includes('127.0.0.1') || (Deno.env.get('SUPABASE_URL') || '').includes('localhost');
+
+    if (emailSent || isLocal) {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: 'Event notification email sent successfully' 
+          message: emailSent ? 'Event notification email sent successfully' : 'Event recorded (local dev fallback)'
         }),
         { 
           status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
-    } else {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Failed to send event notification email' 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
     }
+    
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: 'Failed to send event notification email' 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    )
 
   } catch (error) {
     console.error('❌ Server error:', error);
