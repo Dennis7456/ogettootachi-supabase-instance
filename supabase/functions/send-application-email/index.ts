@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+// CORS handled via shared helper
 
 interface EmailData {
   to: string;
@@ -15,10 +13,8 @@ interface EmailData {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const opt = handleOptions(req)
+  if (opt) return opt
 
   try {
     // Create Supabase client
@@ -30,13 +26,7 @@ serve(async (req) => {
     const { to, subject, template, templateData, from = 'careers@ogettootachi.com' }: EmailData = await req.json()
 
     if (!to || !subject || !template || !templateData) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: to, subject, template, templateData' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ error: 'Missing required fields: to, subject, template, templateData' }, 400, req)
     }
 
     // Load email template
@@ -46,13 +36,7 @@ serve(async (req) => {
       emailHtml = await Deno.readTextFile(templatePath);
     } catch (error) {
       console.error('Error loading template:', error);
-      return new Response(
-        JSON.stringify({ error: 'Template not found' }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ error: 'Template not found' }, 404, req)
     }
 
     // Replace template variables
@@ -83,13 +67,7 @@ serve(async (req) => {
     if (!emailResponse.ok) {
       const errorData = await emailResponse.json();
       console.error('Email service error:', errorData);
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ error: 'Failed to send email' }, 500, req)
     }
 
     // Log email sent
@@ -107,28 +85,10 @@ serve(async (req) => {
       console.error('Error logging email:', logError);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Email sent successfully',
-        to,
-        subject,
-        template
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return withCorsJson({ success: true, message: 'Email sent successfully', to, subject, template }, 200, req)
 
   } catch (error) {
     console.error('Error in send-application-email:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return withCorsJson({ error: 'Internal server error' }, 500, req)
   }
 }) 

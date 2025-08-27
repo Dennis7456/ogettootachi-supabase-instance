@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Ogetto, Otachi & Company Advocates</title>
+    <style>
+        /* CSS Reset for email compatibility */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        /* Reset for links and buttons */
+        a, button {
+            color: inherit;
+            text-decoration: none;
+        }
+        /* Ensure button text is always visible */
+        .cta-button, .cta-button * {
+            color: white !important;
+        }
+        /* Additional email-safe button styles */
+        .email-button {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            background: linear-gradient(135deg, #015260 0%, #1a365d 100%) !important;
+            padding: 16px 32px !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            line-height: 1.5 !important;
+            text-align: center !important;
+            display: inline-block !important;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            margin: 0;
+            padding: 0;
+            background-color: #f7fafc;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #015260 0%, #1a365d 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'EB Garamond', serif;
+            letter-spacing: -0.5px;
+        }
+        .header .subtitle {
+            margin-top: 8px;
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 20px;
+            margin-bottom: 24px;
+            color: #015260;
+            font-weight: 600;
+        }
+        .message {
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+        .invitation-card {
+            background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+        .invitation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #015260 0%, #d4af37 50%, #1a365d 100%);
+            border-radius: 12px 12px 0 0;
+        }
+        .invitation-card h3 {
+            color: #015260;
+            margin: 0 0 16px 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .invitation-card p {
+            color: #64748b;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+        .cta-button {
+            display: inline-block !important;
+            background: linear-gradient(135deg, #015260 0%, #1a365d 100%) !important;
+            color: white !important;
+            padding: 16px 32px !important;
+            text-decoration: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 16px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(1, 82, 96, 0.3) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            line-height: 1.5 !important;
+            text-align: center !important;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(1, 82, 96, 0.4);
+            color: white !important;
+        }
+        .cta-button:active {
+            color: white !important;
+        }
+        .cta-button:focus {
+            color: white !important;
+            outline: 2px solid #015260;
+            outline-offset: 2px;
+        }
+        .expiry-notice {
+            background-color: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .expiry-notice h4 {
+            color: #92400e;
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .expiry-notice p {
+            color: #92400e;
+            margin: 0;
+            font-size: 14px;
+        }
+        .features {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            gap: 20px;
+        }
+        .feature {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #015260 0%, #1a365d 100%);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .feature h4 {
+            color: #015260;
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .feature p {
+            color: #64748b;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .contact-info {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .contact-info h4 {
+            color: #0369a1;
+            margin: 0 0 8px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .contact-info p {
+            color: #0c4a6e;
+            margin: 0;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #1a202c;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .footer-content {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .footer h3 {
+            color: #d4af37;
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .footer p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .footer .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #015260 0%, #d4af37 50%, #1a365d 100%);
+            margin: 16px auto;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .features {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .cta-button {
+                padding: 14px 28px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Ogetto, Otachi & Company</h1>
+                <div class="subtitle">Advocates & Legal Consultants</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">Welcome, {{fullName}}!</div>
+            
+            <div class="message">
+                We are delighted to invite you to join our esteemed law firm as a valued member of our team. 
+                Your expertise and dedication will contribute to our continued success in providing exceptional 
+                legal services to our clients.
+            </div>
+            
+            <div class="invitation-card">
+                <h3>Complete Your Account Setup</h3>
+                <p>To begin your journey with us, please complete your account setup by clicking the button below:</p>
+                <!-- Simple, reliable email button -->
+                <div style="text-align: center; margin: 20px 0;">
+                    <a href="{{invitationUrl}}" style="background-color: #015260; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif; display: inline-block; border: 2px solid #015260;">
+                        Accept Invitation
+                    </a>
+                </div>
+            </div>
+            
+            <div class="expiry-notice">
+                <h4>⏰ Important Notice</h4>
+                <p>This invitation link will expire in 7 days. Please complete your setup before the expiration date.</p>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔐</div>
+                    <h4>Secure Access</h4>
+                    <p>Protected portal with advanced security measures</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Quick Setup</h4>
+                    <p>Simple and streamlined onboarding process</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🤝</div>
+                    <h4>Team Collaboration</h4>
+                    <p>Connect with colleagues and access resources</p>
+                </div>
+            </div>
+            
+            <div class="contact-info">
+                <h4>Need Assistance?</h4>
+                <p>If you have any questions or need technical support, please contact our IT team or your department administrator.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-content">
+                <h3>Ogetto, Otachi & Company</h3>
+                <p>Advocates & Legal Consultants</p>
+                <div class="divider"></div>
+                <p>Excellence in Legal Services</p>
+                <p>Building Trust Through Professional Excellence</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

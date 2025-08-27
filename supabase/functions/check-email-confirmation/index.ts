@@ -6,24 +6,40 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const optionsResponse = handleOptions(req)
+  if (optionsResponse) return optionsResponse
 
   try {
     console.log('🔍 /functions/v1/check-email-confirmation called');
     console.log('🔍 Request method:', req.method);
 
+    // Get the authorization header
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+      return withCorsJson({ 
+        success: false, 
+        error: 'Missing authorization header' 
+      }, 401, req)
+    }
+
+    // Create a Supabase client with the anon key for token validation
+    const supabaseAnonClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
     // Create a Supabase client with the service role key for admin operations
-    const supabaseClient = createClient(
+    const supabaseServiceClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
@@ -34,52 +50,59 @@ serve(async (req) => {
       }
     )
 
+    // Verify the JWT token using the anon client
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseAnonClient.auth.getUser(token)
+    
+    if (authError || !user) {
+      return withCorsJson({ 
+        success: false, 
+        error: 'Invalid or expired token' 
+      }, 401, req)
+    }
+
+    // Check if user is admin or staff
+    const { data: profile, error: profileError } = await supabaseServiceClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile || (profile.role !== 'admin' && profile.role !== 'staff')) {
+      return withCorsJson({ 
+        success: false, 
+        error: 'Unauthorized: Admin or staff access required' 
+      }, 403, req)
+    }
+
     // Get the request body
     const { emails } = await req.json()
     console.log('🔍 Emails received:', emails);
 
     if (!Array.isArray(emails) || emails.length === 0) {
       console.log('❌ Invalid emails array:', emails);
-      return new Response(
-        JSON.stringify({ error: 'Array of emails is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ error: 'Array of emails is required' }, 400, req)
     }
 
     // Limit the number of emails to prevent abuse
     const MAX_EMAILS = 50;
     if (emails.length > MAX_EMAILS) {
       console.log('❌ Too many emails requested:', emails.length);
-      return new Response(
-        JSON.stringify({ error: `Too many emails. Maximum allowed: ${MAX_EMAILS}` }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ error: `Too many emails. Maximum allowed: ${MAX_EMAILS}` }, 400, req)
     }
 
     console.log('🔍 Querying auth.users table for', emails.length, 'emails');
     
     // Get users from auth.users table (admin only)
     // Note: We need to use the service role key to access auth.users
-    const { data: authUsers, error } = await supabaseClient.auth.admin.listUsers();
+    const { data: authUsers, error } = await supabaseServiceClient.auth.admin.listUsers();
     
     if (error) {
       console.error('❌ Error fetching users:', error);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Error fetching user data',
-          details: error.message 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return withCorsJson({ 
+        error: 'Error fetching user data',
+        details: error.message 
+      }, 500, req)
     }
 
     console.log('✅ Auth users query successful');
@@ -92,11 +115,26 @@ serve(async (req) => {
     const emailStatusMap = {};
     filteredUsers.forEach(user => {
       console.log('📧 Processing auth user:', user.email);
+      console.log('📧 User ID:', user.id);
       console.log('📧 Email confirmed at:', user.email_confirmed_at);
-      console.log('📧 Email confirmed (boolean):', user.email_confirmed_at !== null);
+      console.log('📧 Email confirmed at type:', typeof user.email_confirmed_at);
+      console.log('📧 Email confirmed at === null:', user.email_confirmed_at === null);
+      console.log('📧 Email confirmed at === undefined:', user.email_confirmed_at === undefined);
+      console.log('📧 Email confirmed at != null:', user.email_confirmed_at != null);
+      console.log('📧 User created at:', user.created_at);
+      console.log('📧 User last sign in:', user.last_sign_in_at);
+      console.log('📧 User confirmed at:', user.confirmed_at);
+      console.log('📧 User email confirm:', user.email_confirm);
+      
+      // A user is considered email confirmed if they have a non-null email_confirmed_at timestamp
+      // This means they have actually clicked the confirmation link
+      // Note: email_confirmed_at can be null, undefined, or a timestamp
+      const isEmailConfirmed = user.email_confirmed_at != null;
+      
+      console.log('📧 Final determination - Email confirmed:', isEmailConfirmed);
       
       emailStatusMap[user.email] = {
-        email_confirmed: user.email_confirmed_at !== null,
+        email_confirmed: isEmailConfirmed,
         email_confirmed_at: user.email_confirmed_at
       };
     });
@@ -133,27 +171,15 @@ serve(async (req) => {
     console.log('📊 - Pending:', pendingCount);
     console.log('📊 - Not found:', notFoundCount);
 
-    return new Response(
-      JSON.stringify(result),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return withCorsJson(result, 200, req)
 
   } catch (error) {
     console.error('❌ Server error:', error);
     console.error('❌ Error message:', error.message);
     console.error('❌ Error stack:', error.stack);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Internal server error',
-        details: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return withCorsJson({ 
+      error: 'Internal server error',
+      details: error.message 
+    }, 500, req)
   }
 }) 

@@ -13,15 +13,29 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('🔄 sync-user-emails function called');
+  console.log('📋 Request details:', {
+    method: req.method,
+    url: req.url,
+  });
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('✅ CORS preflight handled');
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     // Get the authorization header
     const authHeader = req.headers.get('authorization')
+    console.log('🔍 Authorization header check:', {
+      hasHeader: !!authHeader,
+      headerLength: authHeader?.length,
+      headerPreview: authHeader?.substring(0, 20) + '...'
+    });
+    
     if (!authHeader) {
+      console.log('❌ No authorization header provided');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -35,6 +49,10 @@ serve(async (req) => {
     }
 
     // Create a Supabase client with the service role key for admin operations
+    console.log('🔧 Environment check:');
+    console.log('  - SUPABASE_URL exists:', !!Deno.env.get('SUPABASE_URL'));
+    console.log('  - SUPABASE_SERVICE_ROLE_KEY exists:', !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -47,13 +65,19 @@ serve(async (req) => {
     )
 
     // Verify the JWT token
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''))
+    console.log('🔍 Verifying JWT token...');
+    const token = authHeader.replace('Bearer ', '');
+    console.log('  - Token length:', token.length);
+    console.log('  - Token preview:', token.substring(0, 20) + '...');
     
-    if (authError || !user) {
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+    
+    if (authError) {
+      console.error('❌ JWT verification error:', authError);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Invalid or expired token' 
+          error: `Invalid or expired token: ${authError.message}` 
         }),
         { 
           status: 401, 
@@ -61,19 +85,41 @@ serve(async (req) => {
         }
       )
     }
+    
+    if (!user) {
+      console.error('❌ No user found in JWT token');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'No user found in token' 
+        }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+    
+    console.log('✅ JWT token verified for user:', {
+      id: user.id,
+      email: user.email,
+      email_confirmed: user.email_confirmed_at
+    });
 
     // Check if user is admin
+    console.log('🔍 Checking admin privileges...');
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
 
-    if (profileError || !profile || profile.role !== 'admin') {
+    if (profileError) {
+      console.error('❌ Profile fetch error:', profileError);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Unauthorized: Admin access required' 
+          error: `Profile error: ${profileError.message}` 
         }),
         { 
           status: 403, 
@@ -81,14 +127,48 @@ serve(async (req) => {
         }
       )
     }
+    
+    if (!profile) {
+      console.error('❌ No profile found for user:', user.id);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'No profile found for user' 
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+    
+    if (profile.role !== 'admin') {
+      console.error('❌ User is not admin. Role:', profile.role);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Unauthorized: Admin access required. User role: ${profile.role}` 
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
+    
+    console.log('✅ Admin privileges confirmed for user:', {
+      id: user.id,
+      email: user.email,
+      role: profile.role
+    });
 
     console.log('🔄 Starting email synchronization...')
 
     // Get all users from auth.users
-    const { data: authUsers, error: authError } = await supabaseClient.auth.admin.listUsers()
+    const { data: authUsers, error: authUsersError } = await supabaseClient.auth.admin.listUsers()
     
-    if (authError) {
-      console.error('Error fetching auth users:', authError)
+    if (authUsersError) {
+      console.error('Error fetching auth users:', authUsersError)
       return new Response(
         JSON.stringify({ 
           success: false, 

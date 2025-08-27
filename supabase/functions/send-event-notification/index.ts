@@ -1,731 +1,423 @@
+// @ts-nocheck
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
 type NotificationEvent = 
-  | 'contact_message'
-  | 'contact_message_notification'
   | 'appointment_booking'
+  | 'new_appointment_notification'
   | 'appointment_update'
-  | 'document_upload'
-  | 'auth_email'
-  | 'password_change'
-  | 'user_invitation';
+  | 'contact_message_notification'
+  | 'contact_message';
 
 interface NotificationData {
   event: NotificationEvent;
   recipientEmail: string;
   recipientName?: string;
   data: any;
-  adminEmails?: string[];
+  adminEmails?: string[]; // When empty or missing, we'll fetch staff+admin from profiles
 }
 
-async function sendEventEmail(notificationData: NotificationData) {
+// CORS handled via shared helper
+
+// Brand palette
+const COLORS = {
+  primary: '#467c37',  // green
+  navy: '#1a365d',
+  gold: '#d4af37',
+  text: '#2d3748',     // charcoal
+  subtext: '#4a5568',  // slateGray
+  light: '#f7fafc',
+  border: '#e2e8f0',
+}
+
+const baseUrl = 'https://ogetto-otachi-law-firm.web.app'
+
+function formatDayAndDate(dateStr: string) {
   try {
-    const mailjetApiKey = Deno.env.get('MAILJET_API_KEY');
-    const mailjetApiSecret = Deno.env.get('MAILJET_API_SECRET');
-
-    if (!mailjetApiKey || !mailjetApiSecret) {
-      console.log('⚠️ Mailjet credentials not found, logging email instead');
-      console.log('📧 Event notification would be sent:', notificationData);
-      return false;
-    }
-
-    const { event, recipientEmail, recipientName, data, adminEmails } = notificationData;
-
-    // Get email template based on event type
-    const emailTemplate = getEmailTemplate(event, data, recipientName);
-    
-    // Send to recipient
-    const recipientEmailData = {
-      Messages: [
-        {
-          From: {
-            Email: 'support@anydayessay.com',
-            Name: 'Ogetto, Otachi & Company Advocates'
-          },
-          To: [
-            {
-              Email: recipientEmail,
-              Name: recipientName || recipientEmail
-            }
-          ],
-          Subject: emailTemplate.subject,
-          TextPart: emailTemplate.textPart,
-          HTMLPart: emailTemplate.htmlPart
-        }
-      ]
-    };
-
-    console.log('📧 Sending event notification email via Mailjet...');
-    
-    const response = await fetch('https://api.mailjet.com/v3.1/send', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${btoa(`${mailjetApiKey}:${mailjetApiSecret}`)}`
-      },
-      body: JSON.stringify(recipientEmailData)
-    });
-
-    const result = await response.json();
-    
-    if (response.ok && result.Messages && result.Messages[0].Status === 'success') {
-      console.log('✅ Event notification email sent successfully to recipient');
-    } else {
-      console.error('❌ Mailjet API error for recipient:', result);
-    }
-
-    // Send admin notification if admin emails are provided
-    if (adminEmails && adminEmails.length > 0) {
-      const adminEmailData = {
-        Messages: [
-          {
-            From: {
-              Email: 'support@anydayessay.com',
-              Name: 'Ogetto, Otachi & Company Advocates'
-            },
-            To: adminEmails.map(email => ({ Email: email })),
-            Subject: `New ${event.replace('_', ' ')} - Admin Notification`,
-            TextPart: getAdminNotificationText(event, data),
-            HTMLPart: getAdminNotificationHTML(event, data)
-          }
-        ]
-      };
-
-      const adminResponse = await fetch('https://api.mailjet.com/v3.1/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${btoa(`${mailjetApiKey}:${mailjetApiSecret}`)}`
-        },
-        body: JSON.stringify(adminEmailData)
-      });
-
-      const adminResult = await adminResponse.json();
-      
-      if (adminResponse.ok && adminResult.Messages && adminResult.Messages[0].Status === 'success') {
-        console.log('✅ Admin notification email sent successfully');
-      } else {
-        console.error('❌ Mailjet API error for admin notification:', adminResult);
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error('❌ Error sending event notification email:', error);
-    return false;
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return dateStr
+    const day = d.toLocaleDateString('en-US', { weekday: 'long' })
+    const date = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    return `${day}, ${date}`
+  } catch {
+    return dateStr
   }
 }
 
-function getEmailTemplate(event: NotificationEvent, data: any, recipientName?: string) {
-  const name = recipientName || 'there';
-  
-  switch (event) {
-    case 'contact_message':
-      return {
-        subject: 'Contact Message Received - Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-Thank you for contacting Ogetto, Otachi & Company Advocates. We have received your message and will respond within 24 hours.
-
-Message Details:
-- Name: ${data.name}
-- Email: ${data.email}
-- Subject: ${data.subject}
-- Practice Area: ${data.practice_area || 'Not specified'}
-
-We appreciate your interest in our legal services.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">Contact Message Received</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>Thank you for contacting <strong>Ogetto, Otachi & Company Advocates</strong>. We have received your message and will respond within 24 hours.</p>
-              
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Message Details:</h4>
-                <p><strong>Name:</strong> ${data.name}</p>
-                <p><strong>Email:</strong> ${data.email}</p>
-                <p><strong>Subject:</strong> ${data.subject}</p>
-                <p><strong>Practice Area:</strong> ${data.practice_area || 'Not specified'}</p>
-              </div>
-              
-              <p>We appreciate your interest in our legal services.</p>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    case 'contact_message_notification':
-      const loginUrl = data.recipientRole === 'admin' 
-        ? 'https://ogettootachi.com/admin/login' 
-        : 'https://ogettootachi.com/staff/login';
-      
-      return {
-        subject: `New Contact Message from ${data.senderName} - Ogetto Otachi Law Firm`,
-        textPart: `Dear ${name},
-
-You have received a new contact message from a potential client.
-
-Message Details:
-- Client Name: ${data.senderName}
-- Client Email: ${data.senderEmail}
-- Client Phone: ${data.senderPhone || 'Not provided'}
-- Subject: ${data.subject}
-- Practice Area: ${data.practiceArea || 'Not specified'}
-- Message: ${data.message}
-- Time Sent: ${new Date().toLocaleString()}
-
-Please login to your dashboard to view the complete message and respond to the client.
-
-Login URL: ${loginUrl}
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">New Contact Message Received</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>You have received a new contact message from a potential client.</p>
-              
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Message Details:</h4>
-                <p><strong>Client Name:</strong> ${data.senderName}</p>
-                <p><strong>Client Email:</strong> ${data.senderEmail}</p>
-                <p><strong>Client Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
-                <p><strong>Subject:</strong> ${data.subject}</p>
-                <p><strong>Practice Area:</strong> ${data.practiceArea || 'Not specified'}</p>
-                <p><strong>Message:</strong></p>
-                <div style="background-color: #ffffff; padding: 10px; border-radius: 3px; border-left: 3px solid #007bff; margin: 10px 0;">
-                  <p style="margin: 0; white-space: pre-wrap;">${data.message}</p>
-                </div>
-                <p><strong>Time Sent:</strong> ${new Date().toLocaleString()}</p>
-              </div>
-              
-              <div style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196f3;">
-                <h4 style="margin: 0 0 10px 0; color: #1976d2;">Action Required</h4>
-                <p style="margin: 0 0 15px 0;">Please login to your dashboard to view the complete message and respond to the client.</p>
-                <a href="${loginUrl}" style="display: inline-block; background-color: #2196f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                  Login to Dashboard
-                </a>
-              </div>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    case 'appointment_booking':
-      return {
-        subject: 'Appointment Booking Confirmation - Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-Thank you for booking an appointment with Ogetto, Otachi & Company Advocates. We have received your appointment request and will confirm the details shortly.
-
-Appointment Details:
-- Name: ${data.client_name}
-- Email: ${data.client_email}
-- Practice Area: ${data.practice_area}
-- Preferred Date: ${data.preferred_date}
-- Preferred Time: ${data.preferred_time}
-- Appointment Type: ${data.appointment_type}
-
-We will contact you within 24 hours to confirm your appointment.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">Appointment Booking Confirmation</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>Thank you for booking an appointment with <strong>Ogetto, Otachi & Company Advocates</strong>. We have received your appointment request and will confirm the details shortly.</p>
-              
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Appointment Details:</h4>
-                <p><strong>Name:</strong> ${data.client_name}</p>
-                <p><strong>Email:</strong> ${data.client_email}</p>
-                <p><strong>Practice Area:</strong> ${data.practice_area}</p>
-                <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
-                <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
-                <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
-              </div>
-              
-              <p>We will contact you within 24 hours to confirm your appointment.</p>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    case 'appointment_update':
-      return {
-        subject: 'Appointment Update Notification - Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-Your appointment with Ogetto, Otachi & Company Advocates has been updated. Please review the updated details below.
-
-Updated Appointment Details:
-- Name: ${data.client_name}
-- Email: ${data.client_email}
-- Practice Area: ${data.practice_area}
-- Preferred Date: ${data.preferred_date}
-- Preferred Time: ${data.preferred_time}
-- Appointment Type: ${data.appointment_type}
-
-${data.message ? `Additional Notes: ${data.message}` : ''}
-
-If you have any questions about these changes, please contact our office.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #856404; margin: 0;">⚠️ Appointment Update Notification</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>Your appointment with <strong>Ogetto, Otachi & Company Advocates</strong> has been updated. Please review the updated details below.</p>
-              
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Updated Appointment Details:</h4>
-                <p><strong>Name:</strong> ${data.client_name}</p>
-                <p><strong>Email:</strong> ${data.client_email}</p>
-                <p><strong>Practice Area:</strong> ${data.practice_area}</p>
-                <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
-                <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
-                <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
-                ${data.message ? `<p><strong>Additional Notes:</strong> ${data.message}</p>` : ''}
-              </div>
-              
-              <p>If you have any questions about these changes, please contact our office.</p>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    case 'document_upload':
-      return {
-        subject: 'Document Upload Confirmation - Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-Your document has been successfully uploaded to our system.
-
-Document Details:
-- Document Name: ${data.document_name}
-- Upload Date: ${data.upload_date}
-- File Size: ${data.file_size}
-
-Our team will review the document and contact you if any additional information is needed.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">Document Upload Confirmation</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>Your document has been successfully uploaded to our system.</p>
-              
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">Document Details:</h4>
-                <p><strong>Document Name:</strong> ${data.document_name}</p>
-                <p><strong>Upload Date:</strong> ${data.upload_date}</p>
-                <p><strong>File Size:</strong> ${data.file_size}</p>
-              </div>
-              
-              <p>Our team will review the document and contact you if any additional information is needed.</p>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    case 'password_change':
-      return {
-        subject: 'Password Change Confirmation - Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-Your password has been successfully changed.
-
-If you did not request this password change, please contact our support team immediately.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">Password Change Confirmation</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>Your password has been successfully changed.</p>
-              
-              <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p style="margin: 0; color: #856404;">
-                  <strong>Security Notice:</strong> If you did not request this password change, please contact our support team immediately.
-                </p>
-              </div>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-
-    default:
-      return {
-        subject: 'Notification from Ogetto Otachi Law Firm',
-        textPart: `Dear ${name},
-
-You have received a notification from Ogetto, Otachi & Company Advocates.
-
-Best regards,
-Ogetto, Otachi & Company Advocates`,
-        htmlPart: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #2c3e50; margin: 0;">Notification</h2>
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-              <p>Dear ${name},</p>
-              
-              <p>You have received a notification from <strong>Ogetto, Otachi & Company Advocates</strong>.</p>
-              
-              <br>
-              <p>Best regards,<br>Ogetto, Otachi & Company Advocates</p>
-            </div>
-          </div>
-        `
-      };
-  }
-}
-
-function getAdminNotificationText(event: NotificationEvent, data: any) {
-  switch (event) {
-    case 'contact_message':
-      return `New contact message received:
-Name: ${data.name}
-Email: ${data.email}
-Subject: ${data.subject}
-Practice Area: ${data.practice_area || 'Not specified'}
-Message: ${data.message}`;
-
-    case 'contact_message_notification':
-      return `New contact message received:
-Client Name: ${data.senderName}
-Client Email: ${data.senderEmail}
-Client Phone: ${data.senderPhone || 'Not provided'}
-Subject: ${data.subject}
-Practice Area: ${data.practiceArea || 'Not specified'}
-Message: ${data.message}
-Time Sent: ${new Date().toLocaleString()}`;
-
-    case 'appointment_booking':
-      return `New appointment booking received:
-Name: ${data.client_name}
-Email: ${data.client_email}
-Practice Area: ${data.practice_area}
-Preferred Date: ${data.preferred_date}
-Preferred Time: ${data.preferred_time}
-Appointment Type: ${data.appointment_type}`;
-
-    case 'appointment_update':
-      return `Appointment updated:
-Name: ${data.client_name}
-Email: ${data.client_email}
-Practice Area: ${data.practice_area}
-Preferred Date: ${data.preferred_date}
-Preferred Time: ${data.preferred_time}
-Appointment Type: ${data.appointment_type}`;
-
-    case 'document_upload':
-      return `New document uploaded:
-Document Name: ${data.document_name}
-Upload Date: ${data.upload_date}
-File Size: ${data.file_size}`;
-
-    default:
-      return `New ${event.replace('_', ' ')} event received.`;
-  }
-}
-
-function getAdminNotificationHTML(event: NotificationEvent, data: any) {
-  const eventTitle = event.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-  
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <h2 style="color: #2c3e50; margin: 0;">New ${eventTitle}</h2>
+function bookingConfirmationTemplate(name: string, data: any) {
+  return {
+    subject: 'Appointment Booking Confirmation - Ogetto, Otachi & Company Advocates',
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.navy} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px;">Appointment Booking Confirmation</h1>
+        <p style="margin:6px 0 0; opacity:.9">Thank you, ${name || 'there'}. We have received your request.</p>
       </div>
-      
-      <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
-        <p>A new ${event.replace('_', ' ')} has been received:</p>
-        
-        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          ${getAdminNotificationDetails(event, data)}
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <p style="margin:0 0 16px">Here are your appointment details:</p>
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.gold}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Name:</strong> ${data.client_name}</p>
+          <p style="margin:0 0 6px"><strong>Email:</strong> ${data.client_email}</p>
+          <p style="margin:0 0 6px"><strong>Practice Area:</strong> ${data.practice_area}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Date:</strong> ${formatDayAndDate(data.preferred_date)}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Time:</strong> ${data.preferred_time}</p>
+          <p style="margin:0 "><strong>Appointment Type:</strong> ${data.appointment_type}</p>
         </div>
-        
-        <p>Please review and take appropriate action.</p>
+        <p style="margin:16px 0 0; color:${COLORS.subtext}">Our team will contact you within 24 hours to confirm your appointment.</p>
       </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
     </div>
-  `;
+    `,
+    text: `Dear ${name || 'there'},\n\nThank you for booking an appointment.\n\nName: ${data.client_name}\nEmail: ${data.client_email}\nPractice Area: ${data.practice_area}\nPreferred Date: ${formatDayAndDate(data.preferred_date)}\nPreferred Time: ${data.preferred_time}\nAppointment Type: ${data.appointment_type}\n\nWe will contact you within 24 hours to confirm your appointment.`,
+  }
 }
 
-function getAdminNotificationDetails(event: NotificationEvent, data: any) {
-  switch (event) {
-    case 'contact_message':
-      return `
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        <p><strong>Subject:</strong> ${data.subject}</p>
-        <p><strong>Practice Area:</strong> ${data.practice_area || 'Not specified'}</p>
-        <p><strong>Message:</strong> ${data.message}</p>
-      `;
-
-    case 'contact_message_notification':
-      return `
-        <p><strong>Client Name:</strong> ${data.senderName}</p>
-        <p><strong>Client Email:</strong> ${data.senderEmail}</p>
-        <p><strong>Client Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
-        <p><strong>Subject:</strong> ${data.subject}</p>
-        <p><strong>Practice Area:</strong> ${data.practiceArea || 'Not specified'}</p>
-        <p><strong>Message:</strong></p>
-        <div style="background-color: #ffffff; padding: 10px; border-radius: 3px; border-left: 3px solid #007bff; margin: 10px 0;">
-          <p style="margin: 0; white-space: pre-wrap;">${data.message}</p>
-        </div>
-        <p><strong>Time Sent:</strong> ${new Date().toLocaleString()}</p>
-      `;
-
-    case 'appointment_booking':
-      return `
-        <p><strong>Name:</strong> ${data.client_name}</p>
-        <p><strong>Email:</strong> ${data.client_email}</p>
-        <p><strong>Practice Area:</strong> ${data.practice_area}</p>
-        <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
-        <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
-        <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
-      `;
-
-    case 'appointment_update':
-      return `
-        <p><strong>Name:</strong> ${data.client_name}</p>
-        <p><strong>Email:</strong> ${data.client_email}</p>
-        <p><strong>Practice Area:</strong> ${data.practice_area}</p>
-        <p><strong>Preferred Date:</strong> ${data.preferred_date}</p>
-        <p><strong>Preferred Time:</strong> ${data.preferred_time}</p>
-        <p><strong>Appointment Type:</strong> ${data.appointment_type}</p>
-      `;
-
-    case 'document_upload':
-      return `
-        <p><strong>Document Name:</strong> ${data.document_name}</p>
-        <p><strong>Upload Date:</strong> ${data.upload_date}</p>
-        <p><strong>File Size:</strong> ${data.file_size}</p>
-      `;
-
-    default:
-      return `<p>Event data: ${JSON.stringify(data, null, 2)}</p>`;
+function contactClientTemplate(name: string, data: any) {
+      return {
+    subject: 'We received your message — Ogetto, Otachi & Company Advocates',
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.navy} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px; color:#fff;">Thank you for contacting us</h1>
+        <p style="margin:6px 0 0; opacity:.9">Hello ${name || 'there'}, we’ve received your message and will get back to you shortly.</p>
+            </div>
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <p style="margin:0 0 16px">Here is a copy of your message for your records:</p>
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.gold}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Name:</strong> ${data.senderName || name}</p>
+          <p style="margin:0 0 6px"><strong>Email:</strong> ${data.senderEmail || data.email || ''}</p>
+          <p style="margin:0 0 6px"><strong>Subject:</strong> ${data.subject || '—'}</p>
+          <p style="margin:12px 0 0"><strong>Message:</strong></p>
+          <p style="margin:6px 0 0; white-space:pre-line">${pickMessage(data)}</p>
+              </div>
+        <p style="margin:16px 0 0; color:${COLORS.subtext}">Our team aims to respond within one business day.</p>
+            </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
+          </div>
+    `,
+    text: `Hello ${name || 'there'},\n\nWe’ve received your message and will get back to you shortly.\n\nSubject: ${data.subject || '—'}\n\n${pickMessage(data)}`,
   }
+}
+
+function staffNotificationTemplate(name: string, data: any) {
+  // Say "staff" instead of "admin" and use brand palette
+      return {
+    subject: `New Appointment Request from ${data.client_name} — Staff Notification`,
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.primary} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px;">New Appointment — Staff Notification</h1>
+        <p style="margin:6px 0 0; opacity:.9">Hello ${name || 'Staff Member'}, a new client request has been received.</p>
+            </div>
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.primary}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Client Name:</strong> ${data.client_name}</p>
+          <p style="margin:0 0 6px"><strong>Client Email:</strong> ${data.client_email}</p>
+          <p style="margin:0 0 6px"><strong>Practice Area:</strong> ${data.practice_area}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Date:</strong> ${formatDayAndDate(data.preferred_date)}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Time:</strong> ${data.preferred_time}</p>
+          <p style="margin:0 "><strong>Appointment Type:</strong> ${data.appointment_type}</p>
+          ${data.message ? `<p style="margin:12px 0 0"><strong>Client Message:</strong></p><p style="margin:6px 0 0; white-space:pre-line">${data.message}</p>` : ''}
+                </div>
+        <div style="margin-top:18px; padding:16px; background:rgba(212,175,55,0.08); border:1px solid ${COLORS.gold}; border-radius:8px;">
+          <h3 style="margin:0 0 8px; color:${COLORS.navy}">Action Required</h3>
+          <p style="margin:0; color:${COLORS.subtext}">Please log into your staff dashboard to view details and proceed with assignment.</p>
+              </div>
+        <div style="text-align:center; margin-top:20px;">
+          <a href="${data.dashboard_url || 'https://ogetto-otachi-law-firm.web.app/login'}" style="display:inline-block; background:${COLORS.gold}; color:${COLORS.navy}; text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:600;">Open Staff Dashboard</a>
+            </div>
+          </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
+            </div>
+    `,
+    text: `Dear ${name || 'Staff Member'},\n\nNew appointment request received.\n\nClient: ${data.client_name}\nEmail: ${data.client_email}\nPractice Area: ${data.practice_area}\nPreferred Date: ${formatDayAndDate(data.preferred_date)}\nPreferred Time: ${data.preferred_time}\nType: ${data.appointment_type}${data.message ? `\nMessage: ${data.message}` : ''}\n\nPlease log into the staff dashboard to view details and proceed with assignment.`,
+  }
+}
+
+function adminNotificationTemplate(name: string, data: any) {
+  // Distinct admin copy and CTA
+      return {
+    subject: `New Appointment Request from ${data.client_name} — Admin Notification`,
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.gold} 0%, ${COLORS.navy} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px;">New Appointment — Admin Notification</h1>
+        <p style="margin:6px 0 0; opacity:.9">Hello ${name || 'Administrator'}, a new client appointment request has been submitted.</p>
+            </div>
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.gold}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Client Name:</strong> ${data.client_name}</p>
+          <p style="margin:0 0 6px"><strong>Client Email:</strong> ${data.client_email}</p>
+          <p style="margin:0 0 6px"><strong>Practice Area:</strong> ${data.practice_area}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Date:</strong> ${formatDayAndDate(data.preferred_date)}</p>
+          <p style="margin:0 0 6px"><strong>Preferred Time:</strong> ${data.preferred_time}</p>
+          <p style="margin:0 "><strong>Appointment Type:</strong> ${data.appointment_type}</p>
+          ${data.message ? `<p style="margin:12px 0 0"><strong>Client Message:</strong></p><p style="margin:6px 0 0; white-space:pre-line">${data.message}</p>` : ''}
+              </div>
+        <div style="margin-top:18px; padding:16px; background:rgba(26,54,93,0.06); border:1px solid ${COLORS.navy}; border-radius:8px;">
+          <h3 style="margin:0 0 8px; color:${COLORS.navy}">Admin Actions</h3>
+          <ul style="margin:0; padding-left:18px; color:${COLORS.subtext}">
+            <li>Review the request details</li>
+            <li>Ensure staffing capacity and assignment rules</li>
+            <li>Monitor SLA for confirmation communications</li>
+          </ul>
+            </div>
+        <div style="text-align:center; margin-top:20px;">
+          <a href="${data.admin_dashboard_url || 'https://ogetto-otachi-law-firm.web.app/login'}" style="display:inline-block; background:${COLORS.navy}; color:#fff; text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:600;">Open Admin Dashboard</a>
+            </div>
+          </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
+            </div>
+    `,
+    text: `Dear ${name || 'Administrator'},\n\nNew appointment request received.\n\nClient: ${data.client_name}\nEmail: ${data.client_email}\nPractice Area: ${data.practice_area}\nPreferred Date: ${formatDayAndDate(data.preferred_date)}\nPreferred Time: ${data.preferred_time}\nType: ${data.appointment_type}${data.message ? `\nMessage: ${data.message}` : ''}\n\nPlease log into the admin dashboard to review and ensure timely processing.`,
+  }
+}
+
+function pickMessage(data: any): string {
+  console.log('🔍 pickMessage data:', JSON.stringify(data, null, 2))
+  const candidates = [
+    data?.message,
+    data?.text,
+    data?.body,
+    data?.content,
+    data?.message_text,
+    data?.msg,
+    data?.bodyText,
+    data?.contactMessage,
+    data?.contact_message,
+  ]
+  console.log('🔍 pickMessage candidates:', candidates)
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim().length > 0) {
+      console.log('✅ pickMessage found:', c)
+      return c
+    }
+  }
+  console.log('❌ pickMessage no valid message found, returning —')
+  return '—'
+}
+
+function getLastName(fullName?: string, fallback?: string): string {
+  if (typeof fullName !== 'string' || fullName.trim().length === 0) return fallback || ''
+  const parts = fullName.trim().split(/\s+/)
+  const last = parts[parts.length - 1]
+  return last || (fallback || '')
+}
+
+function contactStaffTemplate(name: string, data: any) {
+  return {
+    subject: `New Contact Message — Staff Notification`,
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.navy} 0%, ${COLORS.primary} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px;">New Contact Message</h1>
+        <p style="margin:6px 0 0; opacity:.9">Hello ${name || 'Staff Member'}, a potential client has sent a message.</p>
+      </div>
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.primary}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Name:</strong> ${data.senderName}</p>
+          <p style="margin:0 0 6px"><strong>Email:</strong> ${data.senderEmail}</p>
+          <p style="margin:0 0 6px"><strong>Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
+          <p style="margin:0 0 6px"><strong>Subject:</strong> ${data.subject || '—'}</p>
+          <p style="margin:12px 0 0"><strong>Message:</strong></p>
+          <p style="margin:6px 0 0; white-space:pre-line">${pickMessage(data)}</p>
+        </div>
+        <div style="margin-top:18px; padding:16px; background:rgba(212,175,55,0.08); border:1px solid ${COLORS.gold}; border-radius:8px;">
+          <p style="margin:0; color:${COLORS.subtext}">Please follow up within the SLA.</p>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
+    </div>
+    `,
+    text: `New contact message.\n\nName: ${data.senderName}\nEmail: ${data.senderEmail}\nPhone: ${data.senderPhone || 'Not provided'}\nSubject: ${data.subject || '—'}\n\n${pickMessage(data)}`,
+  }
+}
+
+function contactAdminTemplate(name: string, data: any) {
+  return {
+    subject: `New Contact Message — Admin Notification`,
+    html: `
+    <div style="font-family: 'Open Sans', Arial, sans-serif; max-width: 680px; margin:0 auto; color:${COLORS.text};">
+      <div style="background: linear-gradient(135deg, ${COLORS.gold} 0%, ${COLORS.navy} 100%); padding:28px 24px; color:#fff; border-radius:12px 12px 0 0;">
+        <h1 style="margin:0; font-size:22px; letter-spacing:0.3px;">New Contact Message</h1>
+        <p style="margin:6px 0 0; opacity:.9">Hello ${name || 'Administrator'}, a potential client has sent a message.</p>
+      </div>
+      <div style="background:#fff; border:1px solid ${COLORS.border}; border-top:0; border-radius:0 0 12px 12px; padding:24px;">
+        <div style="background:${COLORS.light}; border:1px solid ${COLORS.border}; border-left:4px solid ${COLORS.gold}; border-radius:8px; padding:16px;">
+          <p style="margin:0 0 6px"><strong>Name:</strong> ${data.senderName}</p>
+          <p style="margin:0 0 6px"><strong>Email:</strong> ${data.senderEmail}</p>
+          <p style="margin:0 0 6px"><strong>Phone:</strong> ${data.senderPhone || 'Not provided'}</p>
+          <p style="margin:0 0 6px"><strong>Subject:</strong> ${data.subject || '—'}</p>
+          <p style="margin:12px 0 0"><strong>Message:</strong></p>
+          <p style="margin:6px 0 0; white-space:pre-line">${pickMessage(data)}</p>
+        </div>
+        <div style="margin-top:18px; padding:16px; background:rgba(26,54,93,0.06); border:1px solid ${COLORS.navy}; border-radius:8px;">
+          <h3 style="margin:0 0 8px; color:${COLORS.navy}">Admin Actions</h3>
+          <ul style="margin:0; padding-left:18px; color:${COLORS.subtext}">
+            <li>Ensure timely response and assignment</li>
+            <li>Track SLA compliance</li>
+          </ul>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:18px; color:${COLORS.subtext}; font-size:12px;">© Ogetto, Otachi & Company Advocates</div>
+    </div>
+    `,
+    text: `New contact message.\n\nName: ${data.senderName}\nEmail: ${data.senderEmail}\nPhone: ${data.senderPhone || 'Not provided'}\nSubject: ${data.subject || '—'}\n\n${pickMessage(data)}`,
+  }
+}
+
+async function sendMail({ to, subject, text, html }: { to: string, subject: string, text: string, html: string }) {
+  const mailjetApiKey = Deno.env.get('MAILJET_API_KEY')
+  const mailjetApiSecret = Deno.env.get('MAILJET_API_SECRET')
+  const senderEmail = Deno.env.get('MAILJET_SENDER_EMAIL') || 'support@anydayessay.com'
+  const senderName = Deno.env.get('MAILJET_SENDER_NAME') || 'Ogetto, Otachi & Company Advocates'
+
+  if (!mailjetApiKey || !mailjetApiSecret) {
+    console.log('⚠️ Mailjet credentials missing; log only', { to, subject })
+    return true
+  }
+
+  const payload = {
+    Messages: [
+      {
+        From: { Email: senderEmail, Name: senderName },
+        To: [{ Email: to, Name: to }],
+        Subject: subject,
+        TextPart: text,
+        HTMLPart: html,
+      },
+    ],
+  }
+
+  const res = await fetch('https://api.mailjet.com/v3.1/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${btoa(`${mailjetApiKey}:${mailjetApiSecret}`)}`,
+    },
+    body: JSON.stringify(payload),
+  })
+  const result = await res.json()
+  if (!res.ok || result?.Messages?.[0]?.Status !== 'success') {
+    console.error('❌ Mailjet error:', result)
+    return false
+  }
+  return true
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
-  // Debug endpoint for local development
-  if (req.method === 'GET') {
-    return new Response(
-      JSON.stringify({ 
-        message: 'send-event-notification Edge Function is running',
-        timestamp: new Date().toISOString()
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
-  }
+  const opt = handleOptions(req)
+  if (opt) return opt
 
   try {
-    console.log('📧 Edge Function called with method:', req.method);
-    
-    // Parse the request body first to check the event type
-    const notificationData: NotificationData = await req.json();
-    console.log('📧 Received notification data:', notificationData);
+    const { event, recipientEmail, recipientName, data, adminEmails = [] } = (await req.json()) as NotificationData
 
-    // Validate required fields
-    if (!notificationData.event || !notificationData.recipientEmail || !notificationData.data) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Missing required fields: event, recipientEmail, or data' 
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    if (!event || !recipientEmail || !data) {
+      return withCorsJson({ success: false, error: 'Missing required fields' }, 400, req)
     }
 
-    // Create a Supabase client with the service role key for admin operations
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'http://127.0.0.1:54321';
-    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-    
-    console.log('🔧 Environment variables:', {
-      hasSupabaseUrl: !!supabaseUrl,
-      hasServiceRoleKey: !!supabaseServiceRoleKey,
-      supabaseUrl: supabaseUrl?.substring(0, 50) + '...',
-    });
-    
-    const supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
+    // Always notify the person booking (client)
+    if (event === 'appointment_booking') {
+      const t = bookingConfirmationTemplate(recipientName || data.client_name, data)
+      await sendMail({ to: recipientEmail, subject: t.subject, text: t.text, html: t.html })
+    }
+
+    // Build recipients with roles (staff + admin)
+    type Recipient = { email: string; role: 'staff' | 'admin'; full_name?: string }
+    let recipients: Recipient[] = []
+
+    const buildFromProfiles = (profiles: Array<{ email: string; role: string; full_name?: string }>) => {
+      const seen = new Set<string>()
+      for (const p of profiles) {
+        const email = (p.email || '').toLowerCase()
+        if (!email || seen.has(email)) continue
+        if (p.role === 'staff' || p.role === 'admin') {
+          recipients.push({ email, role: p.role, full_name: p.full_name })
+          seen.add(email)
+        }
       }
-    })
+    }
 
-    // Check if this event requires authentication
-    const eventsRequiringAuth = ['contact_message_notification', 'new_appointment_notification', 'appointment_assigned', 'appointment_reassigned'];
-    const requiresAuth = eventsRequiringAuth.includes(notificationData.event);
-
-    if (requiresAuth) {
-      // Get the authorization header for events that require authentication
-      const authHeader = req.headers.get('authorization')
-      if (!authHeader) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: 'No authorization header provided for this event type' 
-          }),
-          { 
-            status: 401, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
+    // If explicit list provided, fetch roles for those emails
+    if (Array.isArray(adminEmails) && adminEmails.length > 0) {
+      try {
+        const url = Deno.env.get('SUPABASE_URL')
+        const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+        if (url && key) {
+          const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+          const sb = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+          const { data: profiles, error } = await sb
+            .from('profiles')
+            .select('email, role, full_name')
+            .in('email', adminEmails)
+          if (!error && profiles?.length) buildFromProfiles(profiles as any)
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not fetch staff/admin profiles:', e?.message)
       }
-
-      // Verify the JWT token
-      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''))
-      
-      if (authError || !user) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: 'Invalid or expired token' 
-          }),
-          { 
-            status: 401, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
-
-      console.log('✅ Token verified, user ID:', user.id);
     } else {
-          console.log('✅ Public event (no auth required):', notificationData.event);
-  }
-
-    // Get admin emails for admin notifications
-    if (!notificationData.adminEmails) {
-      const { data: adminProfiles } = await supabaseClient
-        .from('profiles')
-        .select('email')
-        .eq('role', 'admin');
-
-      if (adminProfiles) {
-        notificationData.adminEmails = adminProfiles.map(profile => profile.email);
-      }
-    }
-
-    // Send the email notification
-    const emailSent = await sendEventEmail(notificationData);
-
-    // In local development, return success even if email sending fails so UI can proceed
-    const isLocal = (Deno.env.get('SUPABASE_URL') || '').includes('127.0.0.1') || (Deno.env.get('SUPABASE_URL') || '').includes('localhost');
-
-    if (emailSent || isLocal) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: emailSent ? 'Event notification email sent successfully' : 'Event recorded (local dev fallback)'
-        }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      // No explicit list; pull all staff + admin
+      try {
+        const url = Deno.env.get('SUPABASE_URL')
+        const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+        if (url && key) {
+          const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+          const sb = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+          const { data: profiles, error } = await sb
+            .from('profiles')
+            .select('email, role, full_name')
+            .or('role.eq.admin,role.eq.staff')
+          if (!error && profiles?.length) buildFromProfiles(profiles as any)
         }
-      )
+      } catch (e) {
+        console.warn('⚠️ Could not fetch staff/admin profiles:', e?.message)
+      }
     }
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: 'Failed to send event notification email' 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
 
-  } catch (error) {
-    console.error('❌ Server error:', error);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: 'Internal server error',
-        details: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+    // Send staff notification for new requests/updates
+    if (event === 'appointment_booking' || event === 'new_appointment_notification' || event === 'appointment_update') {
+      const staffTpl = (name: string) => staffNotificationTemplate(name || 'Staff', { ...data, dashboard_url: data.dashboard_url || `${baseUrl}/login` })
+      const adminTpl = (name: string) => adminNotificationTemplate(name || 'Administrator', { ...data, admin_dashboard_url: data.admin_dashboard_url || `${baseUrl}/login` })
+
+      const tasks: Promise<any>[] = []
+      for (const r of recipients) {
+        const lastName = getLastName(r.full_name, r.role === 'admin' ? 'Administrator' : 'Staff')
+        const tpl = r.role === 'admin' ? adminTpl(lastName) : staffTpl(lastName)
+        tasks.push(sendMail({ to: r.email, subject: tpl.subject, text: tpl.text, html: tpl.html }))
       }
-    )
+      const results = await Promise.allSettled(tasks)
+      const ok = results.filter(r => r.status === 'fulfilled' && (r as any).value === true).length
+      return withCorsJson({ success: ok > 0, sent: ok, attempted: recipients.length, admins: recipients.filter(r=>r.role==='admin').length, staff: recipients.filter(r=>r.role==='staff').length }, 200, req)
+    }
+
+    // Contact message notifications to client (sender)
+    if (event === 'contact_message') {
+      const t = contactClientTemplate(recipientName || data.senderName, data)
+      const sent = await sendMail({ to: recipientEmail, subject: t.subject, text: t.text, html: t.html })
+      return withCorsJson({ success: !!sent, sent: sent ? 1 : 0 }, 200, req)
+    }
+
+    // Contact message notifications to staff/admin
+    if (event === 'contact_message_notification' || event === 'contact_message') {
+      const staffTpl = (name: string) => contactStaffTemplate(name, data)
+      const adminTpl = (name: string) => contactAdminTemplate(name, data)
+
+      const tasks: Promise<any>[] = []
+      for (const r of recipients) {
+        const lastName = getLastName(r.full_name, r.role === 'admin' ? 'Administrator' : 'Staff') || (r.role === 'admin' ? 'Administrator' : 'Staff')
+        const tpl = r.role === 'admin' ? adminTpl(lastName) : staffTpl(lastName)
+        tasks.push(sendMail({ to: r.email, subject: tpl.subject, text: tpl.text, html: tpl.html }))
+      }
+      const results = await Promise.allSettled(tasks)
+      const ok = results.filter(r => r.status === 'fulfilled' && (r as any).value === true).length
+      return withCorsJson({ success: ok > 0, sent: ok, attempted: recipients.length, admins: recipients.filter(r=>r.role==='admin').length, staff: recipients.filter(r=>r.role==='staff').length }, 200, req)
+    }
+
+    return withCorsJson({ success: true }, 200, req)
+  } catch (error) {
+    console.error('❌ send-event-notification error:', error)
+    return withCorsJson({ success: false, error: 'Internal server error' }, 500, req)
   }
-}) 
+})
+
+

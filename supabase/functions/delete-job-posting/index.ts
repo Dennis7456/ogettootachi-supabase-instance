@@ -1,15 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
 serve(async (req) => {
+  console.log('🔍 Debug: delete-job-posting function called');
+  console.log('🔍 Debug: Request method:', req.method);
+  console.log('🔍 Debug: Request URL:', req.url);
+  
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  const optionsResponse = handleOptions(req);
+  if (optionsResponse) {
+    console.log('🔍 Debug: Handling OPTIONS request');
+    return optionsResponse;
   }
 
   try {
@@ -27,42 +29,35 @@ serve(async (req) => {
     // Get job ID from URL
     const url = new URL(req.url)
     const jobId = url.searchParams.get('id')
+    console.log('🔍 Debug: Job ID from URL:', jobId);
 
     if (!jobId) {
       throw new Error('Job ID is required')
     }
 
     // Call the database function
+    console.log('🔍 Debug: Calling delete_job_posting with job_id:', jobId);
     const { data, error } = await supabaseClient.rpc('delete_job_posting', {
       job_id: jobId
     })
 
     if (error) {
+      console.log('🔍 Debug: Database function error:', error);
       throw error
     }
 
+    console.log('🔍 Debug: Database function result:', data);
     if (!data) {
       throw new Error('Job posting not found')
     }
 
-    return new Response(
-      JSON.stringify({ 
-        data: { id: jobId },
-        message: 'Job posting deleted successfully' 
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
+    console.log('🔍 Debug: Returning success response');
+    return withCorsJson({ 
+      data: { id: jobId },
+      message: 'Job posting deleted successfully' 
+    }, 200, req)
 
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    )
+    return withCorsJson({ error: error.message }, 400, req)
   }
 }) 

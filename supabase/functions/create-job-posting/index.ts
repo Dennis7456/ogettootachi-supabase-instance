@@ -1,15 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  const optionsResponse = handleOptions(req);
+  if (optionsResponse) {
+    return optionsResponse;
   }
 
   try {
@@ -37,7 +34,7 @@ serve(async (req) => {
       experience_level = 'mid',
       salary_range,
       application_deadline,
-      is_public = true
+      status = 'draft'
     } = body
 
     // Validate required fields
@@ -57,31 +54,19 @@ serve(async (req) => {
       job_experience_level: experience_level,
       job_salary_range: salary_range,
       job_application_deadline: application_deadline,
-      job_is_public: is_public
+      job_status: status
     })
 
     if (error) {
       throw error
     }
 
-    return new Response(
-      JSON.stringify({ 
-        data: { id: data },
-        message: 'Job posting created successfully' 
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 201,
-      }
-    )
+    return withCorsJson({ 
+      data: { id: data },
+      message: 'Job posting created successfully' 
+    }, 201, req)
 
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    )
+    return withCorsJson({ error: error.message }, 400, req)
   }
 }) 

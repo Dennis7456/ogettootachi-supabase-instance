@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+// CORS handled via shared helper
 
 interface EmailData {
   to: string;
@@ -73,51 +71,25 @@ async function sendEmail(emailData: EmailData) {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  const opt = handleOptions(req)
+  if (opt) return opt
 
   try {
     const { to, subject, text, html } = await req.json();
 
     if (!to || !subject || !text) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: to, subject, text' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      return withCorsJson({ error: 'Missing required fields: to, subject, text' }, 400, req)
     }
 
     const success = await sendEmail({ to, subject, text, html });
 
     if (success) {
-      return new Response(
-        JSON.stringify({ success: true, message: 'Email sent successfully' }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      return withCorsJson({ success: true, message: 'Email sent successfully' }, 200, req)
     } else {
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      return withCorsJson({ error: 'Failed to send email' }, 500, req)
     }
   } catch (error) {
     console.error('❌ Error in send-email function:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return withCorsJson({ error: 'Internal server error' }, 500, req)
   }
 }); 

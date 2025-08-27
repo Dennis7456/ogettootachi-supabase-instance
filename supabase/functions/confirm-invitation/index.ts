@@ -53,7 +53,7 @@ serve(async (req) => {
     const { data: invitation, error: findError } = await supabaseClient
       .from('user_invitations')
       .select('*')
-      .eq('token', token)
+      .eq('invitation_token', token)
       .eq('status', 'pending')
       .single()
 
@@ -143,7 +143,6 @@ serve(async (req) => {
     const { error: updateProfileError } = await supabaseClient
       .from('profiles')
       .update({ 
-        email_confirmed: true,
         is_active: true
       })
       .eq('id', user.id)

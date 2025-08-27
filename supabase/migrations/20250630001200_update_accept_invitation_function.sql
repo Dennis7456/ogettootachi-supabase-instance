@@ -19,7 +19,7 @@ BEGIN
   -- Find the invitation
   SELECT * INTO invitation_record
   FROM user_invitations
-  WHERE invitation_token = accept_user_invitation.invitation_token
+  WHERE invitation_token = $1
     AND accepted_at IS NULL
     AND expires_at > NOW();
   

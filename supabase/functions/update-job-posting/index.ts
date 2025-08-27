@@ -1,25 +1,34 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { handleOptions, withCorsJson } from '../_shared/cors.ts'
 
 serve(async (req) => {
+  console.log('🔍 Debug: update-job-posting function called');
+  console.log('🔍 Debug: Request method:', req.method);
+  console.log('🔍 Debug: Request URL:', req.url);
+  
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  const optionsResponse = handleOptions(req);
+  if (optionsResponse) {
+    console.log('🔍 Debug: Handling OPTIONS request');
+    return optionsResponse;
   }
 
   try {
-    // Create Supabase client
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization')
+    console.log('🔍 Debug: Authorization header exists:', !!authHeader);
+    if (!authHeader) {
+      throw new Error('Authorization header is required')
+    }
+
+    // Create Supabase client with anon key but pass the user's token
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     )
@@ -27,6 +36,7 @@ serve(async (req) => {
     // Get job ID from URL
     const url = new URL(req.url)
     const jobId = url.searchParams.get('id')
+    console.log('🔍 Debug: Job ID from URL:', jobId);
 
     if (!jobId) {
       throw new Error('Job ID is required')
@@ -45,7 +55,6 @@ serve(async (req) => {
       experience_level,
       salary_range,
       application_deadline,
-      is_public,
       status
     } = body
 
@@ -62,7 +71,6 @@ serve(async (req) => {
       job_experience_level: experience_level,
       job_salary_range: salary_range,
       job_application_deadline: application_deadline,
-      job_is_public: is_public,
       job_status: status
     })
 
@@ -74,24 +82,12 @@ serve(async (req) => {
       throw new Error('Job posting not found')
     }
 
-    return new Response(
-      JSON.stringify({ 
-        data: { id: jobId },
-        message: 'Job posting updated successfully' 
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    )
+    return withCorsJson({ 
+      data: { id: jobId },
+      message: 'Job posting updated successfully' 
+    }, 200, req)
 
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
-    )
+    return withCorsJson({ error: error.message }, 400, req)
   }
 }) 
